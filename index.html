@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="id" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Sik-BUMDes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom scrollbar for webkit browsers */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        .dark ::-webkit-scrollbar-track { background: #2d3748; }
+        .dark ::-webkit-scrollbar-thumb { background: #718096; }
+        .dark ::-webkit-scrollbar-thumb:hover { background: #a0aec0; }
+
+        /* Sidebar transition */
+        #sidebar { transition: transform 0.3s ease-in-out; }
+        
+        /* Modal styles */
+        .modal { display: none; }
+        .modal.show { display: flex; }
+
+        /* Theme Variables */
+        :root {
+            --color-primary-start: #2dd4bf; /* teal-400 */
+            --color-primary-end: #3b82f6; /* blue-600 */
+            --color-primary-light: #ccfbf1; /* teal-100 */
+            --color-primary-dark: #115e59; /* teal-800 */
+            --color-primary-text: #0d9488; /* teal-600 */
+            --color-accent-start: #60a5fa; /* blue-400 */
+            --color-accent-end: #a78bfa; /* violet-400 */
+        }
+        
+        /* Print styles */
+        @media print {
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                padding: 2rem;
+                color: black;
+            }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-sans">
+
+    <!-- Activation Modal -->
+    <div id="activation-modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-80 items-center justify-center z-[60]">
+        <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-md text-center">
+            <i class="fas fa-shield-alt fa-3x text-[var(--color-primary-text)] mb-4"></i>
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Aktivasi Aplikasi</h2>
+            
+            <div class="my-4 p-3 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 rounded-lg">
+                <p class="font-bold">Waktu Uji Coba Habis!</p>
+                <p>Silakan masukkan token untuk melanjutkan.</p>
+            </div>
+
+            <div class="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg mb-4">
+                <p class="text-sm text-gray-500 dark:text-gray-300">Serial Number Perangkat Anda:</p>
+                <p id="serial-number" class="font-mono font-bold text-lg text-gray-700 dark:text-gray-200 break-all"></p>
+            </div>
+
+            <form id="activation-form" class="space-y-4">
+                <div>
+                    <label for="token" class="sr-only">Token Aktivasi</label>
+                    <input type="text" id="token" name="token" placeholder="Masukkan Token Aktivasi" class="w-full text-center px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-text)]" required>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-[var(--color-primary-start)] to-[var(--color-primary-end)] text-white font-bold py-2 px-4 rounded-lg transition duration-300">Aktivasi Sekarang</button>
+                <p id="token-error" class="text-red-500 text-sm mt-2 text-center h-4"></p>
+            </form>
+             <button id="request-token-btn" class="mt-4 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 flex items-center justify-center">
+                <i class="fab fa-whatsapp mr-2"></i> Minta Token ke Pengembang
+            </button>
+        </div>
+    </div>
+
+    <!-- Login Page -->
+    <div id="login-page" class="fixed inset-0 bg-gradient-to-br from-[var(--color-primary-start)] to-[var(--color-primary-end)] flex items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-sm">
+            <div class="flex justify-center mb-6">
+                <i class="fas fa-landmark fa-3x text-[var(--color-primary-text)]"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-center text-gray-800 dark:text-white mb-2">Sik-BUMDes Login</h2>
+            <p class="text-center text-gray-500 dark:text-gray-400 mb-6">Selamat Datang Kembali</p>
+            <form id="login-form">
+                <div class="mb-4">
+                    <label for="username" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">Username</label>
+                    <input type="text" id="username" name="username" class="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-text)]" required>
+                </div>
+                <div class="mb-6">
+                    <label for="password" class="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">Password</label>
+                    <input type="password" id="password" name="password" class="w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-text)]" required>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-[var(--color-primary-start)] to-[var(--color-primary-end)] text-white font-bold py-2 px-4 rounded-lg transition duration-300">Login</button>
+                <p id="login-error" class="text-red-500 text-sm mt-4 text-center"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Application Wrapper -->
+    <div id="app-wrapper" class="hidden">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="bg-white dark:bg-gray-800 text-gray-800 dark:text-white w-64 fixed inset-y-0 left-0 z-40 shadow-lg transform -translate-x-full lg:translate-x-0 flex flex-col">
+            <div class="p-4 flex items-center justify-center border-b border-gray-200 dark:border-gray-700">
+                <i class="fas fa-landmark fa-2x text-[var(--color-primary-text)] mr-3"></i>
+                <h1 class="text-2xl font-bold">Sik-BUMDes</h1>
+            </div>
+            <nav class="p-4 flex-1 overflow-y-auto">
+                <ul class="space-y-2">
+                    <li><a href="#home" class="nav-link active flex items-center p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white transition-colors"><i class="fas fa-home w-6 mr-3"></i>Dashboard</a></li>
+                    <li><a href="#input-data" class="nav-link flex items-center p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white transition-colors"><i class="fas fa-keyboard w-6 mr-3"></i>Input Data</a></li>
+                    <li><a href="#unit-usaha" class="nav-link flex items-center p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white transition-colors"><i class="fas fa-store w-6 mr-3"></i>Unit Usaha</a></li>
+                    <li><a href="#laporan" class="nav-link flex items-center p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white transition-colors"><i class="fas fa-file-alt w-6 mr-3"></i>Laporan</a></li>
+                    <li><a href="#administrasi" class="nav-link flex items-center p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white transition-colors"><i class="fas fa-folder-open w-6 mr-3"></i>Administrasi</a></li>
+                    <li><a href="#pengaturan" class="nav-link flex items-center p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white transition-colors"><i class="fas fa-cog w-6 mr-3"></i>Pengaturan</a></li>
+                    <li><a href="#bantuan" class="nav-link flex items-center p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white transition-colors"><i class="fas fa-question-circle w-6 mr-3"></i>Bantuan</a></li>
+                </ul>
+            </nav>
+            <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+                 <a href="#" id="logout-btn" class="flex items-center justify-center p-3 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors"><i class="fas fa-sign-out-alt w-6 mr-3"></i>Logout</a>
+            </div>
+        </aside>
+
+        <div id="main-wrapper" class="flex flex-col flex-1 lg:ml-64">
+            <!-- Header -->
+            <header class="bg-white dark:bg-gray-800 shadow-md p-4 flex justify-between items-center sticky top-0 z-30 no-print">
+                <div class="flex items-center">
+                     <button id="menu-toggle" class="text-gray-600 dark:text-gray-300 focus:outline-none">
+                        <i class="fas fa-bars fa-lg"></i>
+                    </button>
+                    <h2 id="page-title" class="text-xl font-semibold ml-4">Dashboard</h2>
+                </div>
+                <div class="flex items-center">
+                    <button id="theme-toggle" class="mr-4 text-gray-600 dark:text-gray-300 focus:outline-none">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div id="user-info" class="text-right">
+                        <p class="font-semibold">Nama Pengguna</p>
+                        <p class="text-sm text-gray-500">Peran</p>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main id="main-content" class="flex-1 p-6 overflow-y-auto">
+                
+                <!-- Home Page -->
+                <div id="home-page" class="page">
+                    <!-- BUMDes Header -->
+                    <div class="bg-gradient-to-r from-[var(--color-primary-start)] to-[var(--color-primary-end)] text-white p-6 rounded-xl shadow-lg mb-6">
+                        <div class="flex items-center">
+                            <img id="dashboard-logo" src="https://placehold.co/80x80/FFFFFF/333333?text=Logo" alt="Logo BUMDes" class="w-20 h-20 rounded-full mr-6">
+                            <div>
+                                <h2 id="dashboard-nama-bumdes" class="text-3xl font-bold">Nama BUMDes</h2>
+                                <p id="dashboard-alamat" class="mt-1">Alamat Lengkap BUMDes</p>
+                                <p id="dashboard-ahu" class="text-sm bg-white text-[var(--color-primary-text)] font-bold px-3 py-1 rounded-full inline-block mt-2">Nomor AHU: -</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Financial Summary Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                        <div class="bg-gradient-to-br from-teal-400 to-emerald-500 text-white p-5 rounded-xl shadow-md flex items-center">
+                            <div class="bg-white/20 p-4 rounded-full mr-4"><i class="fas fa-wallet fa-2x"></i></div>
+                            <div><p class="font-light">Total Aktiva</p><p id="summary-aktiva" class="text-2xl font-bold">Rp 0</p></div>
+                        </div>
+                        <div class="bg-gradient-to-br from-sky-400 to-blue-500 text-white p-5 rounded-xl shadow-md flex items-center">
+                            <div class="bg-white/20 p-4 rounded-full mr-4"><i class="fas fa-balance-scale fa-2x"></i></div>
+                            <div><p class="font-light">Total Pasiva</p><p id="summary-pasiva" class="text-2xl font-bold">Rp 0</p></div>
+                        </div>
+                        <div class="bg-gradient-to-br from-amber-400 to-orange-500 text-white p-5 rounded-xl shadow-md flex items-center">
+                            <div class="bg-white/20 p-4 rounded-full mr-4"><i class="fas fa-arrow-up fa-2x"></i></div>
+                            <div><p class="font-light">Pendapatan Bulan Ini</p><p id="summary-pendapatan" class="text-2xl font-bold">Rp 0</p></div>
+                        </div>
+                        <div class="bg-gradient-to-br from-rose-400 to-red-500 text-white p-5 rounded-xl shadow-md flex items-center">
+                            <div class="bg-white/20 p-4 rounded-full mr-4"><i class="fas fa-arrow-down fa-2x"></i></div>
+                            <div><p class="font-light">Biaya Bulan Ini</p><p id="summary-biaya" class="text-2xl font-bold">Rp 0</p></div>
+                        </div>
+                    </div>
+
+                    <!-- Charts and Info -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                            <h3 class="font-semibold mb-4">Grafik Laba/Rugi (6 Bulan Terakhir)</h3>
+                            <canvas id="labaRugiChart"></canvas>
+                        </div>
+                        <div class="space-y-6">
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                                <h3 class="font-semibold mb-4">Informasi Singkat</h3>
+                                <div class="space-y-3">
+                                    <div class="flex justify-between items-center"><span><i class="fas fa-users text-blue-500 mr-2"></i> Pelanggan/Anggota</span><span id="info-pelanggan" class="font-bold">0</span></div>
+                                    <div class="flex justify-between items-center"><span><i class="fas fa-exchange-alt text-green-500 mr-2"></i> Transaksi Hari Ini</span><span id="info-transaksi" class="font-bold">0</span></div>
+                                </div>
+                            </div>
+                            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                                <h3 class="font-semibold mb-4">Notifikasi Penting</h3>
+                                <ul id="notifikasi-list" class="space-y-2 text-sm"><li class="text-gray-500">Tidak ada notifikasi.</li></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Data Page -->
+                <div id="input-data-page" class="page hidden">
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                        <h2 class="text-2xl font-bold mb-4">Input Data Awal & Master</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                             <button id="btn-show-identitas" class="bg-[var(--color-primary-start)] text-white font-bold py-3 px-4 rounded-lg hover:opacity-90 transition duration-300 flex items-center justify-center"><i class="fas fa-id-card mr-2"></i>Identitas BUMDes</button>
+                            <button id="btn-show-coa" class="bg-blue-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-600 transition duration-300 flex items-center justify-center"><i class="fas fa-list-ol mr-2"></i>Daftar Akun (COA)</button>
+                            <button id="btn-show-jurnal" class="bg-green-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-600 transition duration-300 flex items-center justify-center"><i class="fas fa-book mr-2"></i>Input Jurnal</button>
+                            <button id="btn-show-inventaris" class="bg-purple-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-purple-600 transition duration-300 flex items-center justify-center"><i class="fas fa-boxes mr-2"></i>Input Inventaris</button>
+                            <button id="btn-show-sewa" class="bg-orange-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-orange-600 transition duration-300 flex items-center justify-center"><i class="fas fa-building mr-2"></i>Input Biaya Sewa</button>
+                        </div>
+                        <div id="input-data-content"><p class="text-center text-gray-500">Pilih salah satu tombol di atas untuk memulai.</p></div>
+                    </div>
+                </div>
+
+                <!-- Unit Usaha Page -->
+                <div id="unit-usaha-page" class="page hidden">
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-2xl font-bold">Manajemen Unit Usaha</h2>
+                            <button id="btn-tambah-unit" class="bg-[var(--color-primary-start)] text-white font-bold py-2 px-4 rounded-lg hover:opacity-90 transition duration-300"><i class="fas fa-plus mr-2"></i>Tambah Unit</button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left"><thead class="bg-gray-100 dark:bg-gray-700"><tr><th class="p-3">Nama Unit Usaha</th><th class="p-3">Deskripsi</th><th class="p-3">Aksi</th></tr></thead><tbody id="unit-usaha-table-body"></tbody></table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Laporan Page -->
+                <div id="laporan-page" class="page hidden">
+                     <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                        <h2 class="text-2xl font-bold mb-4">Laporan Keuangan & Operasional</h2>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+                            <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white" data-report="buku-besar">Buku Besar</button>
+                            <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white" data-report="neraca-saldo">Neraca Saldo</button>
+                            <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white" data-report="laba-rugi">Laba Rugi</button>
+                            <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white" data-report="posisi-keuangan">Posisi Keuangan</button>
+                            <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white" data-report="arus-kas">Arus Kas</button>
+                            <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white" data-report="inventaris">Daftar Inventaris</button>
+                            <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white" data-report="biaya-sewa">Biaya Sewa</button>
+                            <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white" data-report="penjualan">Penjualan</button>
+                        </div>
+                        <div id="laporan-controls" class="flex flex-wrap items-center gap-4 mb-4"></div>
+                        <div id="laporan-content" class="border dark:border-gray-700 rounded-lg p-4 min-h-[300px]"><p class="text-center text-gray-500">Pilih jenis laporan untuk ditampilkan.</p></div>
+                    </div>
+                </div>
+
+                <!-- Administrasi Page -->
+                <div id="administrasi-page" class="page hidden">
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                        <h2 class="text-2xl font-bold mb-4">Administrasi & Legalitas</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h3 class="text-lg font-semibold mb-3 border-b pb-2">Dokumen Legalitas</h3>
+                                <form id="form-upload-dokumen" class="space-y-3">
+                                    <select id="select-jenis-dokumen" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"><option value="perdes">Perdes Pendirian</option><option value="adart">AD/ART</option><option value="sk">SK Pengurus</option><option value="sertifikat">Sertifikat Badan Hukum</option></select>
+                                    <input type="file" id="input-file-dokumen" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100">
+                                    <button type="submit" class="bg-[var(--color-primary-start)] text-white font-bold py-2 px-4 rounded-lg hover:opacity-90 w-full">Upload Dokumen</button>
+                                </form>
+                                <div id="list-dokumen" class="mt-4 space-y-2"></div>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold mb-3 border-b pb-2">Catatan Musyawarah Desa</h3>
+                                <form id="form-musyawarah" class="space-y-3">
+                                    <input type="hidden" name="musyawarahId">
+                                    <input type="date" id="input-tanggal-musyawarah" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600">
+                                    <textarea id="input-hasil-musyawarah" rows="3" placeholder="Hasil Keputusan..." class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"></textarea>
+                                    <button type="submit" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 w-full">Simpan Catatan</button>
+                                </form>
+                                <div id="list-musyawarah" class="mt-4 space-y-4 max-h-60 overflow-y-auto"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pengaturan Page -->
+                <div id="pengaturan-page" class="page hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                             <div class="flex justify-between items-center mb-4">
+                                <h2 class="text-xl font-bold">Manajemen Pengguna</h2>
+                                <button id="btn-tambah-pengguna" class="bg-[var(--color-primary-start)] text-white font-bold py-2 px-4 rounded-lg hover:opacity-90"><i class="fas fa-plus mr-2"></i>Tambah</button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left"><thead class="bg-gray-100 dark:bg-gray-700"><tr><th class="p-3">Username</th><th class="p-3">Peran</th><th class="p-3">Aksi</th></tr></thead><tbody id="pengguna-table-body"></tbody></table>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md space-y-6">
+                            <div>
+                                <h2 class="text-xl font-bold mb-2">Upload Logo BUMDes</h2>
+                                <div class="flex items-center space-x-4">
+                                    <img id="logo-preview" src="https://placehold.co/80x80/e2e8f0/333333?text=Logo" class="w-20 h-20 rounded-full">
+                                    <input type="file" id="logo-upload" accept="image/*" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100"/>
+                                </div>
+                                 <button id="btn-simpan-logo" class="mt-2 bg-[var(--color-primary-start)] text-white font-bold py-2 px-4 rounded-lg hover:opacity-90">Simpan Logo</button>
+                            </div>
+                             <div>
+                                <h2 class="text-xl font-bold mb-2">Tema Aplikasi</h2>
+                                <div id="theme-selector" class="flex flex-wrap gap-3">
+                                    <button data-theme="default" class="theme-btn w-12 h-12 rounded-full bg-gradient-to-br from-teal-400 to-blue-600 border-2"></button>
+                                    <button data-theme="sunset" class="theme-btn w-12 h-12 rounded-full bg-gradient-to-br from-orange-400 to-rose-500 border-2"></button>
+                                    <button data-theme="forest" class="theme-btn w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 border-2"></button>
+                                    <button data-theme="ocean" class="theme-btn w-12 h-12 rounded-full bg-gradient-to-br from-blue-700 to-indigo-900 border-2"></button>
+                                    <button data-theme="orchid" class="theme-btn w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-violet-600 border-2"></button>
+                                </div>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold mb-2">Data Aplikasi</h2>
+                                <div class="flex space-x-4">
+                                    <button id="btn-backup-data" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 flex-1"><i class="fas fa-download mr-2"></i>Backup Data</button>
+                                    <label for="restore-upload" class="bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 flex-1 text-center cursor-pointer"><i class="fas fa-upload mr-2"></i>Restore Data</label>
+                                    <input type="file" id="restore-upload" class="hidden" accept=".json">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bantuan Page -->
+                <div id="bantuan-page" class="page hidden">
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                        <h2 class="text-2xl font-bold mb-4">Bantuan & FAQ</h2>
+                        <div class="space-y-4">
+                            <div><h3 class="font-semibold">Bagaimana cara memulai?</h3><p>Mulai dengan mengisi 'Identitas BUMDes' di menu 'Input Data'. Selanjutnya, periksa dan sesuaikan 'Daftar Akun (COA)' jika perlu. Setelah itu, Anda bisa mulai mencatat transaksi melalui 'Input Jurnal'.</p></div>
+                            <div><h3 class="font-semibold">Bagaimana cara melihat laporan?</h3><p>Pergi ke menu 'Laporan', lalu pilih jenis laporan yang ingin Anda lihat (misal: Laba Rugi). Anda bisa mengatur periode laporan dan mencetaknya.</p></div>
+                            <div><h3 class="font-semibold">Apakah data saya aman?</h3><p>Semua data disimpan di browser Anda (localStorage). Data tidak dikirim ke server manapun. Untuk keamanan, lakukan 'Backup Data' secara berkala melalui menu 'Pengaturan'.</p></div>
+                        </div>
+                        <div class="mt-8 text-center">
+                            <a href="https://wa.me/6281234567890?text=Halo%20Admin%20Sik-BUMDes,%20saya%20butuh%20bantuan." target="_blank" class="bg-green-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-600 transition duration-300 inline-flex items-center"><i class="fab fa-whatsapp mr-2"></i>Chat Administrator</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <footer class="text-center text-sm text-gray-500 mt-8 pb-4">©2025 Sinar Jaya Digital Solusi </footer>
+            </main>
+        </div>
+    </div>
+    
+    <div id="modal-container"></div>
+    <div id="print-area" class="hidden"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- GLOBAL STATE ---
+    let sikBumdesData;
+    let labaRugiChart;
+
+    // --- UTILITY FUNCTIONS ---
+    const formatCurrency = (amount) => {
+        if (typeof amount !== 'number') return 'Rp 0';
+        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
+    };
+    const el = (selector) => document.querySelector(selector);
+    const all = (selector) => document.querySelectorAll(selector);
+
+    function showNotification(message, type = 'success') {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-5 right-5 p-4 rounded-lg shadow-lg text-white z-[101] transition-transform transform translate-x-full ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => { notification.classList.remove('translate-x-full'); }, 100);
+        setTimeout(() => {
+            notification.classList.add('translate-x-full');
+            setTimeout(() => notification.remove(), 500);
+        }, 3000);
+    }
+
+    // --- THEME MANAGEMENT ---
+    const themes = {
+        default: { '--color-primary-start': '#2dd4bf', '--color-primary-end': '#3b82f6', '--color-primary-text': '#0d9488' },
+        sunset: { '--color-primary-start': '#fb923c', '--color-primary-end': '#f43f5e', '--color-primary-text': '#f97316' },
+        forest: { '--color-primary-start': '#4ade80', '--color-primary-end': '#059669', '--color-primary-text': '#16a34a' },
+        ocean: { '--color-primary-start': '#38bdf8', '--color-primary-end': '#4338ca', '--color-primary-text': '#1d4ed8' },
+        orchid: { '--color-primary-start': '#c084fc', '--color-primary-end': '#7c3aed', '--color-primary-text': '#9333ea' },
+    };
+
+    function applyTheme(themeName) {
+        const theme = themes[themeName] || themes.default;
+        const root = document.documentElement;
+        for (const [key, value] of Object.entries(theme)) {
+            root.style.setProperty(key, value);
+        }
+        localStorage.setItem('sikBumdesTheme', themeName);
+
+        all('.theme-btn').forEach(btn => {
+            btn.classList.remove('border-gray-800', 'dark:border-white', 'border-opacity-100');
+            btn.classList.add('border-transparent');
+            if (btn.dataset.theme === themeName) {
+                btn.classList.remove('border-transparent');
+                btn.classList.add('border-gray-800', 'dark:border-white', 'border-opacity-100');
+            }
+        });
+    }
+
+    // --- LICENSE MANAGEMENT ---
+    function handleLicensing() {
+        const MASTER_TOKEN = "BUMDES-PRO-2025-AKTIF";
+        let licenseInfo = JSON.parse(localStorage.getItem('sikBumdesLicense')) || {};
+
+        if (licenseInfo.isActivated) {
+            startMainApp();
+            return true; // Licensed
+        }
+
+        // If trial has started, check if it's expired
+        if (licenseInfo.trialStartTime) {
+            const trialDuration = 60 * 60 * 1000; // 60 minutes
+            const elapsed = Date.now() - licenseInfo.trialStartTime;
+
+            if (elapsed >= trialDuration) {
+                // Trial has expired, show modal and block app
+                const serialNumberEl = el('#serial-number');
+                const activationModal = el('#activation-modal');
+                const activationForm = el('#activation-form');
+                const tokenErrorEl = el('#token-error');
+                const requestTokenBtn = el('#request-token-btn');
+
+                serialNumberEl.textContent = licenseInfo.serialNumber;
+                activationModal.classList.add('show');
+                
+                activationForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    tokenErrorEl.textContent = '';
+                    const enteredToken = e.target.token.value.trim();
+
+                    if (enteredToken === MASTER_TOKEN) {
+                        licenseInfo.isActivated = true;
+                        delete licenseInfo.trialStartTime;
+                        localStorage.setItem('sikBumdesLicense', JSON.stringify(licenseInfo));
+                        
+                        activationModal.classList.remove('show');
+                        showNotification('Aplikasi berhasil diaktivasi!', 'success');
+                        startMainApp();
+                    } else {
+                        tokenErrorEl.textContent = 'Token aktivasi salah atau tidak valid.';
+                    }
+                });
+                
+                requestTokenBtn.addEventListener('click', () => {
+                    const serial = licenseInfo.serialNumber;
+                    const text = `Halo, saya ingin meminta token aktivasi untuk Aplikasi Sik-BUMDes dengan Serial Number:\n\n${serial}`;
+                    
+                    const textarea = document.createElement('textarea');
+                    textarea.value = serial;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    showNotification('Serial Number telah disalin ke clipboard!');
+
+                    const waUrl = `https://wa.me/6281991810355?text=${encodeURIComponent(text)}`;
+                    window.open(waUrl, '_blank');
+                });
+
+                return false; // Not licensed, block app
+            }
+        }
+        
+        // If not activated and trial not expired (or not started), allow access
+        startMainApp();
+        return true;
+    }
+
+
+    // --- INITIALIZATION & DATA HANDLING ---
+    function startMainApp() {
+        sikBumdesData = JSON.parse(localStorage.getItem('sikBumdesData'));
+        if (!sikBumdesData) {
+            sikBumdesData = getDefaultData();
+            saveData();
+        }
+        
+        const savedTheme = localStorage.getItem('sikBumdesTheme') || 'default';
+        applyTheme(savedTheme);
+
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            el('#theme-toggle i').classList.replace('fa-moon', 'fa-sun');
+        } else {
+            document.documentElement.classList.remove('dark');
+            el('#theme-toggle i').classList.replace('fa-sun', 'fa-moon');
+        }
+
+        const loggedInUser = JSON.parse(sessionStorage.getItem('loggedInUser'));
+        if (loggedInUser) {
+            showApp();
+            updateUserInfo(loggedInUser);
+            navigateTo('home');
+        } else {
+            showLogin();
+        }
+    }
+
+    function getDefaultData() {
+        return {
+            identitas: {
+                nama: "BUMDes Desa Mandiri", status: "BUMDesa", ahu: "AHU-12345.AH.01.01",
+                alamat: { desa: "Desa Mandiri", kec: "Kec. Sejahtera", kab: "Kab. Maju", prov: "Prov. Indonesia", jalan: "Jl. Pembangunan No. 1" },
+                penasihat: { nama: "", hp: "", alamat: "" },
+                pengelola: {
+                    direktur: { nama: "John Doe", hp: "", alamat: "" },
+                    sekretaris: { nama: "", hp: "", alamat: "" },
+                    bendahara: { nama: "", hp: "", alamat: "" },
+                },
+                pengawas: [{ nama: "", hp: "", alamat: "" }],
+                pendamping: { 
+                    desa: { nama: "", hp: "", alamat: "" }, 
+                    lokal: { nama: "", hp: "", alamat: "" } 
+                }
+            },
+            coa: [
+                { no: '1.1.01.01', nama: 'Kas' }, { no: '1.1.02.01', nama: 'Bank' },
+                { no: '1.2.01.05', nama: 'Inventaris Kantor' }, { no: '1.2.01.10', nama: 'Akum. Penyusutan Inventaris' },
+                { no: '2.1.01.01', nama: 'Utang Usaha' }, { no: '3.1.01.01', nama: 'Modal Desa' },
+                { no: '4.1.01.01', nama: 'Pendapatan Jasa' }, { no: '5.1.01.01', nama: 'Biaya Gaji' },
+                { no: '5.1.08.36', nama: 'Biaya Penyusutan Inventaris' }
+            ],
+            jurnal: [],
+            jurnalCounter: {},
+            inventaris: [],
+            biayaSewa: [],
+            unitUsaha: [{ id: 'utama', nama: 'Kantor Utama', deskripsi: 'Kegiatan operasional utama BUMDes' }],
+            dokumen: { perdes: null, adart: null, sk: null, sertifikat: null },
+            musyawarah: [],
+            pengguna: [{ username: 'admin', password: 'password', peran: 'Admin' }],
+            pengaturan: { logo: 'https://placehold.co/80x80/FFFFFF/333333?text=Logo' }
+        };
+    }
+
+    function saveData() {
+        localStorage.setItem('sikBumdesData', JSON.stringify(sikBumdesData));
+    }
+
+    // --- AUTHENTICATION ---
+    function showLogin() {
+        el('#login-page').style.display = 'flex';
+        el('#app-wrapper').classList.add('hidden');
+    }
+
+    function showApp() {
+        el('#login-page').style.display = 'none';
+        el('#app-wrapper').classList.remove('hidden');
+    }
+    
+    function updateUserInfo(user) {
+        const userInfo = el('#user-info');
+        userInfo.querySelector('p:first-child').textContent = user.username;
+        userInfo.querySelector('p:last-child').textContent = user.peran;
+    }
+
+    el('#login-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const username = e.target.username.value;
+        const password = e.target.password.value;
+        const user = sikBumdesData.pengguna.find(u => u.username === username && u.password === password);
+
+        if (user) {
+            // --- Start Trial on First Successful Login ---
+            let licenseInfo = JSON.parse(localStorage.getItem('sikBumdesLicense')) || {};
+            if (!licenseInfo.trialStartTime && !licenseInfo.isActivated) {
+                if (!licenseInfo.serialNumber) {
+                    licenseInfo.serialNumber = crypto.randomUUID();
+                }
+                licenseInfo.trialStartTime = Date.now();
+                localStorage.setItem('sikBumdesLicense', JSON.stringify(licenseInfo));
+            }
+
+            sessionStorage.setItem('loggedInUser', JSON.stringify(user));
+            el('#login-error').textContent = '';
+            showApp();
+            updateUserInfo(user);
+            navigateTo('home');
+        } else {
+            el('#login-error').textContent = 'Username atau password salah.';
+        }
+    });
+
+    el('#logout-btn').addEventListener('click', (e) => {
+        e.preventDefault();
+        sessionStorage.removeItem('loggedInUser');
+        showLogin();
+    });
+
+    // --- NAVIGATION & UI ---
+    function navigateTo(pageId) {
+        all('.page').forEach(page => page.classList.add('hidden'));
+        el(`#${pageId}-page`).classList.remove('hidden');
+        
+        all('.nav-link').forEach(link => link.classList.remove('active', 'bg-[var(--color-primary-start)]', 'text-white'));
+        const activeLink = el(`.nav-link[href="#${pageId}"]`);
+        if (activeLink) {
+            activeLink.classList.add('active', 'bg-[var(--color-primary-start)]', 'text-white');
+            el('#page-title').textContent = activeLink.textContent;
+        }
+
+        switch (pageId) {
+            case 'home': renderDashboard(); break;
+            case 'unit-usaha': renderUnitUsahaTable(); break;
+            case 'administrasi': renderDokumenList(); renderMusyawarahList(); break;
+            case 'pengaturan': renderPenggunaTable(); loadPengaturan(); break;
+        }
+    }
+
+    all('.nav-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const pageId = link.getAttribute('href').substring(1);
+            navigateTo(pageId);
+            if (window.innerWidth < 1024) { el('#sidebar').classList.add('-translate-x-full'); }
+        });
+    });
+    
+    el('#menu-toggle').addEventListener('click', () => { el('#sidebar').classList.toggle('-translate-x-full'); });
+
+    el('#theme-toggle').addEventListener('click', () => {
+        const html = document.documentElement;
+        html.classList.toggle('dark');
+        const isDark = html.classList.contains('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        el('#theme-toggle i').classList.toggle('fa-moon', !isDark);
+        el('#theme-toggle i').classList.toggle('fa-sun', isDark);
+    });
+
+    // --- DASHBOARD ---
+    function renderDashboard() {
+        const { identitas, pengaturan, jurnal } = sikBumdesData;
+        el('#dashboard-logo').src = pengaturan.logo;
+        el('#dashboard-nama-bumdes').textContent = identitas.nama;
+        el('#dashboard-alamat').textContent = identitas.alamat ? `${identitas.alamat.jalan}, ${identitas.alamat.desa}` : 'Alamat BUMDes';
+        el('#dashboard-ahu').textContent = `Nomor AHU: ${identitas.ahu || '-'}`;
+
+        const { totals } = calculateLedger(jurnal);
+        const aktiva = (totals['1'] || 0);
+        const pasiva = (totals['2'] || 0) + (totals['3'] || 0);
+        
+        const now = new Date();
+        const { pendapatan, biaya } = calculateMonthlyTotals(jurnal, now.getFullYear(), now.getMonth());
+
+        el('#summary-aktiva').textContent = formatCurrency(aktiva);
+        el('#summary-pasiva').textContent = formatCurrency(pasiva);
+        el('#summary-pendapatan').textContent = formatCurrency(pendapatan);
+        el('#summary-biaya').textContent = formatCurrency(biaya);
+        
+        const todayStr = new Date().toISOString().slice(0, 10);
+        const transaksiHariIni = jurnal.filter(j => j.tanggal === todayStr).reduce((acc, curr) => acc.add(curr.bukti), new Set()).size;
+        el('#info-transaksi').textContent = transaksiHariIni;
+
+        renderLabaRugiChart();
+    }
+
+    function calculateLedger(jurnalData) {
+        const ledger = {};
+        jurnalData.forEach(entry => {
+            if (!ledger[entry.akunNo]) {
+                ledger[entry.akunNo] = { debit: 0, credit: 0, balance: 0 };
+            }
+            ledger[entry.akunNo].debit += entry.debit;
+            ledger[entry.akunNo].credit += entry.credit;
+        });
+
+        const totals = {};
+        for (const akunNo in ledger) {
+            const type = akunNo.charAt(0);
+            const { debit, credit } = ledger[akunNo];
+            let balance = 0;
+            if (['1', '5'].includes(type)) { balance = debit - credit; } 
+            else { balance = credit - debit; }
+            ledger[akunNo].balance = balance;
+
+            const mainType = akunNo.charAt(0);
+            if (!totals[mainType]) totals[mainType] = 0;
+            totals[mainType] += balance;
+        }
+        return { ledger, totals };
+    }
+
+    function calculateMonthlyTotals(jurnalData, year, month) {
+        let pendapatan = 0, biaya = 0;
+        jurnalData.forEach(j => {
+            const jDate = new Date(j.tanggal);
+            if (jDate.getFullYear() === year && jDate.getMonth() === month) {
+                if (j.akunNo.startsWith('4')) { pendapatan += j.credit; } 
+                else if (j.akunNo.startsWith('5')) { biaya += j.debit; }
+            }
+        });
+        return { pendapatan, biaya };
+    }
+
+    function renderLabaRugiChart() {
+        const ctx = el('#labaRugiChart').getContext('2d');
+        const labels = [], labaData = [], rugiData = [];
+        const now = new Date();
+        for (let i = 5; i >= 0; i--) {
+            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            labels.push(d.toLocaleString('id-ID', { month: 'short' }));
+            const { pendapatan, biaya } = calculateMonthlyTotals(sikBumdesData.jurnal, d.getFullYear(), d.getMonth());
+            const labaRugi = pendapatan - biaya;
+            labaData.push(labaRugi > 0 ? labaRugi : 0);
+            rugiData.push(labaRugi < 0 ? -labaRugi : 0);
+        }
+
+        if (labaRugiChart) labaRugiChart.destroy();
+        labaRugiChart = new Chart(ctx, {
+            type: 'bar',
+            data: { labels, datasets: [{ label: 'Laba', data: labaData, backgroundColor: 'rgba(75, 192, 192, 0.6)' }, { label: 'Rugi', data: rugiData, backgroundColor: 'rgba(255, 99, 132, 0.6)' }] },
+            options: { responsive: true, scales: { x: { stacked: true }, y: { stacked: true, ticks: { callback: value => formatCurrency(value) } } }, plugins: { tooltip: { callbacks: { label: context => `${context.dataset.label}: ${formatCurrency(context.parsed.y)}` } } } }
+        });
+    }
+
+    // --- INPUT DATA & MASTER ---
+    const inputDataContent = el('#input-data-content');
+    el('#btn-show-identitas').addEventListener('click', () => showIdentitasForm());
+    el('#btn-show-coa').addEventListener('click', () => showCoaTable());
+    el('#btn-show-jurnal').addEventListener('click', () => showJurnalForm());
+    el('#btn-show-inventaris').addEventListener('click', () => showInventarisForm());
+    el('#btn-show-sewa').addEventListener('click', () => showSewaForm());
+
+    function showIdentitasForm() {
+        const { identitas } = sikBumdesData;
+        const formHtml = `
+            <h3 class="text-xl font-semibold mb-4 border-b pb-2">Identitas BUMDes & Kepengurusan</h3>
+            <form id="form-identitas" class="space-y-6">
+                <fieldset class="p-4 border rounded-lg dark:border-gray-600">
+                    <legend class="font-bold px-2">Data Umum</legend>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div><label class="block">Nama BUMDes</label><input type="text" name="nama" value="${identitas.nama || ''}" class="form-input"></div>
+                        <div><label class="block">No. AHU</label><input type="text" name="ahu" value="${identitas.ahu || ''}" class="form-input"></div>
+                        <div><label class="block">Alamat Jalan</label><input type="text" name="jalan" value="${identitas.alamat.jalan || ''}" class="form-input"></div>
+                        <div><label class="block">Desa/Kelurahan</label><input type="text" name="desa" value="${identitas.alamat.desa || ''}" class="form-input"></div>
+                        <div><label class="block">Kecamatan</label><input type="text" name="kec" value="${identitas.alamat.kec || ''}" class="form-input"></div>
+                        <div><label class="block">Kabupaten/Kota</label><input type="text" name="kab" value="${identitas.alamat.kab || ''}" class="form-input"></div>
+                    </div>
+                </fieldset>
+
+                <fieldset class="p-4 border rounded-lg dark:border-gray-600">
+                    <legend class="font-bold px-2">Penasehat (Kepala Desa)</legend>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div><label class="block">Nama</label><input type="text" name="penasihat_nama" value="${identitas.penasihat.nama || ''}" class="form-input"></div>
+                        <div><label class="block">No. Handphone</label><input type="text" name="penasihat_hp" value="${identitas.penasihat.hp || ''}" class="form-input"></div>
+                        <div class="md:col-span-3"><label class="block">Alamat</label><input type="text" name="penasihat_alamat" value="${identitas.penasihat.alamat || ''}" class="form-input"></div>
+                    </div>
+                </fieldset>
+
+                <fieldset class="p-4 border rounded-lg dark:border-gray-600">
+                    <legend class="font-bold px-2">Pengelola Operasional</legend>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        <div class="p-3 border rounded-lg dark:border-gray-600 space-y-2">
+                            <h5 class="font-semibold">Direktur</h5>
+                            <div><label class="block text-sm">Nama</label><input type="text" name="direktur_nama" value="${identitas.pengelola.direktur.nama || ''}" class="form-input"></div>
+                            <div><label class="block text-sm">No. HP</label><input type="text" name="direktur_hp" value="${identitas.pengelola.direktur.hp || ''}" class="form-input"></div>
+                            <div><label class="block text-sm">Alamat</label><input type="text" name="direktur_alamat" value="${identitas.pengelola.direktur.alamat || ''}" class="form-input"></div>
+                        </div>
+                        <div class="p-3 border rounded-lg dark:border-gray-600 space-y-2">
+                            <h5 class="font-semibold">Sekretaris</h5>
+                            <div><label class="block text-sm">Nama</label><input type="text" name="sekretaris_nama" value="${identitas.pengelola.sekretaris.nama || ''}" class="form-input"></div>
+                            <div><label class="block text-sm">No. HP</label><input type="text" name="sekretaris_hp" value="${identitas.pengelola.sekretaris.hp || ''}" class="form-input"></div>
+                            <div><label class="block text-sm">Alamat</label><input type="text" name="sekretaris_alamat" value="${identitas.pengelola.sekretaris.alamat || ''}" class="form-input"></div>
+                        </div>
+                        <div class="p-3 border rounded-lg dark:border-gray-600 space-y-2">
+                            <h5 class="font-semibold">Bendahara</h5>
+                            <div><label class="block text-sm">Nama</label><input type="text" name="bendahara_nama" value="${identitas.pengelola.bendahara.nama || ''}" class="form-input"></div>
+                            <div><label class="block text-sm">No. HP</label><input type="text" name="bendahara_hp" value="${identitas.pengelola.bendahara.hp || ''}" class="form-input"></div>
+                            <div><label class="block text-sm">Alamat</label><input type="text" name="bendahara_alamat" value="${identitas.pengelola.bendahara.alamat || ''}" class="form-input"></div>
+                        </div>
+                    </div>
+                </fieldset>
+                
+                <fieldset class="p-4 border rounded-lg dark:border-gray-600">
+                    <legend class="font-bold px-2">Pengawas</legend>
+                    <div id="pengawas-container" class="space-y-4"></div>
+                    <button type="button" id="btn-tambah-pengawas" class="mt-4 bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 text-sm"><i class="fas fa-plus mr-2"></i>Tambah Pengawas</button>
+                </fieldset>
+                
+                <fieldset class="p-4 border rounded-lg dark:border-gray-600">
+                    <legend class="font-bold px-2">Pendamping</legend>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                         <div class="p-3 border rounded-lg dark:border-gray-600 space-y-2">
+                            <h5 class="font-semibold">Pendamping Desa</h5>
+                            <div><label class="block text-sm">Nama</label><input type="text" name="pdesa_nama" value="${identitas.pendamping.desa.nama || ''}" class="form-input"></div>
+                            <div><label class="block text-sm">No. HP</label><input type="text" name="pdesa_hp" value="${identitas.pendamping.desa.hp || ''}" class="form-input"></div>
+                            <div><label class="block text-sm">Alamat</label><input type="text" name="pdesa_alamat" value="${identitas.pendamping.desa.alamat || ''}" class="form-input"></div>
+                        </div>
+                        <div class="p-3 border rounded-lg dark:border-gray-600 space-y-2">
+                            <h5 class="font-semibold">Pendamping Lokal Desa</h5>
+                            <div><label class="block text-sm">Nama</label><input type="text" name="plokal_nama" value="${identitas.pendamping.lokal.nama || ''}" class="form-input"></div>
+                            <div><label class="block text-sm">No. HP</label><input type="text" name="plokal_hp" value="${identitas.pendamping.lokal.hp || ''}" class="form-input"></div>
+                            <div><label class="block text-sm">Alamat</label><input type="text" name="plokal_alamat" value="${identitas.pendamping.lokal.alamat || ''}" class="form-input"></div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div class="text-right">
+                    <button type="submit" class="bg-[var(--color-primary-start)] text-white font-bold py-2 px-6 rounded-lg hover:opacity-90">Simpan Semua Perubahan</button>
+                </div>
+            </form>
+        `;
+        inputDataContent.innerHTML = formHtml.replace(/class="form-input"/g, 'class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 text-sm"');
+        
+        renderPengawasFields();
+
+        el('#btn-tambah-pengawas').addEventListener('click', () => {
+            if (sikBumdesData.identitas.pengawas.length < 5) {
+                sikBumdesData.identitas.pengawas.push({ nama: "", hp: "", alamat: "" });
+                renderPengawasFields();
+            } else {
+                showNotification('Maksimal 5 pengawas.', 'error');
+            }
+        });
+
+        el('#form-identitas').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const id = sikBumdesData.identitas;
+
+            // Umum & Alamat
+            id.nama = form.nama.value;
+            id.ahu = form.ahu.value;
+            id.alamat = { jalan: form.jalan.value, desa: form.desa.value, kec: form.kec.value, kab: form.kab.value };
+            
+            // Penasehat
+            id.penasihat = { nama: form.penasihat_nama.value, hp: form.penasihat_hp.value, alamat: form.penasihat_alamat.value };
+            
+            // Pengelola
+            id.pengelola.direktur = { nama: form.direktur_nama.value, hp: form.direktur_hp.value, alamat: form.direktur_alamat.value };
+            id.pengelola.sekretaris = { nama: form.sekretaris_nama.value, hp: form.sekretaris_hp.value, alamat: form.sekretaris_alamat.value };
+            id.pengelola.bendahara = { nama: form.bendahara_nama.value, hp: form.bendahara_hp.value, alamat: form.bendahara_alamat.value };
+
+            // Pengawas
+            const pengawasInputs = all('.pengawas-field');
+            const newPengawasData = [];
+            for (let i = 0; i < pengawasInputs.length; i++) {
+                newPengawasData.push({
+                    nama: form[`pengawas_nama_${i}`].value,
+                    hp: form[`pengawas_hp_${i}`].value,
+                    alamat: form[`pengawas_alamat_${i}`].value,
+                });
+            }
+            id.pengawas = newPengawasData;
+            
+            // Pendamping
+            id.pendamping.desa = { nama: form.pdesa_nama.value, hp: form.pdesa_hp.value, alamat: form.pdesa_alamat.value };
+            id.pendamping.lokal = { nama: form.plokal_nama.value, hp: form.plokal_hp.value, alamat: form.plokal_alamat.value };
+
+            saveData();
+            showNotification('Identitas dan kepengurusan berhasil diperbarui!');
+            renderDashboard();
+        });
+    }
+    
+    function renderPengawasFields() {
+        const container = el('#pengawas-container');
+        container.innerHTML = '';
+        sikBumdesData.identitas.pengawas.forEach((p, index) => {
+            const fieldset = document.createElement('div');
+            fieldset.className = 'pengawas-field p-3 border rounded-lg dark:border-gray-600 relative';
+            fieldset.innerHTML = `
+                <h5 class="font-semibold mb-2">Pengawas ${index + 1}</h5>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <div><label class="block text-sm">Nama</label><input type="text" name="pengawas_nama_${index}" value="${p.nama || ''}" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 text-sm"></div>
+                    <div><label class="block text-sm">No. HP</label><input type="text" name="pengawas_hp_${index}" value="${p.hp || ''}" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 text-sm"></div>
+                    <div class="md:col-span-2"><label class="block text-sm">Alamat</label><input type="text" name="pengawas_alamat_${index}" value="${p.alamat || ''}" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 text-sm"></div>
+                </div>
+                <button type="button" class="btn-hapus-pengawas absolute top-2 right-2 text-red-500 hover:text-red-700" data-index="${index}"><i class="fas fa-times-circle"></i></button>
+            `;
+            container.appendChild(fieldset);
+        });
+
+        all('.btn-hapus-pengawas').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const index = parseInt(e.currentTarget.dataset.index, 10);
+                sikBumdesData.identitas.pengawas.splice(index, 1);
+                renderPengawasFields();
+            });
+        });
+    }
+
+    function showCoaTable() {
+        const tableHtml = `<div class="flex justify-between items-center mb-4"><h3 class="text-xl font-semibold">Daftar Akun</h3><button id="btn-tambah-akun" class="bg-[var(--color-primary-start)] text-white font-bold py-2 px-4 rounded-lg"><i class="fas fa-plus mr-2"></i>Tambah</button></div><div class="overflow-auto max-h-[500px]"><table class="w-full text-left"><thead class="bg-gray-100 dark:bg-gray-700 sticky top-0"><tr><th class="p-3">No. Akun</th><th class="p-3">Nama Akun</th><th class="p-3">Aksi</th></tr></thead><tbody id="coa-table-body"></tbody></table></div>`;
+        inputDataContent.innerHTML = tableHtml;
+        renderCoaTable();
+        el('#btn-tambah-akun').addEventListener('click', () => showCoaModal());
+    }
+
+    function renderCoaTable() {
+        const tbody = el('#coa-table-body');
+        tbody.innerHTML = '';
+        sikBumdesData.coa.sort((a,b) => a.no.localeCompare(b.no)).forEach((akun, index) => {
+            const row = document.createElement('tr');
+            row.className = 'border-b dark:border-gray-700';
+            row.innerHTML = `<td class="p-3">${akun.no}</td><td class="p-3">${akun.nama}</td><td class="p-3"><button class="btn-edit-coa text-blue-500 mr-2" data-index="${index}"><i class="fas fa-edit"></i></button><button class="btn-delete-coa text-red-500" data-index="${index}"><i class="fas fa-trash"></i></button></td>`;
+            tbody.appendChild(row);
+        });
+        all('.btn-edit-coa').forEach(btn => btn.addEventListener('click', (e) => showCoaModal(e.currentTarget.dataset.index)));
+        all('.btn-delete-coa').forEach(btn => btn.addEventListener('click', (e) => deleteCoa(e.currentTarget.dataset.index)));
+    }
+
+    function showCoaModal(index = null) {
+        const isEdit = index !== null;
+        const akun = isEdit ? sikBumdesData.coa[index] : { no: '', nama: '' };
+        const modalHtml = `<div id="coa-modal" class="modal show fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50"><div class="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-md"><h2 class="text-xl font-bold mb-4">${isEdit ? 'Edit' : 'Tambah'} Akun</h2><form id="form-coa"><div class="mb-4"><label>No. Akun</label><input type="text" name="no" value="${akun.no}" class="form-input" required></div><div class="mb-4"><label>Nama Akun</label><input type="text" name="nama" value="${akun.nama}" class="form-input" required></div><div class="flex justify-end space-x-4"><button type="button" id="btn-cancel-coa" class="bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">Batal</button><button type="submit" class="bg-[var(--color-primary-start)] text-white font-bold py-2 px-4 rounded-lg">Simpan</button></div></form></div></div>`;
+        el('#modal-container').innerHTML = modalHtml.replace(/class="form-input"/g, 'class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"');
+        el('#form-coa').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newAkun = { no: e.target.no.value, nama: e.target.nama.value };
+            if (isEdit) { sikBumdesData.coa[index] = newAkun; } else { sikBumdesData.coa.push(newAkun); }
+            saveData();
+            renderCoaTable();
+            closeModal('coa-modal');
+        });
+        el('#btn-cancel-coa').addEventListener('click', () => closeModal('coa-modal'));
+    }
+
+    function deleteCoa(index) {
+        if (confirm('Yakin ingin menghapus akun ini?')) {
+            sikBumdesData.coa.splice(index, 1);
+            saveData();
+            renderCoaTable();
+        }
+    }
+    
+    // --- Jurnal ---
+    function generateNomorBukti() {
+        const { identitas, jurnalCounter } = sikBumdesData;
+        const today = new Date().toISOString().slice(0, 10);
+        const prefix = (identitas.nama || 'BM').substring(0, 2).toUpperCase();
+        if (!jurnalCounter[today]) { jurnalCounter[today] = 0; }
+        jurnalCounter[today]++;
+        const seq = jurnalCounter[today].toString().padStart(3, '0');
+        return `${prefix}-${today.replace(/-/g, '')}-${seq}`;
+    }
+
+    function showJurnalForm() {
+        const coaOptions = sikBumdesData.coa.sort((a,b) => a.no.localeCompare(b.no)).map(akun => `<option value="${akun.no}">${akun.no} - ${akun.nama}</option>`).join('');
+        const formHtml = `<h3 class="text-xl font-semibold mb-4">Input Jurnal Umum</h3><form id="form-jurnal" class="space-y-4"><div class="grid md:grid-cols-2 gap-4"><div><label>Tanggal</label><input type="date" name="tanggal" value="${new Date().toISOString().slice(0,10)}" class="form-input" required></div><div><label>No. Bukti</label><input type="text" name="bukti" readonly class="form-input bg-gray-200 dark:bg-gray-600"></div></div><div><label>Keterangan</label><textarea name="keterangan" rows="2" class="form-input" required></textarea></div><div class="grid md:grid-cols-2 gap-6 border-t pt-4"><div class="space-y-2"><label class="font-semibold">Akun DEBIT</label><select name="akunDebit" class="form-input" required>${coaOptions}</select><input type="number" name="nominal" class="form-input" placeholder="Nominal" required></div><div class="space-y-2"><label class="font-semibold">Akun KREDIT</label><select name="akunKredit" class="form-input" required>${coaOptions}</select><input type="number" name="nominalKredit" class="form-input bg-gray-200 dark:bg-gray-600" readonly></div></div><div class="text-right"><button type="submit" class="bg-green-500 text-white font-bold py-2 px-4 rounded-lg">Simpan Jurnal</button></div></form><div class="mt-6"><h3 class="text-xl font-semibold mb-4">Jurnal Terakhir</h3><div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-100 dark:bg-gray-700"><tr><th class="p-2">Tgl</th><th class="p-2">Bukti</th><th class="p-2">Keterangan</th><th class="p-2">Akun</th><th class="p-2">Debit</th><th class="p-2">Kredit</th><th class="p-2">Aksi</th></tr></thead><tbody id="jurnal-table-body"></tbody></table></div></div>`;
+        inputDataContent.innerHTML = formHtml.replace(/class="form-input"/g, 'class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"');
+        const form = el('#form-jurnal');
+        form.bukti.value = generateNomorBukti();
+        form.nominal.addEventListener('input', () => { form.nominalKredit.value = form.nominal.value; });
+        renderJurnalTable();
+        form.addEventListener('submit', saveJurnal);
+    }
+    
+    function saveJurnal(e) {
+        e.preventDefault();
+        const form = e.target;
+        const nominal = parseFloat(form.nominal.value);
+        if (!nominal || nominal <= 0) return showNotification('Nominal harus lebih besar dari nol.', 'error');
+        if (form.akunDebit.value === form.akunKredit.value) return showNotification('Akun Debit dan Kredit tidak boleh sama.', 'error');
+
+        const commonData = { id: Date.now().toString(), tanggal: form.tanggal.value, bukti: form.bukti.value, keterangan: form.keterangan.value };
+        sikBumdesData.jurnal.push({ ...commonData, akunNo: form.akunDebit.value, debit: nominal, credit: 0 });
+        sikBumdesData.jurnal.push({ ...commonData, akunNo: form.akunKredit.value, debit: 0, credit: nominal });
+        saveData();
+        showNotification('Jurnal berhasil disimpan!');
+        form.reset();
+        form.tanggal.value = new Date().toISOString().slice(0,10);
+        form.bukti.value = generateNomorBukti();
+        renderJurnalTable();
+    }
+
+    function renderJurnalTable() {
+        const tbody = el('#jurnal-table-body');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        const grouped = sikBumdesData.jurnal.reduce((acc, curr) => { (acc[curr.id] = acc[curr.id] || []).push(curr); return acc; }, {});
+        Object.values(grouped).reverse().slice(0, 50).forEach(group => {
+            group.forEach((entry, index) => {
+                const row = document.createElement('tr');
+                row.className = 'border-b dark:border-gray-700';
+                let firstCols = '';
+                if (index === 0) {
+                    firstCols = `<td rowspan="${group.length}">${entry.tanggal}</td><td rowspan="${group.length}">${entry.bukti}</td><td rowspan="${group.length}">${entry.keterangan}</td>`;
+                }
+                const akun = sikBumdesData.coa.find(a => a.no === entry.akunNo);
+                row.innerHTML = `${firstCols}<td class="p-2">${akun ? akun.nama : 'N/A'}</td><td class="p-2 text-right">${entry.debit > 0 ? formatCurrency(entry.debit) : ''}</td><td class="p-2 text-right">${entry.credit > 0 ? formatCurrency(entry.credit) : ''}</td>${index === 0 ? `<td rowspan="${group.length}"><button class="btn-delete-jurnal text-red-500" data-id="${entry.id}"><i class="fas fa-trash"></i></button></td>` : ''}`;
+                tbody.appendChild(row);
+            });
+        });
+        all('.btn-delete-jurnal').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = e.currentTarget.dataset.id;
+                if (confirm('Yakin ingin menghapus entri jurnal ini?')) {
+                    sikBumdesData.jurnal = sikBumdesData.jurnal.filter(j => j.id !== id);
+                    saveData();
+                    renderJurnalTable();
+                }
+            });
+        });
+    }
+
+    // --- Inventaris ---
+    function showInventarisForm() {
+        const formHtml = `<h3 class="text-xl font-semibold mb-4 border-b pb-2">Input Inventaris</h3><form id="form-inventaris" class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg space-y-4 mb-6"><input type="hidden" name="id"><div class="grid grid-cols-1 md:grid-cols-3 gap-4"><div><label class="block">Nama Barang</label><input type="text" name="nama" class="form-input" required></div><div><label class="block">Tanggal Beli</label><input type="date" name="tanggalBeli" class="form-input" required></div><div><label class="block">Harga Perolehan</label><input type="number" name="harga" class="form-input" required></div></div><div class="grid grid-cols-1 md:grid-cols-3 gap-4"><div><label class="block">Jumlah</label><input type="number" name="jumlah" value="1" class="form-input" required></div><div><label class="block">Umur Ekonomis (Tahun)</label><input type="number" name="umurEkonomis" class="form-input" required></div></div><div class="text-right"><button type="submit" class="bg-green-500 text-white font-bold py-2 px-4 rounded-lg">Simpan Inventaris</button></div></form><div class="mt-6"><h3 class="text-xl font-semibold mb-4">Data Inventaris</h3><div class="overflow-x-auto"><table class="w-full text-left text-sm"><thead class="bg-gray-100 dark:bg-gray-700"><tr><th class="p-2">Nama</th><th class="p-2">Tgl Beli</th><th class="p-2">Harga</th><th class="p-2">Umur</th><th class="p-2">Penyusutan/Thn</th><th class="p-2">Akum. Penyusutan</th><th class="p-2">Nilai Buku</th><th class="p-2">Aksi</th></tr></thead><tbody id="inventaris-table-body"></tbody></table></div></div>`;
+        inputDataContent.innerHTML = formHtml.replace(/class="form-input"/g, 'class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"');
+        renderInventarisTable();
+        el('#form-inventaris').addEventListener('submit', saveInventaris);
+    }
+
+    function renderInventarisTable() {
+        const tbody = el('#inventaris-table-body');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        sikBumdesData.inventaris.forEach((item, index) => {
+            const row = document.createElement('tr');
+            row.className = 'border-b dark:border-gray-700';
+            const harga = parseFloat(item.harga);
+            const umur = parseFloat(item.umurEkonomis);
+            const penyusutanPerTahun = umur > 0 ? harga / umur : 0;
+            const tglBeli = new Date(item.tanggalBeli);
+            const today = new Date();
+            const yearsDiff = (today - tglBeli) / (1000 * 60 * 60 * 24 * 365.25);
+            const yearsOwned = Math.max(0, Math.min(yearsDiff, umur));
+            const akumulasiPenyusutan = penyusutanPerTahun * yearsOwned;
+            const nilaiBuku = harga - akumulasiPenyusutan;
+            row.innerHTML = `<td class="p-2">${item.nama}</td><td class="p-2">${item.tanggalBeli}</td><td class="p-2 text-right">${formatCurrency(harga)}</td><td class="p-2 text-center">${item.umurEkonomis} thn</td><td class="p-2 text-right">${formatCurrency(penyusutanPerTahun)}</td><td class="p-2 text-right">${formatCurrency(akumulasiPenyusutan)}</td><td class="p-2 text-right font-semibold">${formatCurrency(nilaiBuku)}</td><td class="p-2"><button class="btn-edit-inventaris text-blue-500 mr-2" data-index="${index}"><i class="fas fa-edit"></i></button><button class="btn-delete-inventaris text-red-500" data-index="${index}"><i class="fas fa-trash"></i></button></td>`;
+            tbody.appendChild(row);
+        });
+        all('.btn-edit-inventaris').forEach(btn => btn.addEventListener('click', (e) => {
+            const index = e.currentTarget.dataset.index;
+            const item = sikBumdesData.inventaris[index];
+            const form = el('#form-inventaris');
+            form.id.value = item.id;
+            form.nama.value = item.nama;
+            form.tanggalBeli.value = item.tanggalBeli;
+            form.harga.value = item.harga;
+            form.jumlah.value = item.jumlah;
+            form.umurEkonomis.value = item.umurEkonomis;
+        }));
+        all('.btn-delete-inventaris').forEach(btn => btn.addEventListener('click', (e) => {
+            if (confirm('Yakin ingin menghapus item inventaris ini?')) {
+                sikBumdesData.inventaris.splice(e.currentTarget.dataset.index, 1);
+                saveData();
+                renderInventarisTable();
+            }
+        }));
+    }
+
+    function saveInventaris(e) {
+        e.preventDefault();
+        const form = e.target;
+        const id = form.id.value;
+        const newItem = {
+            id: id || `inv_${Date.now()}`,
+            nama: form.nama.value,
+            tanggalBeli: form.tanggalBeli.value,
+            harga: parseFloat(form.harga.value),
+            jumlah: parseInt(form.jumlah.value),
+            umurEkonomis: parseFloat(form.umurEkonomis.value)
+        };
+        if (id) {
+            const index = sikBumdesData.inventaris.findIndex(item => item.id === id);
+            sikBumdesData.inventaris[index] = newItem;
+        } else {
+            sikBumdesData.inventaris.push(newItem);
+        }
+        saveData();
+        renderInventarisTable();
+        form.reset();
+        form.id.value = '';
+    }
+
+    // --- Biaya Sewa ---
+    function showSewaForm() {
+        const formHtml = `<h3 class="text-xl font-semibold mb-4 border-b pb-2">Input Biaya Sewa Dibayar Dimuka</h3><form id="form-sewa" class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg space-y-4 mb-6"><input type="hidden" name="id"><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="block">Objek Sewa</label><input type="text" name="objekSewa" class="form-input" required></div><div><label class="block">Nilai Sewa</label><input type="number" name="nilaiSewa" class="form-input" required></div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="block">Tanggal Mulai Sewa</label><input type="date" name="tanggalMulai" class="form-input" required></div><div><label class="block">Tanggal Selesai Sewa</label><input type="date" name="tanggalSelesai" class="form-input" required></div></div><div class="text-right"><button type="submit" class="bg-green-500 text-white font-bold py-2 px-4 rounded-lg">Simpan Biaya Sewa</button></div></form><div class="mt-6"><h3 class="text-xl font-semibold mb-4">Data Biaya Sewa</h3><div class="overflow-x-auto"><table class="w-full text-left text-sm"><thead class="bg-gray-100 dark:bg-gray-700"><tr><th class="p-2">Objek Sewa</th><th class="p-2">Periode</th><th class="p-2">Nilai Sewa</th><th class="p-2">Amortisasi/Bln</th><th class="p-2">Biaya Diakui</th><th class="p-2">Sisa Nilai</th><th class="p-2">Aksi</th></tr></thead><tbody id="sewa-table-body"></tbody></table></div></div>`;
+        inputDataContent.innerHTML = formHtml.replace(/class="form-input"/g, 'class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"');
+        renderSewaTable();
+        el('#form-sewa').addEventListener('submit', saveSewa);
+    }
+
+    function renderSewaTable() {
+        const tbody = el('#sewa-table-body');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        sikBumdesData.biayaSewa.forEach((item, index) => {
+            const row = document.createElement('tr');
+            row.className = 'border-b dark:border-gray-700';
+            const nilaiSewa = parseFloat(item.nilaiSewa);
+            const tglMulai = new Date(item.tanggalMulai);
+            const tglSelesai = new Date(item.tanggalSelesai);
+            const today = new Date();
+            const totalMonths = (tglSelesai.getFullYear() - tglMulai.getFullYear()) * 12 + (tglSelesai.getMonth() - tglMulai.getMonth()) + 1;
+            const amortisasiPerBulan = totalMonths > 0 ? nilaiSewa / totalMonths : 0;
+            let monthsPassed = 0;
+            if (today > tglMulai) {
+                monthsPassed = (today.getFullYear() - tglMulai.getFullYear()) * 12 + (today.getMonth() - tglMulai.getMonth()) + 1;
+                monthsPassed = Math.max(0, Math.min(monthsPassed, totalMonths));
+            }
+            const biayaDiakui = amortisasiPerBulan * monthsPassed;
+            const sisaNilai = nilaiSewa - biayaDiakui;
+            row.innerHTML = `<td class="p-2">${item.objekSewa}</td><td class="p-2">${item.tanggalMulai} s/d ${item.tanggalSelesai}</td><td class="p-2 text-right">${formatCurrency(nilaiSewa)}</td><td class="p-2 text-right">${formatCurrency(amortisasiPerBulan)}</td><td class="p-2 text-right">${formatCurrency(biayaDiakui)}</td><td class="p-2 text-right font-semibold">${formatCurrency(sisaNilai)}</td><td class="p-2"><button class="btn-edit-sewa text-blue-500 mr-2" data-index="${index}"><i class="fas fa-edit"></i></button><button class="btn-delete-sewa text-red-500" data-index="${index}"><i class="fas fa-trash"></i></button></td>`;
+            tbody.appendChild(row);
+        });
+        all('.btn-edit-sewa').forEach(btn => btn.addEventListener('click', (e) => {
+            const index = e.currentTarget.dataset.index;
+            const item = sikBumdesData.biayaSewa[index];
+            const form = el('#form-sewa');
+            form.id.value = item.id;
+            form.objekSewa.value = item.objekSewa;
+            form.nilaiSewa.value = item.nilaiSewa;
+            form.tanggalMulai.value = item.tanggalMulai;
+            form.tanggalSelesai.value = item.tanggalSelesai;
+        }));
+        all('.btn-delete-sewa').forEach(btn => btn.addEventListener('click', (e) => {
+            if (confirm('Yakin ingin menghapus data biaya sewa ini?')) {
+                sikBumdesData.biayaSewa.splice(e.currentTarget.dataset.index, 1);
+                saveData();
+                renderSewaTable();
+            }
+        }));
+    }
+
+    function saveSewa(e) {
+        e.preventDefault();
+        const form = e.target;
+        const id = form.id.value;
+        const newItem = {
+            id: id || `sewa_${Date.now()}`,
+            objekSewa: form.objekSewa.value,
+            nilaiSewa: parseFloat(form.nilaiSewa.value),
+            tanggalMulai: form.tanggalMulai.value,
+            tanggalSelesai: form.tanggalSelesai.value
+        };
+        if (id) {
+            const index = sikBumdesData.biayaSewa.findIndex(item => item.id === id);
+            sikBumdesData.biayaSewa[index] = newItem;
+        } else {
+            sikBumdesData.biayaSewa.push(newItem);
+        }
+        saveData();
+        renderSewaTable();
+        form.reset();
+        form.id.value = '';
+    }
+    
+    // --- Unit Usaha ---
+    function renderUnitUsahaTable() {
+        const tbody = el('#unit-usaha-table-body');
+        tbody.innerHTML = '';
+        sikBumdesData.unitUsaha.forEach((unit, index) => {
+            const row = document.createElement('tr');
+            row.className = 'border-b dark:border-gray-700';
+            row.innerHTML = `<td class="p-3">${unit.nama}</td><td class="p-3">${unit.deskripsi}</td><td class="p-3"><button class="btn-edit-unit text-blue-500 mr-2" data-index="${index}"><i class="fas fa-edit"></i></button>${unit.id !== 'utama' ? `<button class="btn-delete-unit text-red-500" data-index="${index}"><i class="fas fa-trash"></i></button>` : ''}</td>`;
+            tbody.appendChild(row);
+        });
+        all('.btn-edit-unit').forEach(btn => btn.addEventListener('click', e => showUnitUsahaModal(e.currentTarget.dataset.index)));
+        all('.btn-delete-unit').forEach(btn => btn.addEventListener('click', e => deleteUnitUsaha(e.currentTarget.dataset.index)));
+    }
+    
+    el('#btn-tambah-unit').addEventListener('click', () => showUnitUsahaModal());
+    
+    function showUnitUsahaModal(index = null) {
+        const isEdit = index !== null;
+        const unit = isEdit ? sikBumdesData.unitUsaha[index] : { id: `unit_${Date.now()}`, nama: '', deskripsi: '' };
+        const modalHtml = `<div id="unit-modal" class="modal show fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50"><div class="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-md"><h2 class="text-xl font-bold mb-4">${isEdit ? 'Edit' : 'Tambah'} Unit Usaha</h2><form id="form-unit"><div class="mb-4"><label>Nama Unit</label><input type="text" name="nama" value="${unit.nama}" class="form-input" required></div><div class="mb-4"><label>Deskripsi</label><textarea name="deskripsi" rows="3" class="form-input">${unit.deskripsi}</textarea></div><div class="flex justify-end space-x-4"><button type="button" id="btn-cancel-unit" class="bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">Batal</button><button type="submit" class="bg-[var(--color-primary-start)] text-white font-bold py-2 px-4 rounded-lg">Simpan</button></div></form></div></div>`;
+        el('#modal-container').innerHTML = modalHtml.replace(/class="form-input"/g, 'class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"');
+        el('#form-unit').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newUnit = { id: unit.id, nama: e.target.nama.value, deskripsi: e.target.deskripsi.value };
+            if (isEdit) { sikBumdesData.unitUsaha[index] = newUnit; } else { sikBumdesData.unitUsaha.push(newUnit); }
+            saveData();
+            renderUnitUsahaTable();
+            closeModal('unit-modal');
+        });
+        el('#btn-cancel-unit').addEventListener('click', () => closeModal('unit-modal'));
+    }
+
+    function deleteUnitUsaha(index) {
+        if (confirm('Yakin ingin menghapus unit usaha ini?')) {
+            sikBumdesData.unitUsaha.splice(index, 1);
+            saveData();
+            renderUnitUsahaTable();
+        }
+    }
+
+    // --- Administrasi ---
+    function renderDokumenList() {
+        const listEl = el('#list-dokumen');
+        listEl.innerHTML = '';
+        const { dokumen } = sikBumdesData;
+        for (const key in dokumen) {
+            if (dokumen[key]) {
+                const doc = dokumen[key];
+                const item = document.createElement('div');
+                item.className = 'flex justify-between items-center p-2 bg-gray-100 dark:bg-gray-700 rounded';
+                item.innerHTML = `<span><i class="fas fa-file-alt mr-2"></i>${key.toUpperCase()}: ${doc.name}</span><div><a href="${doc.data}" download="${doc.name}" class="text-blue-500 mr-3"><i class="fas fa-download"></i></a><button class="btn-delete-dokumen text-red-500" data-key="${key}"><i class="fas fa-trash"></i></button></div>`;
+                listEl.appendChild(item);
+            }
+        }
+        all('.btn-delete-dokumen').forEach(btn => btn.addEventListener('click', e => {
+            const key = e.currentTarget.dataset.key;
+            if (confirm(`Yakin ingin menghapus dokumen ${key.toUpperCase()}?`)) {
+                sikBumdesData.dokumen[key] = null;
+                saveData();
+                renderDokumenList();
+            }
+        }));
+    }
+    function renderMusyawarahList() { /* Placeholder */ }
+
+    el('#form-upload-dokumen').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const jenis = el('#select-jenis-dokumen').value;
+        const fileInput = el('#input-file-dokumen');
+        if (fileInput.files.length === 0) return showNotification('Pilih file terlebih dahulu!', 'error');
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        reader.onloadend = function() {
+            sikBumdesData.dokumen[jenis] = { name: file.name, type: file.type, data: reader.result };
+            saveData();
+            renderDokumenList();
+            showNotification('Dokumen berhasil diupload.');
+        }
+        reader.readAsDataURL(file);
+    });
+    
+    // --- Laporan ---
+    all('.btn-laporan').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const reportType = btn.dataset.report;
+            generateReport(reportType);
+            all('.btn-laporan').forEach(b => b.classList.remove('bg-[var(--color-primary-start)]', 'text-white'));
+            btn.classList.add('bg-[var(--color-primary-start)]', 'text-white');
+        });
+    });
+
+    function generateReport(type) {
+        const contentEl = el('#laporan-content');
+        const controlsEl = el('#laporan-controls');
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0,10);
+        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0,10);
+        let controlsHtml = '';
+        const dateControls = `<span id="date-range-controls"><label>Dari:</label> <input type="date" id="report-start-date" value="${firstDay}" class="form-control"> <label>Sampai:</label> <input type="date" id="report-end-date" value="${lastDay}" class="form-control"></span>`;
+        const singleDateControl = `<span id="single-date-controls"><label>Per Tanggal:</label> <input type="date" id="report-end-date" value="${lastDay}" class="form-control"></span>`;
+        
+        switch(type) {
+            case 'buku-besar':
+                const coaOptions = sikBumdesData.coa.sort((a,b) => a.no.localeCompare(b.no)).map(akun => `<option value="${akun.no}">${akun.no} - ${akun.nama}</option>`).join('');
+                controlsHtml += `<label>Akun:</label> <select id="report-akun-select" class="form-control">${coaOptions}</select>${dateControls}`;
+                break;
+            case 'posisi-keuangan': case 'neraca-saldo': case 'inventaris':
+                controlsHtml += singleDateControl;
+                break;
+            default:
+                controlsHtml += dateControls;
+        }
+        controlsHtml += `<button id="btn-filter-report" class="bg-blue-500 text-white px-3 py-1 rounded">Tampilkan</button><button id="btn-print-report" class="bg-green-500 text-white px-3 py-1 rounded"><i class="fas fa-print"></i> Cetak</button>`;
+        controlsEl.innerHTML = controlsHtml.replace(/class="form-control"/g, 'class="p-1 border rounded dark:bg-gray-700 dark:border-gray-600"');
+        
+        const renderFunction = () => {
+            const startDate = el('#report-start-date') ? el('#report-start-date').value : null;
+            const endDate = el('#report-end-date').value;
+            let reportHtml = '';
+            switch (type) {
+                case 'laba-rugi': reportHtml = generateLabaRugi(startDate, endDate); break;
+                case 'posisi-keuangan': reportHtml = generatePosisiKeuangan(endDate); break;
+                case 'neraca-saldo': reportHtml = generateNeracaSaldo(endDate); break;
+                case 'buku-besar': reportHtml = generateBukuBesar(el('#report-akun-select').value, startDate, endDate); break;
+                case 'arus-kas': reportHtml = generateArusKas(startDate, endDate); break;
+                case 'inventaris': reportHtml = generateLaporanInventaris(endDate); break;
+                default: reportHtml = `<p class="text-center text-gray-500">Laporan '${type}' belum tersedia.</p>`;
+            }
+            contentEl.innerHTML = reportHtml;
+        };
+
+        el('#btn-filter-report').addEventListener('click', renderFunction);
+        el('#btn-print-report').addEventListener('click', () => {
+            const reportTitle = getReportTitle(type);
+            const period = el('#report-start-date') ? `Periode ${el('#report-start-date').value} s/d ${el('#report-end-date').value}` : `Per Tanggal ${el('#report-end-date').value}`;
+            printReportWithHeader(reportTitle, period, contentEl.innerHTML);
+        });
+        renderFunction();
+    }
+
+    function getReportTitle(type) {
+        const titles = { 'laba-rugi': 'Laporan Laba Rugi', 'posisi-keuangan': 'Laporan Posisi Keuangan', 'neraca-saldo': 'Laporan Neraca Saldo', 'buku-besar': 'Laporan Buku Besar', 'arus-kas': 'Laporan Arus Kas', 'inventaris': 'Laporan Daftar Inventaris' };
+        return titles[type] || 'Laporan';
+    }
+
+    function generateLabaRugi(startDate, endDate) { return 'Laporan Laba Rugi'; }
+    function generatePosisiKeuangan(endDate) { return 'Laporan Posisi Keuangan'; }
+    function generateNeracaSaldo(endDate) { return 'Laporan Neraca Saldo'; }
+    function generateBukuBesar(akunNo, startDate, endDate) { return 'Laporan Buku Besar'; }
+    function generateArusKas(startDate, endDate) { return 'Laporan Arus Kas'; }
+    
+    function generateLaporanInventaris(endDate) {
+        let html = `<table class="w-full text-sm report-table"><thead class="bg-gray-100 dark:bg-gray-700"><tr><th class="p-2">Nama</th><th class="p-2">Tgl Beli</th><th class="p-2 text-right">Harga</th><th class="p-2 text-center">Umur</th><th class="p-2 text-right">Penyusutan/Thn</th><th class="p-2 text-right">Akum. Penyusutan</th><th class="p-2 text-right">Nilai Buku</th></tr></thead><tbody>`;
+        let totalHarga = 0, totalAkumulasi = 0, totalNilaiBuku = 0;
+        sikBumdesData.inventaris.forEach(item => {
+            const harga = parseFloat(item.harga);
+            const umur = parseFloat(item.umurEkonomis);
+            const penyusutanPerTahun = umur > 0 ? harga / umur : 0;
+            const tglBeli = new Date(item.tanggalBeli);
+            const tglLaporan = new Date(endDate);
+            const yearsDiff = (tglLaporan - tglBeli) / (1000 * 60 * 60 * 24 * 365.25);
+            const yearsOwned = Math.max(0, Math.min(yearsDiff, umur));
+            const akumulasiPenyusutan = penyusutanPerTahun * yearsOwned;
+            const nilaiBuku = harga - akumulasiPenyusutan;
+            totalHarga += harga;
+            totalAkumulasi += akumulasiPenyusutan;
+            totalNilaiBuku += nilaiBuku;
+            html += `<tr><td class="p-2">${item.nama}</td><td class="p-2">${item.tanggalBeli}</td><td class="p-2 text-right">${formatCurrency(harga)}</td><td class="p-2 text-center">${item.umurEkonomis} thn</td><td class="p-2 text-right">${formatCurrency(penyusutanPerTahun)}</td><td class="p-2 text-right">${formatCurrency(akumulasiPenyusutan)}</td><td class="p-2 text-right font-semibold">${formatCurrency(nilaiBuku)}</td></tr>`;
+        });
+        html += `</tbody><tfoot class="font-bold border-t-2"><tr><td class="p-2" colspan="2">Total</td><td class="p-2 text-right">${formatCurrency(totalHarga)}</td><td colspan="2"></td><td class="p-2 text-right">${formatCurrency(totalAkumulasi)}</td><td class="p-2 text-right">${formatCurrency(totalNilaiBuku)}</td></tr></tfoot></table>`;
+        return html;
+    }
+    
+    function printReportWithHeader(reportTitle, period, content) {
+        const { identitas, pengaturan } = sikBumdesData;
+        const header = `
+            <div style="display: flex; align-items: center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 20px;">
+                <img src="${pengaturan.logo}" alt="Logo" style="width: 70px; height: 70px; margin-right: 20px;">
+                <div style="text-align: center; flex-grow: 1;">
+                    <h2 style="font-size: 1.5rem; font-weight: bold; margin: 0;">${(identitas.nama || 'NAMA BUMDES').toUpperCase()}</h2>
+                    <p style="margin: 0;">${identitas.alamat.jalan || 'Alamat'}, ${identitas.alamat.desa || 'Desa'}</p>
+                    <p style="margin: 0;">Nomor AHU: ${identitas.ahu || '-'}</p>
+                </div>
+            </div>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h3 style="font-size: 1.2rem; font-weight: bold; margin: 0; text-decoration: underline;">${reportTitle}</h3>
+                <p style="margin: 0;">${period}</p>
+            </div>
+        `;
+
+        const footer = `
+            <div style="margin-top: 50px; width: 100%; text-align: right;">
+                <div style="display: inline-block; text-align: center;">
+                    <p>${identitas.alamat.desa || 'Tempat'}, ${new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                    <p>Direktur BUMDes,</p>
+                    <br><br><br>
+                    <p style="text-decoration: underline; font-weight: bold;">${identitas.pengelola.direktur.nama || '(.........................)'}</p>
+                </div>
+            </div>
+        `;
+
+        el('#print-area').innerHTML = `<div style="font-family: 'Times New Roman', serif;">${header}${content}${footer}</div>`;
+        el('#print-area').classList.remove('hidden');
+        window.print();
+        el('#print-area').classList.add('hidden');
+    }
+
+    // --- Pengaturan ---
+    function loadPengaturan() { el('#logo-preview').src = sikBumdesData.pengaturan.logo; }
+    
+    function renderPenggunaTable() {
+        const tbody = el('#pengguna-table-body');
+        tbody.innerHTML = '';
+        sikBumdesData.pengguna.forEach((user, index) => {
+            const row = document.createElement('tr');
+            row.className = 'border-b dark:border-gray-700';
+            row.innerHTML = `<td class="p-3">${user.username}</td><td class="p-3">${user.peran}</td><td class="p-3"><button class="btn-edit-user text-blue-500 mr-2" data-index="${index}"><i class="fas fa-edit"></i></button>${user.username !== 'admin' ? `<button class="btn-delete-user text-red-500" data-index="${index}"><i class="fas fa-trash"></i></button>` : ''}</td>`;
+            tbody.appendChild(row);
+        });
+        all('.btn-edit-user').forEach(btn => btn.addEventListener('click', e => showPenggunaModal(e.currentTarget.dataset.index)));
+        all('.btn-delete-user').forEach(btn => btn.addEventListener('click', e => deletePengguna(e.currentTarget.dataset.index)));
+    }
+
+    el('#btn-tambah-pengguna').addEventListener('click', () => showPenggunaModal());
+
+    function showPenggunaModal(index = null) {
+        const isEdit = index !== null;
+        const user = isEdit ? sikBumdesData.pengguna[index] : { username: '', password: '', peran: 'Operator' };
+        const modalHtml = `<div id="user-modal" class="modal show fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50"><div class="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-md"><h2 class="text-xl font-bold mb-4">${isEdit ? 'Edit' : 'Tambah'} Pengguna</h2><form id="form-user"><div class="mb-4"><label>Username</label><input type="text" name="username" value="${user.username}" class="form-input" ${isEdit && user.username === 'admin' ? 'readonly' : ''} required></div><div class="mb-4"><label>Password</label><input type="password" name="password" placeholder="${isEdit ? 'Kosongkan jika tidak diubah' : ''}" class="form-input" ${!isEdit ? 'required' : ''}></div><div class="mb-4"><label>Peran</label><select name="peran" class="form-input"><option value="Admin" ${user.peran === 'Admin' ? 'selected' : ''}>Admin</option><option value="Operator" ${user.peran === 'Operator' ? 'selected' : ''}>Operator</option></select></div><div class="flex justify-end space-x-4"><button type="button" id="btn-cancel-user" class="bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">Batal</button><button type="submit" class="bg-[var(--color-primary-start)] text-white font-bold py-2 px-4 rounded-lg">Simpan</button></div></form></div></div>`;
+        el('#modal-container').innerHTML = modalHtml.replace(/class="form-input"/g, 'class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"');
+        el('#form-user').addEventListener('submit', e => {
+            e.preventDefault();
+            const form = e.target;
+            const newUser = { username: form.username.value, password: form.password.value || user.password, peran: form.peran.value };
+            if (isEdit) { sikBumdesData.pengguna[index] = newUser; } else { sikBumdesData.pengguna.push(newUser); }
+            saveData();
+            renderPenggunaTable();
+            closeModal('user-modal');
+            showNotification('Data pengguna berhasil disimpan!');
+        });
+        el('#btn-cancel-user').addEventListener('click', () => closeModal('user-modal'));
+    }
+
+    function deletePengguna(index) {
+        if (confirm('Yakin ingin menghapus pengguna ini?')) {
+            sikBumdesData.pengguna.splice(index, 1);
+            saveData();
+            renderPenggunaTable();
+        }
+    }
+
+    el('#logo-upload').addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (event) => { el('#logo-preview').src = event.target.result; };
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    });
+
+    el('#btn-simpan-logo').addEventListener('click', () => {
+        sikBumdesData.pengaturan.logo = el('#logo-preview').src;
+        saveData();
+        showNotification('Logo berhasil disimpan!');
+        renderDashboard();
+    });
+
+    all('.theme-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const themeName = e.currentTarget.dataset.theme;
+            applyTheme(themeName);
+        });
+    });
+
+    el('#btn-backup-data').addEventListener('click', () => {
+        const dataStr = JSON.stringify(sikBumdesData);
+        const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+        const exportFileDefaultName = `sik-bumdes-backup-${new Date().toISOString().slice(0,10)}.json`;
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
+        linkElement.click();
+    });
+
+    el('#restore-upload').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (confirm('Ini akan menimpa semua data saat ini. Lanjutkan?')) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const restoredData = JSON.parse(event.target.result);
+                    if (restoredData.identitas && restoredData.coa) {
+                        localStorage.setItem('sikBumdesData', JSON.stringify(restoredData));
+                        showNotification('Data berhasil dipulihkan! Aplikasi akan dimuat ulang.');
+                        setTimeout(() => location.reload(), 2000);
+                    } else { showNotification('File backup tidak valid.', 'error'); }
+                } catch (error) { showNotification('Gagal membaca file backup.', 'error'); }
+            };
+            reader.readAsText(file);
+        }
+    });
+
+    // --- MODAL HELPER ---
+    function closeModal(modalId) {
+        const modal = el(`#${modalId}`);
+        if (modal) modal.remove();
+    }
+
+    // --- START THE APP ---
+    handleLicensing();
+});
+</script>
+</body>
+</html>
