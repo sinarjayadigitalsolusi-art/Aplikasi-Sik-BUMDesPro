@@ -17,8 +17,8 @@
         .dark ::-webkit-scrollbar-thumb { background: #718096; }
         .dark ::-webkit-scrollbar-thumb:hover { background: #a0aec0; }
 
-        /* Sidebar transition */
-        #sidebar { transition: transform 0.3s ease-in-out; }
+        /* Sidebar and Main Content transition */
+        #sidebar, #main-wrapper { transition: all 0.3s ease-in-out; }
         
         /* Modal styles */
         .modal { display: none; }
@@ -44,10 +44,42 @@
                 left: 0;
                 top: 0;
                 width: 100%;
-                padding: 2rem;
+                padding: 1rem;
                 color: black;
             }
             .no-print { display: none; }
+            .report-table { font-size: 10pt; }
+            .struktur-organisasi { page-break-inside: avoid; }
+        }
+        .report-table th, .report-table td { padding: 4px 8px; }
+        .report-table .level-1 { font-weight: bold; }
+        .report-table .level-2 { padding-left: 20px !important; }
+        .report-table .level-3 { padding-left: 40px !important; }
+        .report-table .total-row { font-weight: bold; border-top: 1px solid #ccc; }
+        
+        /* Organization Chart Styles */
+        .org-card {
+            background: white;
+            border: 2px solid transparent;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            text-align: center;
+            width: 180px;
+        }
+        .org-card-title {
+            padding: 8px;
+            border-radius: 0.5rem;
+            background-image: linear-gradient(var(--color-primary-start), var(--color-primary-end));
+            color: white;
+        }
+        .dark .org-card {
+            background: #2d3748;
+        }
+        .org-connector {
+            border-color: #9ca3af; /* gray-400 */
+        }
+        .dark .org-connector {
+            border-color: #4a5568; /* gray-600 */
         }
     </style>
 </head>
@@ -134,7 +166,7 @@
             <!-- Header -->
             <header class="bg-white dark:bg-gray-800 shadow-md p-4 flex justify-between items-center sticky top-0 z-30 no-print">
                 <div class="flex items-center">
-                     <button id="menu-toggle" class="text-gray-600 dark:text-gray-300 focus:outline-none">
+                     <button id="menu-toggle" class="text-gray-600 dark:text-gray-300 focus:outline-none lg:hidden">
                         <i class="fas fa-bars fa-lg"></i>
                     </button>
                     <h2 id="page-title" class="text-xl font-semibold ml-4">Dashboard</h2>
@@ -168,7 +200,7 @@
                     </div>
 
                     <!-- Financial Summary Cards -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 mb-6">
                         <div class="bg-gradient-to-br from-teal-400 to-emerald-500 text-white p-5 rounded-xl shadow-md flex items-center">
                             <div class="bg-white/20 p-4 rounded-full mr-4"><i class="fas fa-wallet fa-2x"></i></div>
                             <div><p class="font-light">Total Aktiva</p><p id="summary-aktiva" class="text-2xl font-bold">Rp 0</p></div>
@@ -177,7 +209,15 @@
                             <div class="bg-white/20 p-4 rounded-full mr-4"><i class="fas fa-balance-scale fa-2x"></i></div>
                             <div><p class="font-light">Total Pasiva</p><p id="summary-pasiva" class="text-2xl font-bold">Rp 0</p></div>
                         </div>
+                        <div class="bg-gradient-to-br from-indigo-400 to-purple-500 text-white p-5 rounded-xl shadow-md flex items-center">
+                            <div class="bg-white/20 p-4 rounded-full mr-4"><i class="fas fa-landmark fa-2x"></i></div>
+                            <div><p class="font-light">Modal Dari Desa</p><p id="summary-modal-desa" class="text-2xl font-bold">Rp 0</p></div>
+                        </div>
                         <div class="bg-gradient-to-br from-amber-400 to-orange-500 text-white p-5 rounded-xl shadow-md flex items-center">
+                            <div class="bg-white/20 p-4 rounded-full mr-4"><i class="fas fa-chart-line fa-2x"></i></div>
+                            <div><p class="font-light">Laba Rugi Tahun Ini</p><p id="summary-laba-rugi" class="text-2xl font-bold">Rp 0</p></div>
+                        </div>
+                        <div class="bg-gradient-to-br from-lime-400 to-green-500 text-white p-5 rounded-xl shadow-md flex items-center">
                             <div class="bg-white/20 p-4 rounded-full mr-4"><i class="fas fa-arrow-up fa-2x"></i></div>
                             <div><p class="font-light">Pendapatan Bulan Ini</p><p id="summary-pendapatan" class="text-2xl font-bold">Rp 0</p></div>
                         </div>
@@ -213,12 +253,13 @@
                 <div id="input-data-page" class="page hidden">
                     <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
                         <h2 class="text-2xl font-bold mb-4">Input Data Awal & Master</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                             <button id="btn-show-identitas" class="bg-[var(--color-primary-start)] text-white font-bold py-3 px-4 rounded-lg hover:opacity-90 transition duration-300 flex items-center justify-center"><i class="fas fa-id-card mr-2"></i>Identitas BUMDes</button>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                             <button id="btn-show-identitas" class="bg-teal-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-teal-600 transition duration-300 flex items-center justify-center"><i class="fas fa-id-card mr-2"></i>Identitas BUMDes</button>
+                             <button id="btn-show-kepengurusan" class="bg-cyan-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-cyan-600 transition duration-300 flex items-center justify-center"><i class="fas fa-sitemap mr-2"></i>Struktur Kepengurusan</button>
                             <button id="btn-show-coa" class="bg-blue-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-600 transition duration-300 flex items-center justify-center"><i class="fas fa-list-ol mr-2"></i>Daftar Akun (COA)</button>
                             <button id="btn-show-jurnal" class="bg-green-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-600 transition duration-300 flex items-center justify-center"><i class="fas fa-book mr-2"></i>Input Jurnal</button>
                             <button id="btn-show-inventaris" class="bg-purple-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-purple-600 transition duration-300 flex items-center justify-center"><i class="fas fa-boxes mr-2"></i>Input Inventaris</button>
-                            <button id="btn-show-sewa" class="bg-orange-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-orange-600 transition duration-300 flex items-center justify-center"><i class="fas fa-building mr-2"></i>Input Biaya Sewa</button>
+                            <button id="btn-show-shu" class="bg-yellow-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-yellow-600 transition duration-300 flex items-center justify-center"><i class="fas fa-percentage mr-2"></i>Pengaturan SHU</button>
                         </div>
                         <div id="input-data-content"><p class="text-center text-gray-500">Pilih salah satu tombol di atas untuk memulai.</p></div>
                     </div>
@@ -241,15 +282,14 @@
                 <div id="laporan-page" class="page hidden">
                      <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
                         <h2 class="text-2xl font-bold mb-4">Laporan Keuangan & Operasional</h2>
-                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
                             <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white" data-report="buku-besar">Buku Besar</button>
                             <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white" data-report="neraca-saldo">Neraca Saldo</button>
                             <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white" data-report="laba-rugi">Laba Rugi</button>
                             <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white" data-report="posisi-keuangan">Posisi Keuangan</button>
                             <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white" data-report="arus-kas">Arus Kas</button>
+                            <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white" data-report="shu">Perhitungan SHU</button>
                             <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white" data-report="inventaris">Daftar Inventaris</button>
-                            <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white" data-report="biaya-sewa">Biaya Sewa</button>
-                            <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white" data-report="penjualan">Penjualan</button>
                         </div>
                         <div id="laporan-controls" class="flex flex-wrap items-center gap-4 mb-4"></div>
                         <div id="laporan-content" class="border dark:border-gray-700 rounded-lg p-4 min-h-[300px]"><p class="text-center text-gray-500">Pilih jenis laporan untuk ditampilkan.</p></div>
@@ -279,6 +319,10 @@
                                     <button type="submit" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 w-full">Simpan Catatan</button>
                                 </form>
                                 <div id="list-musyawarah" class="mt-4 space-y-4 max-h-60 overflow-y-auto"></div>
+                            </div>
+                             <div class="md:col-span-2">
+                                <h3 class="text-lg font-semibold mb-3 border-b pb-2">Struktur Organisasi</h3>
+                                <button id="btn-cetak-struktur" class="bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600"><i class="fas fa-print mr-2"></i>Cetak Struktur Organisasi</button>
                             </div>
                         </div>
                     </div>
@@ -506,34 +550,118 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getDefaultData() {
+        const placeholderImg = 'https://placehold.co/100x100/e2e8f0/333333?text=?';
         return {
             identitas: {
                 nama: "BUMDes Desa Mandiri", status: "BUMDesa", ahu: "AHU-12345.AH.01.01",
                 alamat: { desa: "Desa Mandiri", kec: "Kec. Sejahtera", kab: "Kab. Maju", prov: "Prov. Indonesia", jalan: "Jl. Pembangunan No. 1" },
-                penasihat: { nama: "", hp: "", alamat: "" },
+                penasihat: { nama: "", hp: "", alamat: "", foto: placeholderImg },
                 pengelola: {
-                    direktur: { nama: "John Doe", hp: "", alamat: "" },
-                    sekretaris: { nama: "", hp: "", alamat: "" },
-                    bendahara: { nama: "", hp: "", alamat: "" },
+                    direktur: { nama: "John Doe", hp: "", alamat: "", foto: placeholderImg },
+                    sekretaris: { nama: "", hp: "", alamat: "", foto: placeholderImg },
+                    bendahara: { nama: "", hp: "", alamat: "", foto: placeholderImg },
                 },
-                pengawas: [{ nama: "", hp: "", alamat: "" }],
+                pengawas: [{ id: `pengawas_${Date.now()}`, nama: "", hp: "", alamat: "", foto: placeholderImg }],
+                ketuaUnit: [],
                 pendamping: { 
                     desa: { nama: "", hp: "", alamat: "" }, 
                     lokal: { nama: "", hp: "", alamat: "" } 
                 }
             },
+            shu: {
+                bonusPengurus: 20,
+                pendidikan: 10,
+                danaSosial: 15,
+                paDesa: 50,
+                penambahanModal: 50
+            },
             coa: [
-                { no: '1.1.01.01', nama: 'Kas' }, { no: '1.1.02.01', nama: 'Bank' },
-                { no: '1.2.01.05', nama: 'Inventaris Kantor' }, { no: '1.2.01.10', nama: 'Akum. Penyusutan Inventaris' },
-                { no: '2.1.01.01', nama: 'Utang Usaha' }, { no: '3.1.01.01', nama: 'Modal Desa' },
-                { no: '4.1.01.01', nama: 'Pendapatan Jasa' }, { no: '5.1.01.01', nama: 'Biaya Gaji' },
-                { no: '5.1.08.36', nama: 'Biaya Penyusutan Inventaris' }
+                { no: '1.1.01.01', nama: 'Kas', saldoNormal: 'DEBET', kelompok: 'NERACA' },
+                { no: '1.1.02.01', nama: 'Bank BRI', saldoNormal: 'DEBET', kelompok: 'NERACA' },
+                { no: '1.1.02.02', nama: 'Bank 2', saldoNormal: 'DEBET', kelompok: 'NERACA' },
+                { no: '1.1.03.01', nama: 'Deposit Tiket', saldoNormal: 'DEBET', kelompok: 'NERACA' },
+                { no: '1.1.03.02', nama: 'Piutang Usaha', saldoNormal: 'DEBET', kelompok: 'NERACA' },
+                { no: '1.1.03.03', nama: 'Piutang Karyawan', saldoNormal: 'DEBET', kelompok: 'NERACA' },
+                { no: '1.1.05.01', nama: 'Persediaan Barang Dagang Unit Usaha 1', saldoNormal: 'DEBET', kelompok: 'NERACA' },
+                { no: '1.1.06.01', nama: 'Perlengkapan Kantor', saldoNormal: 'DEBET', kelompok: 'NERACA' },
+                { no: '1.1.07.01', nama: 'Pajak PPn Masukan', saldoNormal: 'DEBET', kelompok: 'NERACA' },
+                { no: '1.1.07.02', nama: 'Pajak dibayar dimuka PPh 23', saldoNormal: 'DEBET', kelompok: 'NERACA' },
+                { no: '1.1.08.02', nama: 'Uang Muka/Pinjaman kepada Karyawan', saldoNormal: 'DEBET', kelompok: 'NERACA' },
+                { no: '1.1.08.03', nama: 'Uang muka Pembelian', saldoNormal: 'DEBET', kelompok: 'NERACA' },
+                { no: '1.1.08.04', nama: 'Cash Advance', saldoNormal: 'DEBET', kelompok: 'NERACA' },
+                { no: '1.1.08.06', nama: 'Cashbon/Pinjaman', saldoNormal: 'DEBET', kelompok: 'NERACA' },
+                { no: '1.1.08.07', nama: 'Sewa di bayar dimuka', saldoNormal: 'DEBET', kelompok: 'NERACA' },
+                { no: '1.2.01.02', nama: 'Bangunan', saldoNormal: 'DEBET', kelompok: 'NERACA' },
+                { no: '1.2.01.03', nama: 'Kendaraan', saldoNormal: 'DEBET', kelompok: 'NERACA' },
+                { no: '1.2.01.05', nama: 'Inventaris Kantor', saldoNormal: 'DEBET', kelompok: 'NERACA' },
+                { no: '1.2.01.07', nama: 'Akumulasi Penyusutan Bangunan', saldoNormal: 'KREDIT', kelompok: 'NERACA' },
+                { no: '1.2.01.08', nama: 'Akumulasi Penyusutan Kendaraan', saldoNormal: 'KREDIT', kelompok: 'NERACA' },
+                { no: '1.2.01.09', nama: 'Akumulasi Penyusutan Sewa dibayar dimuka', saldoNormal: 'KREDIT', kelompok: 'NERACA' },
+                { no: '1.2.01.10', nama: 'Akumulasi Penyusutan Inventaris Kantor', saldoNormal: 'KREDIT', kelompok: 'NERACA' },
+                { no: '1.2.04.01', nama: 'Kitchen Machinery (Perlengkapan Dapur)', saldoNormal: 'DEBET', kelompok: 'NERACA' },
+                { no: '2.1.01.01', nama: 'Utang Usaha', saldoNormal: 'KREDIT', kelompok: 'NERACA' },
+                { no: '2.1.02.01', nama: 'Utang PPn Keluaran', saldoNormal: 'KREDIT', kelompok: 'NERACA' },
+                { no: '2.1.02.02', nama: 'Utang PPh 21', saldoNormal: 'KREDIT', kelompok: 'NERACA' },
+                { no: '2.1.02.04', nama: 'Utang PPh 23', saldoNormal: 'KREDIT', kelompok: 'NERACA' },
+                { no: '2.1.03.01', nama: 'Utang Gaji/Upah', saldoNormal: 'KREDIT', kelompok: 'NERACA' },
+                { no: '2.1.03.02', nama: 'Utang BPJS Kesehatan', saldoNormal: 'KREDIT', kelompok: 'NERACA' },
+                { no: '2.1.03.06', nama: 'Utang Deposit', saldoNormal: 'KREDIT', kelompok: 'NERACA' },
+                { no: '2.1.04.04', nama: 'Pendapatan diterima dimuka', saldoNormal: 'KREDIT', kelompok: 'NERACA' },
+                { no: '2.1.04.05', nama: 'Utang Lainnya', saldoNormal: 'KREDIT', kelompok: 'NERACA' },
+                { no: '3.1.01.01', nama: 'Modal dari Desa', saldoNormal: 'KREDIT', kelompok: 'NERACA' },
+                { no: '3.1.01.02', nama: 'Utang Direksi', saldoNormal: 'KREDIT', kelompok: 'NERACA' },
+                { no: '3.1.01.03', nama: 'Modal dari Masyarakat', saldoNormal: 'KREDIT', kelompok: 'NERACA' },
+                { no: '3.1.01.04', nama: 'Hibah', saldoNormal: 'KREDIT', kelompok: 'NERACA' },
+                { no: '3.1.02.01', nama: 'Saldo Laba ditahan', saldoNormal: 'KREDIT', kelompok: 'NERACA' },
+                { no: '3.1.02.02', nama: 'Saldo Laba tahun berjalan', saldoNormal: 'KREDIT', kelompok: 'NERACA' },
+                { no: '4.1.01', nama: 'Pendapatan Unit Usaha 1', saldoNormal: 'KREDIT', kelompok: 'LABA RUGI' },
+                { no: '5.1.0.01', nama: 'HPP Unit Usaha 1', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.01.01', nama: 'Biaya Gaji/Upah Produksi Unit Usaha 1', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.01.06', nama: 'Biaya Insentif dan Bonus Unit Usaha 1', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.01.08', nama: 'Biaya Produksi Unit Usaha 1', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.01.09', nama: 'Biaya Medis Unit Usaha 1', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.01.10', nama: 'Biaya Perjalanan Dinas Unit Unit Usaha 1', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.01.11', nama: 'Biaya Transportasi, bbm, Toll dan Parkir Unit Usaha 1', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.01.12', nama: 'Biaya Listrik dan PDAM Unit Usaha 1', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.01.13', nama: 'Biaya Gas Unit Usaha 1', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.01.16', nama: 'Biaya Keamanan dan Kebersihan Unit Usaha 1', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.01.18', nama: 'Biaya ATK dan Fotocopy Unit Usaha 1', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.01.19', nama: 'Biaya Perlengkapan Unit Usaha 1', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.01.20', nama: 'Pembelian Inventaris Unit Usaha 1', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.01.22', nama: 'Biaya Servis dan Pemeliharaan Unit Usaha 1', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.01.23', nama: 'Biaya Sewa dibayar dimuka Unit Usaha 1', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.01.24', nama: 'Biaya Entertaiment dan Representasi Unit Usaha 1', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.01.33', nama: 'Biaya Operasional Lainnya Unit Usaha 1', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.01.34', nama: 'Biaya Penyusutan Bangunan Kantor Unit Usaha 1', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.01.35', nama: 'Biaya Penyusutan Kendaraan Unit Usaha 1', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.01.36', nama: 'Biaya Penyusutan Inventaris Kantor Unit Usaha 1', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '6.1.00', nama: 'Pendapatan diluar usaha lainnya', saldoNormal: 'KREDIT', kelompok: 'LABA RUGI' },
+                { no: '5.1.07.01', nama: 'Biaya diluar Usaha', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.08.01', nama: 'Gaji+tunjangan (Penasihat,Direktur,Sekretaris,Bendahara dan Pengawas)', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.08.06', nama: 'Biaya Insentif dan Bonus Pengurus BUM Desa', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.08.08', nama: 'Biaya Makan Pengurus BUM Desa', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.08.09', nama: 'Biaya Medis Pengurus BUM Desa', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.08.10', nama: 'Biaya Perjalanan Dinas Pengurus BUM Desa', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.08.11', nama: 'Biaya Transportasi, bbm, Toll dan Parkir Pengurus BUM Desa', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.08.12', nama: 'Biaya Listrik dan PDAM BUM Desa', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.08.13', nama: 'Biaya Gas BUM Desa', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.08.16', nama: 'Biaya Keamanan dan Kebersihan BUM Desa', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.08.18', nama: 'Biaya ATK dan Fotocopy BUM Desa', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.08.19', nama: 'Biaya Perlengkapan BUM Desa', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.08.20', nama: 'Pembelian Inventaris BUM Desa', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.08.22', nama: 'Biaya Servis dan Pemeliharaan BUM Desa', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.08.23', nama: 'Biaya Sewa dibayar dimuka BUMDes', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.08.24', nama: 'Biaya Entertaiment dan Representasi BUM Desa', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.08.33', nama: 'Biaya Operasional Lainnya BUM Desa', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.08.34', nama: 'Biaya Penyusutan Bangunan Kantor BUM Desa', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.08.35', nama: 'Biaya Penyusutan Kendaraan BUM Desa', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.08.36', nama: 'Biaya Penyusutan Inventaris Kantor BUM Desa', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
             ],
             jurnal: [],
             jurnalCounter: {},
             inventaris: [],
             biayaSewa: [],
-            unitUsaha: [{ id: 'utama', nama: 'Kantor Utama', deskripsi: 'Kegiatan operasional utama BUMDes' }],
+            unitUsaha: [{ id: '1', nama: 'Unit Usaha 1', deskripsi: 'Kegiatan operasional utama BUMDes' }],
             dokumen: { perdes: null, adart: null, sk: null, sertifikat: null },
             musyawarah: [],
             pengguna: [{ username: 'admin', password: 'password', peran: 'Admin' }],
@@ -607,6 +735,11 @@ document.addEventListener('DOMContentLoaded', () => {
             el('#page-title').textContent = activeLink.textContent;
         }
 
+        if (window.innerWidth < 1024) {
+            el('#sidebar').classList.add('-translate-x-full');
+            el('#main-wrapper').classList.remove('lg:ml-64');
+        }
+
         switch (pageId) {
             case 'home': renderDashboard(); break;
             case 'unit-usaha': renderUnitUsahaTable(); break;
@@ -620,11 +753,24 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const pageId = link.getAttribute('href').substring(1);
             navigateTo(pageId);
-            if (window.innerWidth < 1024) { el('#sidebar').classList.add('-translate-x-full'); }
         });
     });
     
-    el('#menu-toggle').addEventListener('click', () => { el('#sidebar').classList.toggle('-translate-x-full'); });
+    el('#menu-toggle').addEventListener('click', () => {
+        el('#sidebar').classList.toggle('-translate-x-full');
+        if (!el('#sidebar').classList.contains('-translate-x-full')) {
+            el('#main-wrapper').classList.add('lg:ml-64');
+        } else {
+            el('#main-wrapper').classList.remove('lg:ml-64');
+        }
+    });
+
+    el('#main-content').addEventListener('click', () => {
+        if (window.innerWidth < 1024 && !el('#sidebar').classList.contains('-translate-x-full')) {
+            el('#sidebar').classList.add('-translate-x-full');
+        }
+    });
+
 
     el('#theme-toggle').addEventListener('click', () => {
         const html = document.documentElement;
@@ -637,21 +783,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- DASHBOARD ---
     function renderDashboard() {
-        const { identitas, pengaturan, jurnal } = sikBumdesData;
+        const { identitas, pengaturan, jurnal, coa } = sikBumdesData;
         el('#dashboard-logo').src = pengaturan.logo;
         el('#dashboard-nama-bumdes').textContent = identitas.nama;
         el('#dashboard-alamat').textContent = identitas.alamat ? `${identitas.alamat.jalan}, ${identitas.alamat.desa}` : 'Alamat BUMDes';
         el('#dashboard-ahu').textContent = `Nomor AHU: ${identitas.ahu || '-'}`;
 
-        const { totals } = calculateLedger(jurnal);
-        const aktiva = (totals['1'] || 0);
-        const pasiva = (totals['2'] || 0) + (totals['3'] || 0);
-        
         const now = new Date();
-        const { pendapatan, biaya } = calculateMonthlyTotals(jurnal, now.getFullYear(), now.getMonth());
+        const firstDayOfYear = new Date(now.getFullYear(), 0, 1).toISOString().slice(0,10);
+        const today = now.toISOString().slice(0,10);
 
-        el('#summary-aktiva').textContent = formatCurrency(aktiva);
-        el('#summary-pasiva').textContent = formatCurrency(pasiva);
+        const { ledger } = calculateLedger(jurnal, coa);
+        const { totals: totalsYTD } = calculateLedger(jurnal, coa, today);
+        const { totals: totalsPrevYear } = calculateLedger(jurnal, coa, new Date(now.getFullYear() - 1, 11, 31).toISOString().slice(0,10));
+        
+        const { pendapatan, biaya } = calculateMonthlyTotals(jurnal, coa, now.getFullYear(), now.getMonth());
+
+        const labaRugiYTD = (totalsYTD.labaRugi || 0) - (totalsPrevYear.labaRugi || 0);
+
+        el('#summary-aktiva').textContent = formatCurrency(totalsYTD.aktiva || 0);
+        el('#summary-pasiva').textContent = formatCurrency((totalsYTD.pasiva || 0) + labaRugiYTD);
+        el('#summary-modal-desa').textContent = formatCurrency(ledger['3.1.01.01']?.balance || 0);
+        el('#summary-laba-rugi').textContent = formatCurrency(labaRugiYTD);
         el('#summary-pendapatan').textContent = formatCurrency(pendapatan);
         el('#summary-biaya').textContent = formatCurrency(biaya);
         
@@ -662,39 +815,62 @@ document.addEventListener('DOMContentLoaded', () => {
         renderLabaRugiChart();
     }
 
-    function calculateLedger(jurnalData) {
+    function calculateLedger(jurnalData, coaData, toDate = null) {
         const ledger = {};
-        jurnalData.forEach(entry => {
-            if (!ledger[entry.akunNo]) {
-                ledger[entry.akunNo] = { debit: 0, credit: 0, balance: 0 };
-            }
-            ledger[entry.akunNo].debit += entry.debit;
-            ledger[entry.akunNo].credit += entry.credit;
+        coaData.forEach(akun => {
+            ledger[akun.no] = { debit: 0, credit: 0, balance: 0, ...akun };
         });
 
-        const totals = {};
-        for (const akunNo in ledger) {
-            const type = akunNo.charAt(0);
-            const { debit, credit } = ledger[akunNo];
-            let balance = 0;
-            if (['1', '5'].includes(type)) { balance = debit - credit; } 
-            else { balance = credit - debit; }
-            ledger[akunNo].balance = balance;
+        const filteredJurnal = toDate ? jurnalData.filter(j => new Date(j.tanggal) <= new Date(toDate)) : jurnalData;
 
-            const mainType = akunNo.charAt(0);
-            if (!totals[mainType]) totals[mainType] = 0;
-            totals[mainType] += balance;
+        filteredJurnal.forEach(entry => {
+            if (ledger[entry.akunNo]) {
+                ledger[entry.akunNo].debit += entry.debit;
+                ledger[entry.akunNo].credit += entry.credit;
+            }
+        });
+
+        const totals = { aktiva: 0, pasiva: 0, labaRugi: 0 };
+        for (const akunNo in ledger) {
+            const akun = ledger[akunNo];
+            const { debit, credit, saldoNormal, kelompok } = akun;
+            let balance = 0;
+            if (saldoNormal === 'DEBET') {
+                balance = debit - credit;
+            } else { // KREDIT
+                balance = credit - debit;
+            }
+            akun.balance = balance;
+
+            if (kelompok === 'NERACA') {
+                if (akunNo.startsWith('1')) {
+                    totals.aktiva += balance;
+                } else if (akunNo.startsWith('2') || akunNo.startsWith('3')) {
+                    totals.pasiva += balance;
+                }
+            } else if (kelompok === 'LABA RUGI') {
+                if(saldoNormal === 'DEBET') totals.labaRugi -= balance;
+                else totals.labaRugi += balance;
+            }
         }
         return { ledger, totals };
     }
 
-    function calculateMonthlyTotals(jurnalData, year, month) {
+    function calculateMonthlyTotals(jurnalData, coaData, year, month) {
         let pendapatan = 0, biaya = 0;
+        const coaMap = new Map(coaData.map(a => [a.no, a]));
+
         jurnalData.forEach(j => {
             const jDate = new Date(j.tanggal);
             if (jDate.getFullYear() === year && jDate.getMonth() === month) {
-                if (j.akunNo.startsWith('4')) { pendapatan += j.credit; } 
-                else if (j.akunNo.startsWith('5')) { biaya += j.debit; }
+                const akun = coaMap.get(j.akunNo);
+                if (akun && akun.kelompok === 'LABA RUGI') {
+                    if (akun.saldoNormal === 'KREDIT') { // Pendapatan
+                        pendapatan += j.credit - j.debit;
+                    } else { // Biaya
+                        biaya += j.debit - j.credit;
+                    }
+                }
             }
         });
         return { pendapatan, biaya };
@@ -707,7 +883,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 5; i >= 0; i--) {
             const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
             labels.push(d.toLocaleString('id-ID', { month: 'short' }));
-            const { pendapatan, biaya } = calculateMonthlyTotals(sikBumdesData.jurnal, d.getFullYear(), d.getMonth());
+            const { pendapatan, biaya } = calculateMonthlyTotals(sikBumdesData.jurnal, sikBumdesData.coa, d.getFullYear(), d.getMonth());
             const labaRugi = pendapatan - biaya;
             labaData.push(labaRugi > 0 ? labaRugi : 0);
             rugiData.push(labaRugi < 0 ? -labaRugi : 0);
@@ -723,17 +899,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- INPUT DATA & MASTER ---
     const inputDataContent = el('#input-data-content');
-    el('#btn-show-identitas').addEventListener('click', () => showIdentitasForm());
+    el('#btn-show-identitas').addEventListener('click', () => showIdentitasUmumForm());
+    el('#btn-show-kepengurusan').addEventListener('click', () => showKepengurusanForm());
     el('#btn-show-coa').addEventListener('click', () => showCoaTable());
     el('#btn-show-jurnal').addEventListener('click', () => showJurnalForm());
     el('#btn-show-inventaris').addEventListener('click', () => showInventarisForm());
-    el('#btn-show-sewa').addEventListener('click', () => showSewaForm());
+    el('#btn-show-shu').addEventListener('click', () => showShuForm());
 
-    function showIdentitasForm() {
+    function showIdentitasUmumForm() {
         const { identitas } = sikBumdesData;
         const formHtml = `
-            <h3 class="text-xl font-semibold mb-4 border-b pb-2">Identitas BUMDes & Kepengurusan</h3>
-            <form id="form-identitas" class="space-y-6">
+            <h3 class="text-xl font-semibold mb-4 border-b pb-2">Identitas BUMDes</h3>
+            <form id="form-identitas-umum" class="space-y-6">
                 <fieldset class="p-4 border rounded-lg dark:border-gray-600">
                     <legend class="font-bold px-2">Data Umum</legend>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -745,37 +922,59 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div><label class="block">Kabupaten/Kota</label><input type="text" name="kab" value="${identitas.alamat.kab || ''}" class="form-input"></div>
                     </div>
                 </fieldset>
+                 <div class="text-right">
+                    <button type="submit" class="bg-[var(--color-primary-start)] text-white font-bold py-2 px-6 rounded-lg hover:opacity-90">Simpan Perubahan</button>
+                </div>
+            </form>
+        `;
+        inputDataContent.innerHTML = formHtml.replace(/class="form-input"/g, 'class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 text-sm"');
+        
+        el('#form-identitas-umum').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const id = sikBumdesData.identitas;
+            id.nama = form.nama.value;
+            id.ahu = form.ahu.value;
+            id.alamat = { jalan: form.jalan.value, desa: form.desa.value, kec: form.kec.value, kab: form.kab.value };
+            saveData();
+            showNotification('Data umum BUMDes berhasil diperbarui!');
+            renderDashboard();
+        });
+    }
 
-                <fieldset class="p-4 border rounded-lg dark:border-gray-600">
-                    <legend class="font-bold px-2">Penasehat (Kepala Desa)</legend>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div><label class="block">Nama</label><input type="text" name="penasihat_nama" value="${identitas.penasihat.nama || ''}" class="form-input"></div>
-                        <div><label class="block">No. Handphone</label><input type="text" name="penasihat_hp" value="${identitas.penasihat.hp || ''}" class="form-input"></div>
-                        <div class="md:col-span-3"><label class="block">Alamat</label><input type="text" name="penasihat_alamat" value="${identitas.penasihat.alamat || ''}" class="form-input"></div>
+    function showKepengurusanForm() {
+        const { identitas } = sikBumdesData;
+        const placeholderImg = 'https://placehold.co/100x100/e2e8f0/333333?text=?';
+        
+        const createPengurusCard = (title, data, key) => `
+            <div class="p-4 border rounded-lg dark:border-gray-600">
+                <h5 class="font-semibold text-lg mb-3">${title}</h5>
+                <div class="flex flex-col md:flex-row gap-4 items-center">
+                    <div class="flex-shrink-0">
+                        <img id="foto-preview-${key}" src="${data.foto || placeholderImg}" class="w-24 h-24 rounded-full object-cover">
+                        <label for="foto-upload-${key}" class="cursor-pointer text-sm text-blue-500 hover:underline mt-2 block text-center">Ubah Foto</label>
+                        <input type="file" id="foto-upload-${key}" class="hidden" accept="image/*" data-key="${key}">
                     </div>
-                </fieldset>
+                    <div class="flex-grow space-y-2 w-full">
+                        <div><label class="block text-sm">Nama</label><input type="text" id="nama-${key}" value="${data.nama || ''}" class="form-input"></div>
+                        <div><label class="block text-sm">No. HP</label><input type="text" id="hp-${key}" value="${data.hp || ''}" class="form-input"></div>
+                        <div><label class="block text-sm">Alamat</label><input type="text" id="alamat-${key}" value="${data.alamat || ''}" class="form-input"></div>
+                    </div>
+                </div>
+            </div>
+        `;
 
+        let formHtml = `
+            <h3 class="text-xl font-semibold mb-4 border-b pb-2">Struktur Kepengurusan</h3>
+            <form id="form-kepengurusan" class="space-y-6">
+                ${createPengurusCard('Penasehat (Kepala Desa)', identitas.penasihat, 'penasihat')}
+                
                 <fieldset class="p-4 border rounded-lg dark:border-gray-600">
                     <legend class="font-bold px-2">Pengelola Operasional</legend>
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                        <div class="p-3 border rounded-lg dark:border-gray-600 space-y-2">
-                            <h5 class="font-semibold">Direktur</h5>
-                            <div><label class="block text-sm">Nama</label><input type="text" name="direktur_nama" value="${identitas.pengelola.direktur.nama || ''}" class="form-input"></div>
-                            <div><label class="block text-sm">No. HP</label><input type="text" name="direktur_hp" value="${identitas.pengelola.direktur.hp || ''}" class="form-input"></div>
-                            <div><label class="block text-sm">Alamat</label><input type="text" name="direktur_alamat" value="${identitas.pengelola.direktur.alamat || ''}" class="form-input"></div>
-                        </div>
-                        <div class="p-3 border rounded-lg dark:border-gray-600 space-y-2">
-                            <h5 class="font-semibold">Sekretaris</h5>
-                            <div><label class="block text-sm">Nama</label><input type="text" name="sekretaris_nama" value="${identitas.pengelola.sekretaris.nama || ''}" class="form-input"></div>
-                            <div><label class="block text-sm">No. HP</label><input type="text" name="sekretaris_hp" value="${identitas.pengelola.sekretaris.hp || ''}" class="form-input"></div>
-                            <div><label class="block text-sm">Alamat</label><input type="text" name="sekretaris_alamat" value="${identitas.pengelola.sekretaris.alamat || ''}" class="form-input"></div>
-                        </div>
-                        <div class="p-3 border rounded-lg dark:border-gray-600 space-y-2">
-                            <h5 class="font-semibold">Bendahara</h5>
-                            <div><label class="block text-sm">Nama</label><input type="text" name="bendahara_nama" value="${identitas.pengelola.bendahara.nama || ''}" class="form-input"></div>
-                            <div><label class="block text-sm">No. HP</label><input type="text" name="bendahara_hp" value="${identitas.pengelola.bendahara.hp || ''}" class="form-input"></div>
-                            <div><label class="block text-sm">Alamat</label><input type="text" name="bendahara_alamat" value="${identitas.pengelola.bendahara.alamat || ''}" class="form-input"></div>
-                        </div>
+                    <div class="space-y-4">
+                        ${createPengurusCard('Direktur', identitas.pengelola.direktur, 'direktur')}
+                        ${createPengurusCard('Sekretaris', identitas.pengelola.sekretaris, 'sekretaris')}
+                        ${createPengurusCard('Bendahara', identitas.pengelola.bendahara, 'bendahara')}
                     </div>
                 </fieldset>
                 
@@ -784,25 +983,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div id="pengawas-container" class="space-y-4"></div>
                     <button type="button" id="btn-tambah-pengawas" class="mt-4 bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 text-sm"><i class="fas fa-plus mr-2"></i>Tambah Pengawas</button>
                 </fieldset>
-                
-                <fieldset class="p-4 border rounded-lg dark:border-gray-600">
-                    <legend class="font-bold px-2">Pendamping</legend>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                         <div class="p-3 border rounded-lg dark:border-gray-600 space-y-2">
-                            <h5 class="font-semibold">Pendamping Desa</h5>
-                            <div><label class="block text-sm">Nama</label><input type="text" name="pdesa_nama" value="${identitas.pendamping.desa.nama || ''}" class="form-input"></div>
-                            <div><label class="block text-sm">No. HP</label><input type="text" name="pdesa_hp" value="${identitas.pendamping.desa.hp || ''}" class="form-input"></div>
-                            <div><label class="block text-sm">Alamat</label><input type="text" name="pdesa_alamat" value="${identitas.pendamping.desa.alamat || ''}" class="form-input"></div>
-                        </div>
-                        <div class="p-3 border rounded-lg dark:border-gray-600 space-y-2">
-                            <h5 class="font-semibold">Pendamping Lokal Desa</h5>
-                            <div><label class="block text-sm">Nama</label><input type="text" name="plokal_nama" value="${identitas.pendamping.lokal.nama || ''}" class="form-input"></div>
-                            <div><label class="block text-sm">No. HP</label><input type="text" name="plokal_hp" value="${identitas.pendamping.lokal.hp || ''}" class="form-input"></div>
-                            <div><label class="block text-sm">Alamat</label><input type="text" name="plokal_alamat" value="${identitas.pendamping.lokal.alamat || ''}" class="form-input"></div>
-                        </div>
-                    </div>
-                </fieldset>
 
+                <fieldset class="p-4 border rounded-lg dark:border-gray-600">
+                    <legend class="font-bold px-2">Ketua Unit</legend>
+                    <div id="ketua-unit-container" class="space-y-4"></div>
+                    <button type="button" id="btn-tambah-ketua-unit" class="mt-4 bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 text-sm"><i class="fas fa-plus mr-2"></i>Tambah Ketua Unit</button>
+                </fieldset>
+                
                 <div class="text-right">
                     <button type="submit" class="bg-[var(--color-primary-start)] text-white font-bold py-2 px-6 rounded-lg hover:opacity-90">Simpan Semua Perubahan</button>
                 </div>
@@ -810,86 +997,105 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         inputDataContent.innerHTML = formHtml.replace(/class="form-input"/g, 'class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 text-sm"');
         
-        renderPengawasFields();
+        renderDynamicFields('pengawas', 'Pengawas', el('#pengawas-container'));
+        renderDynamicFields('ketuaUnit', 'Ketua Unit', el('#ketua-unit-container'));
 
-        el('#btn-tambah-pengawas').addEventListener('click', () => {
-            if (sikBumdesData.identitas.pengawas.length < 5) {
-                sikBumdesData.identitas.pengawas.push({ nama: "", hp: "", alamat: "" });
-                renderPengawasFields();
-            } else {
-                showNotification('Maksimal 5 pengawas.', 'error');
-            }
+        el('#btn-tambah-pengawas').addEventListener('click', () => addDynamicField('pengawas', 'Pengawas', el('#pengawas-container')));
+        el('#btn-tambah-ketua-unit').addEventListener('click', () => addDynamicField('ketuaUnit', 'Ketua Unit', el('#ketua-unit-container')));
+
+        // Handle photo uploads
+        all('input[type="file"][id^="foto-upload-"]').forEach(input => {
+            input.addEventListener('change', (e) => {
+                const key = e.target.dataset.key;
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        el(`#foto-preview-${key}`).src = event.target.result;
+                    };
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
         });
 
-        el('#form-identitas').addEventListener('submit', (e) => {
+        el('#form-kepengurusan').addEventListener('submit', (e) => {
             e.preventDefault();
-            const form = e.target;
             const id = sikBumdesData.identitas;
 
-            // Umum & Alamat
-            id.nama = form.nama.value;
-            id.ahu = form.ahu.value;
-            id.alamat = { jalan: form.jalan.value, desa: form.desa.value, kec: form.kec.value, kab: form.kab.value };
-            
-            // Penasehat
-            id.penasihat = { nama: form.penasihat_nama.value, hp: form.penasihat_hp.value, alamat: form.penasihat_alamat.value };
-            
-            // Pengelola
-            id.pengelola.direktur = { nama: form.direktur_nama.value, hp: form.direktur_hp.value, alamat: form.direktur_alamat.value };
-            id.pengelola.sekretaris = { nama: form.sekretaris_nama.value, hp: form.sekretaris_hp.value, alamat: form.sekretaris_alamat.value };
-            id.pengelola.bendahara = { nama: form.bendahara_nama.value, hp: form.bendahara_hp.value, alamat: form.bendahara_alamat.value };
+            const savePengurus = (key, dataObj) => {
+                dataObj.nama = el(`#nama-${key}`).value;
+                dataObj.hp = el(`#hp-${key}`).value;
+                dataObj.alamat = el(`#alamat-${key}`).value;
+                dataObj.foto = el(`#foto-preview-${key}`).src;
+            };
 
-            // Pengawas
-            const pengawasInputs = all('.pengawas-field');
-            const newPengawasData = [];
-            for (let i = 0; i < pengawasInputs.length; i++) {
-                newPengawasData.push({
-                    nama: form[`pengawas_nama_${i}`].value,
-                    hp: form[`pengawas_hp_${i}`].value,
-                    alamat: form[`pengawas_alamat_${i}`].value,
-                });
-            }
-            id.pengawas = newPengawasData;
-            
-            // Pendamping
-            id.pendamping.desa = { nama: form.pdesa_nama.value, hp: form.pdesa_hp.value, alamat: form.pdesa_alamat.value };
-            id.pendamping.lokal = { nama: form.plokal_nama.value, hp: form.plokal_hp.value, alamat: form.plokal_alamat.value };
+            savePengurus('penasihat', id.penasihat);
+            savePengurus('direktur', id.pengelola.direktur);
+            savePengurus('sekretaris', id.pengelola.sekretaris);
+            savePengurus('bendahara', id.pengelola.bendahara);
+
+            id.pengawas = id.pengawas.map(p => {
+                savePengurus(`pengawas_${p.id}`, p);
+                return p;
+            });
+            id.ketuaUnit = id.ketuaUnit.map(ku => {
+                savePengurus(`ketuaUnit_${ku.id}`, ku);
+                return ku;
+            });
 
             saveData();
-            showNotification('Identitas dan kepengurusan berhasil diperbarui!');
-            renderDashboard();
+            showNotification('Data kepengurusan berhasil diperbarui!');
         });
     }
-    
-    function renderPengawasFields() {
-        const container = el('#pengawas-container');
+
+    function renderDynamicFields(type, title, container) {
+        const placeholderImg = 'https://placehold.co/100x100/e2e8f0/333333?text=?';
         container.innerHTML = '';
-        sikBumdesData.identitas.pengawas.forEach((p, index) => {
+        sikBumdesData.identitas[type].forEach((item, index) => {
+            const key = `${type}_${item.id}`;
             const fieldset = document.createElement('div');
-            fieldset.className = 'pengawas-field p-3 border rounded-lg dark:border-gray-600 relative';
+            fieldset.className = 'p-3 border rounded-lg dark:border-gray-600 relative';
             fieldset.innerHTML = `
-                <h5 class="font-semibold mb-2">Pengawas ${index + 1}</h5>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    <div><label class="block text-sm">Nama</label><input type="text" name="pengawas_nama_${index}" value="${p.nama || ''}" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 text-sm"></div>
-                    <div><label class="block text-sm">No. HP</label><input type="text" name="pengawas_hp_${index}" value="${p.hp || ''}" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 text-sm"></div>
-                    <div class="md:col-span-2"><label class="block text-sm">Alamat</label><input type="text" name="pengawas_alamat_${index}" value="${p.alamat || ''}" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 text-sm"></div>
+                <h5 class="font-semibold mb-2">${title} ${index + 1}</h5>
+                <div class="flex flex-col md:flex-row gap-4 items-center">
+                    <div class="flex-shrink-0">
+                        <img id="foto-preview-${key}" src="${item.foto || placeholderImg}" class="w-24 h-24 rounded-full object-cover">
+                        <label for="foto-upload-${key}" class="cursor-pointer text-sm text-blue-500 hover:underline mt-2 block text-center">Ubah Foto</label>
+                        <input type="file" id="foto-upload-${key}" class="hidden" accept="image/*" data-key="${key}">
+                    </div>
+                    <div class="flex-grow space-y-2 w-full">
+                        <div><label class="block text-sm">Nama</label><input type="text" id="nama-${key}" value="${item.nama || ''}" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 text-sm"></div>
+                        <div><label class="block text-sm">No. HP</label><input type="text" id="hp-${key}" value="${item.hp || ''}" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 text-sm"></div>
+                        <div><label class="block text-sm">Alamat</label><input type="text" id="alamat-${key}" value="${item.alamat || ''}" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 text-sm"></div>
+                    </div>
                 </div>
-                <button type="button" class="btn-hapus-pengawas absolute top-2 right-2 text-red-500 hover:text-red-700" data-index="${index}"><i class="fas fa-times-circle"></i></button>
+                <button type="button" class="btn-hapus-dinamis absolute top-2 right-2 text-red-500 hover:text-red-700" data-type="${type}" data-id="${item.id}"><i class="fas fa-times-circle"></i></button>
             `;
             container.appendChild(fieldset);
         });
 
-        all('.btn-hapus-pengawas').forEach(btn => {
+        all('.btn-hapus-dinamis').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const index = parseInt(e.currentTarget.dataset.index, 10);
-                sikBumdesData.identitas.pengawas.splice(index, 1);
-                renderPengawasFields();
+                const id = e.currentTarget.dataset.id;
+                const dataType = e.currentTarget.dataset.type;
+                sikBumdesData.identitas[dataType] = sikBumdesData.identitas[dataType].filter(item => item.id !== id);
+                renderDynamicFields(dataType, title, container);
             });
         });
     }
 
+    function addDynamicField(type, title, container) {
+        const placeholderImg = 'https://placehold.co/100x100/e2e8f0/333333?text=?';
+        if (sikBumdesData.identitas[type].length < 5) {
+            sikBumdesData.identitas[type].push({ id: `${type}_${Date.now()}`, nama: "", hp: "", alamat: "", foto: placeholderImg });
+            renderDynamicFields(type, title, container);
+        } else {
+            showNotification(`Maksimal 5 ${title}.`, 'error');
+        }
+    }
+
+
     function showCoaTable() {
-        const tableHtml = `<div class="flex justify-between items-center mb-4"><h3 class="text-xl font-semibold">Daftar Akun</h3><button id="btn-tambah-akun" class="bg-[var(--color-primary-start)] text-white font-bold py-2 px-4 rounded-lg"><i class="fas fa-plus mr-2"></i>Tambah</button></div><div class="overflow-auto max-h-[500px]"><table class="w-full text-left"><thead class="bg-gray-100 dark:bg-gray-700 sticky top-0"><tr><th class="p-3">No. Akun</th><th class="p-3">Nama Akun</th><th class="p-3">Aksi</th></tr></thead><tbody id="coa-table-body"></tbody></table></div>`;
+        const tableHtml = `<div class="flex justify-between items-center mb-4"><h3 class="text-xl font-semibold">Daftar Akun</h3><button id="btn-tambah-akun" class="bg-[var(--color-primary-start)] text-white font-bold py-2 px-4 rounded-lg"><i class="fas fa-plus mr-2"></i>Tambah</button></div><div class="overflow-auto max-h-[500px]"><table class="w-full text-left"><thead class="bg-gray-100 dark:bg-gray-700 sticky top-0"><tr><th class="p-3">No. Akun</th><th class="p-3">Nama Akun</th><th class="p-3">Kelompok</th><th class="p-3">Saldo Normal</th><th class="p-3">Aksi</th></tr></thead><tbody id="coa-table-body"></tbody></table></div>`;
         inputDataContent.innerHTML = tableHtml;
         renderCoaTable();
         el('#btn-tambah-akun').addEventListener('click', () => showCoaModal());
@@ -898,25 +1104,39 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderCoaTable() {
         const tbody = el('#coa-table-body');
         tbody.innerHTML = '';
-        sikBumdesData.coa.sort((a,b) => a.no.localeCompare(b.no)).forEach((akun, index) => {
+        sikBumdesData.coa.sort((a,b) => a.no.localeCompare(b.no)).forEach((akun) => {
             const row = document.createElement('tr');
             row.className = 'border-b dark:border-gray-700';
-            row.innerHTML = `<td class="p-3">${akun.no}</td><td class="p-3">${akun.nama}</td><td class="p-3"><button class="btn-edit-coa text-blue-500 mr-2" data-index="${index}"><i class="fas fa-edit"></i></button><button class="btn-delete-coa text-red-500" data-index="${index}"><i class="fas fa-trash"></i></button></td>`;
+            row.innerHTML = `<td class="p-3">${akun.no}</td><td class="p-3">${akun.nama}</td><td class="p-3">${akun.kelompok}</td><td class="p-3">${akun.saldoNormal}</td><td class="p-3"><button class="btn-edit-coa text-blue-500 mr-2" data-no="${akun.no}"><i class="fas fa-edit"></i></button><button class="btn-delete-coa text-red-500" data-no="${akun.no}"><i class="fas fa-trash"></i></button></td>`;
             tbody.appendChild(row);
         });
-        all('.btn-edit-coa').forEach(btn => btn.addEventListener('click', (e) => showCoaModal(e.currentTarget.dataset.index)));
-        all('.btn-delete-coa').forEach(btn => btn.addEventListener('click', (e) => deleteCoa(e.currentTarget.dataset.index)));
+        all('.btn-edit-coa').forEach(btn => btn.addEventListener('click', (e) => showCoaModal(e.currentTarget.dataset.no)));
+        all('.btn-delete-coa').forEach(btn => btn.addEventListener('click', (e) => deleteCoa(e.currentTarget.dataset.no)));
     }
 
-    function showCoaModal(index = null) {
-        const isEdit = index !== null;
-        const akun = isEdit ? sikBumdesData.coa[index] : { no: '', nama: '' };
-        const modalHtml = `<div id="coa-modal" class="modal show fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50"><div class="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-md"><h2 class="text-xl font-bold mb-4">${isEdit ? 'Edit' : 'Tambah'} Akun</h2><form id="form-coa"><div class="mb-4"><label>No. Akun</label><input type="text" name="no" value="${akun.no}" class="form-input" required></div><div class="mb-4"><label>Nama Akun</label><input type="text" name="nama" value="${akun.nama}" class="form-input" required></div><div class="flex justify-end space-x-4"><button type="button" id="btn-cancel-coa" class="bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">Batal</button><button type="submit" class="bg-[var(--color-primary-start)] text-white font-bold py-2 px-4 rounded-lg">Simpan</button></div></form></div></div>`;
+    function showCoaModal(akunNo = null) {
+        const isEdit = akunNo !== null;
+        const akun = isEdit ? sikBumdesData.coa.find(a => a.no === akunNo) : { no: '', nama: '', kelompok: 'NERACA', saldoNormal: 'DEBET' };
+        const modalHtml = `<div id="coa-modal" class="modal show fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50"><div class="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-md"><h2 class="text-xl font-bold mb-4">${isEdit ? 'Edit' : 'Tambah'} Akun</h2><form id="form-coa"><div class="mb-4"><label>No. Akun</label><input type="text" name="no" value="${akun.no}" class="form-input" ${isEdit ? 'readonly' : ''} required></div><div class="mb-4"><label>Nama Akun</label><input type="text" name="nama" value="${akun.nama}" class="form-input" required></div><div class="mb-4"><label>Kelompok</label><select name="kelompok" class="form-input"><option value="NERACA" ${akun.kelompok === 'NERACA' ? 'selected' : ''}>NERACA</option><option value="LABA RUGI" ${akun.kelompok === 'LABA RUGI' ? 'selected' : ''}>LABA RUGI</option></select></div><div class="mb-4"><label>Saldo Normal</label><select name="saldoNormal" class="form-input"><option value="DEBET" ${akun.saldoNormal === 'DEBET' ? 'selected' : ''}>DEBET</option><option value="KREDIT" ${akun.saldoNormal === 'KREDIT' ? 'selected' : ''}>KREDIT</option></select></div><div class="flex justify-end space-x-4"><button type="button" id="btn-cancel-coa" class="bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">Batal</button><button type="submit" class="bg-[var(--color-primary-start)] text-white font-bold py-2 px-4 rounded-lg">Simpan</button></div></form></div></div>`;
         el('#modal-container').innerHTML = modalHtml.replace(/class="form-input"/g, 'class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"');
         el('#form-coa').addEventListener('submit', (e) => {
             e.preventDefault();
-            const newAkun = { no: e.target.no.value, nama: e.target.nama.value };
-            if (isEdit) { sikBumdesData.coa[index] = newAkun; } else { sikBumdesData.coa.push(newAkun); }
+            const newAkun = { 
+                no: e.target.no.value, 
+                nama: e.target.nama.value,
+                kelompok: e.target.kelompok.value,
+                saldoNormal: e.target.saldoNormal.value
+            };
+            if (isEdit) { 
+                const index = sikBumdesData.coa.findIndex(a => a.no === akunNo);
+                if (index > -1) sikBumdesData.coa[index] = newAkun;
+            } else { 
+                if (sikBumdesData.coa.some(a => a.no === newAkun.no)) {
+                    showNotification('Nomor akun sudah ada!', 'error');
+                    return;
+                }
+                sikBumdesData.coa.push(newAkun); 
+            }
             saveData();
             renderCoaTable();
             closeModal('coa-modal');
@@ -924,31 +1144,20 @@ document.addEventListener('DOMContentLoaded', () => {
         el('#btn-cancel-coa').addEventListener('click', () => closeModal('coa-modal'));
     }
 
-    function deleteCoa(index) {
+    function deleteCoa(akunNo) {
         if (confirm('Yakin ingin menghapus akun ini?')) {
-            sikBumdesData.coa.splice(index, 1);
+            sikBumdesData.coa = sikBumdesData.coa.filter(a => a.no !== akunNo);
             saveData();
             renderCoaTable();
         }
     }
     
     // --- Jurnal ---
-    function generateNomorBukti() {
-        const { identitas, jurnalCounter } = sikBumdesData;
-        const today = new Date().toISOString().slice(0, 10);
-        const prefix = (identitas.nama || 'BM').substring(0, 2).toUpperCase();
-        if (!jurnalCounter[today]) { jurnalCounter[today] = 0; }
-        jurnalCounter[today]++;
-        const seq = jurnalCounter[today].toString().padStart(3, '0');
-        return `${prefix}-${today.replace(/-/g, '')}-${seq}`;
-    }
-
     function showJurnalForm() {
         const coaOptions = sikBumdesData.coa.sort((a,b) => a.no.localeCompare(b.no)).map(akun => `<option value="${akun.no}">${akun.no} - ${akun.nama}</option>`).join('');
-        const formHtml = `<h3 class="text-xl font-semibold mb-4">Input Jurnal Umum</h3><form id="form-jurnal" class="space-y-4"><div class="grid md:grid-cols-2 gap-4"><div><label>Tanggal</label><input type="date" name="tanggal" value="${new Date().toISOString().slice(0,10)}" class="form-input" required></div><div><label>No. Bukti</label><input type="text" name="bukti" readonly class="form-input bg-gray-200 dark:bg-gray-600"></div></div><div><label>Keterangan</label><textarea name="keterangan" rows="2" class="form-input" required></textarea></div><div class="grid md:grid-cols-2 gap-6 border-t pt-4"><div class="space-y-2"><label class="font-semibold">Akun DEBIT</label><select name="akunDebit" class="form-input" required>${coaOptions}</select><input type="number" name="nominal" class="form-input" placeholder="Nominal" required></div><div class="space-y-2"><label class="font-semibold">Akun KREDIT</label><select name="akunKredit" class="form-input" required>${coaOptions}</select><input type="number" name="nominalKredit" class="form-input bg-gray-200 dark:bg-gray-600" readonly></div></div><div class="text-right"><button type="submit" class="bg-green-500 text-white font-bold py-2 px-4 rounded-lg">Simpan Jurnal</button></div></form><div class="mt-6"><h3 class="text-xl font-semibold mb-4">Jurnal Terakhir</h3><div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-100 dark:bg-gray-700"><tr><th class="p-2">Tgl</th><th class="p-2">Bukti</th><th class="p-2">Keterangan</th><th class="p-2">Akun</th><th class="p-2">Debit</th><th class="p-2">Kredit</th><th class="p-2">Aksi</th></tr></thead><tbody id="jurnal-table-body"></tbody></table></div></div>`;
+        const formHtml = `<h3 class="text-xl font-semibold mb-4">Input Jurnal Umum</h3><form id="form-jurnal" class="space-y-4"><div class="grid md:grid-cols-2 gap-4"><div><label>Tanggal</label><input type="date" name="tanggal" value="${new Date().toISOString().slice(0,10)}" class="form-input" required></div><div><label>Kode Bantu</label><input type="text" name="bukti" class="form-input" required></div></div><div><label>Keterangan</label><textarea name="keterangan" rows="2" class="form-input" required></textarea></div><div class="grid md:grid-cols-2 gap-6 border-t pt-4"><div class="space-y-2"><label class="font-semibold">Akun DEBIT</label><select name="akunDebit" class="form-input" required>${coaOptions}</select><input type="number" name="nominal" class="form-input" placeholder="Nominal" required></div><div class="space-y-2"><label class="font-semibold">Akun KREDIT</label><select name="akunKredit" class="form-input" required>${coaOptions}</select><input type="number" name="nominalKredit" class="form-input bg-gray-200 dark:bg-gray-600" readonly></div></div><div class="text-right"><button type="submit" class="bg-green-500 text-white font-bold py-2 px-4 rounded-lg">Simpan Jurnal</button></div></form><div class="mt-6"><h3 class="text-xl font-semibold mb-4">Jurnal Terakhir</h3><div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-100 dark:bg-gray-700"><tr><th class="p-2">Tgl</th><th class="p-2">Kode Bantu</th><th class="p-2">Keterangan</th><th class="p-2">Akun</th><th class="p-2">Debit</th><th class="p-2">Kredit</th><th class="p-2">Aksi</th></tr></thead><tbody id="jurnal-table-body"></tbody></table></div></div>`;
         inputDataContent.innerHTML = formHtml.replace(/class="form-input"/g, 'class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"');
         const form = el('#form-jurnal');
-        form.bukti.value = generateNomorBukti();
         form.nominal.addEventListener('input', () => { form.nominalKredit.value = form.nominal.value; });
         renderJurnalTable();
         form.addEventListener('submit', saveJurnal);
@@ -968,7 +1177,6 @@ document.addEventListener('DOMContentLoaded', () => {
         showNotification('Jurnal berhasil disimpan!');
         form.reset();
         form.tanggal.value = new Date().toISOString().slice(0,10);
-        form.bukti.value = generateNomorBukti();
         renderJurnalTable();
     }
 
@@ -1073,77 +1281,54 @@ document.addEventListener('DOMContentLoaded', () => {
         form.id.value = '';
     }
 
-    // --- Biaya Sewa ---
-    function showSewaForm() {
-        const formHtml = `<h3 class="text-xl font-semibold mb-4 border-b pb-2">Input Biaya Sewa Dibayar Dimuka</h3><form id="form-sewa" class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg space-y-4 mb-6"><input type="hidden" name="id"><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="block">Objek Sewa</label><input type="text" name="objekSewa" class="form-input" required></div><div><label class="block">Nilai Sewa</label><input type="number" name="nilaiSewa" class="form-input" required></div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="block">Tanggal Mulai Sewa</label><input type="date" name="tanggalMulai" class="form-input" required></div><div><label class="block">Tanggal Selesai Sewa</label><input type="date" name="tanggalSelesai" class="form-input" required></div></div><div class="text-right"><button type="submit" class="bg-green-500 text-white font-bold py-2 px-4 rounded-lg">Simpan Biaya Sewa</button></div></form><div class="mt-6"><h3 class="text-xl font-semibold mb-4">Data Biaya Sewa</h3><div class="overflow-x-auto"><table class="w-full text-left text-sm"><thead class="bg-gray-100 dark:bg-gray-700"><tr><th class="p-2">Objek Sewa</th><th class="p-2">Periode</th><th class="p-2">Nilai Sewa</th><th class="p-2">Amortisasi/Bln</th><th class="p-2">Biaya Diakui</th><th class="p-2">Sisa Nilai</th><th class="p-2">Aksi</th></tr></thead><tbody id="sewa-table-body"></tbody></table></div></div>`;
+    // --- SHU ---
+    function showShuForm() {
+        const { shu } = sikBumdesData;
+        const formHtml = `
+            <h3 class="text-xl font-semibold mb-4 border-b pb-2">Pengaturan Persentase Sisa Hasil Usaha (SHU)</h3>
+            <form id="form-shu" class="space-y-4 max-w-lg mx-auto">
+                <div>
+                    <label class="block mb-1">Bonus Tahunan Perangkat BUM Desa (%)</label>
+                    <input type="number" name="bonusPengurus" value="${shu.bonusPengurus || 0}" class="form-input">
+                </div>
+                <div>
+                    <label class="block mb-1">Pendidikan (Capacity Building) (%)</label>
+                    <input type="number" name="pendidikan" value="${shu.pendidikan || 0}" class="form-input">
+                </div>
+                <div>
+                    <label class="block mb-1">Dana Sosial/CSR/TJSL/RTM (%)</label>
+                    <input type="number" name="danaSosial" value="${shu.danaSosial || 0}" class="form-input">
+                </div>
+                <hr class="my-6">
+                <p class="text-sm text-gray-500">Persentase berikut dihitung dari sisa SHU setelah dikurangi alokasi di atas.</p>
+                <div>
+                    <label class="block mb-1">Pendapatan Asli Desa (PA Desa) (%)</label>
+                    <input type="number" name="paDesa" value="${shu.paDesa || 0}" class="form-input">
+                </div>
+                <div>
+                    <label class="block mb-1">Surplus ditahan/Penambahan Modal (%)</label>
+                    <input type="number" name="penambahanModal" value="${shu.penambahanModal || 0}" class="form-input">
+                </div>
+                <div class="text-right pt-4">
+                    <button type="submit" class="bg-green-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-600">Simpan Pengaturan</button>
+                </div>
+            </form>
+        `;
         inputDataContent.innerHTML = formHtml.replace(/class="form-input"/g, 'class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"');
-        renderSewaTable();
-        el('#form-sewa').addEventListener('submit', saveSewa);
-    }
-
-    function renderSewaTable() {
-        const tbody = el('#sewa-table-body');
-        if (!tbody) return;
-        tbody.innerHTML = '';
-        sikBumdesData.biayaSewa.forEach((item, index) => {
-            const row = document.createElement('tr');
-            row.className = 'border-b dark:border-gray-700';
-            const nilaiSewa = parseFloat(item.nilaiSewa);
-            const tglMulai = new Date(item.tanggalMulai);
-            const tglSelesai = new Date(item.tanggalSelesai);
-            const today = new Date();
-            const totalMonths = (tglSelesai.getFullYear() - tglMulai.getFullYear()) * 12 + (tglSelesai.getMonth() - tglMulai.getMonth()) + 1;
-            const amortisasiPerBulan = totalMonths > 0 ? nilaiSewa / totalMonths : 0;
-            let monthsPassed = 0;
-            if (today > tglMulai) {
-                monthsPassed = (today.getFullYear() - tglMulai.getFullYear()) * 12 + (today.getMonth() - tglMulai.getMonth()) + 1;
-                monthsPassed = Math.max(0, Math.min(monthsPassed, totalMonths));
-            }
-            const biayaDiakui = amortisasiPerBulan * monthsPassed;
-            const sisaNilai = nilaiSewa - biayaDiakui;
-            row.innerHTML = `<td class="p-2">${item.objekSewa}</td><td class="p-2">${item.tanggalMulai} s/d ${item.tanggalSelesai}</td><td class="p-2 text-right">${formatCurrency(nilaiSewa)}</td><td class="p-2 text-right">${formatCurrency(amortisasiPerBulan)}</td><td class="p-2 text-right">${formatCurrency(biayaDiakui)}</td><td class="p-2 text-right font-semibold">${formatCurrency(sisaNilai)}</td><td class="p-2"><button class="btn-edit-sewa text-blue-500 mr-2" data-index="${index}"><i class="fas fa-edit"></i></button><button class="btn-delete-sewa text-red-500" data-index="${index}"><i class="fas fa-trash"></i></button></td>`;
-            tbody.appendChild(row);
+        
+        el('#form-shu').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const form = e.target;
+            sikBumdesData.shu = {
+                bonusPengurus: parseFloat(form.bonusPengurus.value),
+                pendidikan: parseFloat(form.pendidikan.value),
+                danaSosial: parseFloat(form.danaSosial.value),
+                paDesa: parseFloat(form.paDesa.value),
+                penambahanModal: parseFloat(form.penambahanModal.value),
+            };
+            saveData();
+            showNotification('Pengaturan SHU berhasil disimpan!');
         });
-        all('.btn-edit-sewa').forEach(btn => btn.addEventListener('click', (e) => {
-            const index = e.currentTarget.dataset.index;
-            const item = sikBumdesData.biayaSewa[index];
-            const form = el('#form-sewa');
-            form.id.value = item.id;
-            form.objekSewa.value = item.objekSewa;
-            form.nilaiSewa.value = item.nilaiSewa;
-            form.tanggalMulai.value = item.tanggalMulai;
-            form.tanggalSelesai.value = item.tanggalSelesai;
-        }));
-        all('.btn-delete-sewa').forEach(btn => btn.addEventListener('click', (e) => {
-            if (confirm('Yakin ingin menghapus data biaya sewa ini?')) {
-                sikBumdesData.biayaSewa.splice(e.currentTarget.dataset.index, 1);
-                saveData();
-                renderSewaTable();
-            }
-        }));
-    }
-
-    function saveSewa(e) {
-        e.preventDefault();
-        const form = e.target;
-        const id = form.id.value;
-        const newItem = {
-            id: id || `sewa_${Date.now()}`,
-            objekSewa: form.objekSewa.value,
-            nilaiSewa: parseFloat(form.nilaiSewa.value),
-            tanggalMulai: form.tanggalMulai.value,
-            tanggalSelesai: form.tanggalSelesai.value
-        };
-        if (id) {
-            const index = sikBumdesData.biayaSewa.findIndex(item => item.id === id);
-            sikBumdesData.biayaSewa[index] = newItem;
-        } else {
-            sikBumdesData.biayaSewa.push(newItem);
-        }
-        saveData();
-        renderSewaTable();
-        form.reset();
-        form.id.value = '';
     }
     
     // --- Unit Usaha ---
@@ -1153,24 +1338,35 @@ document.addEventListener('DOMContentLoaded', () => {
         sikBumdesData.unitUsaha.forEach((unit, index) => {
             const row = document.createElement('tr');
             row.className = 'border-b dark:border-gray-700';
-            row.innerHTML = `<td class="p-3">${unit.nama}</td><td class="p-3">${unit.deskripsi}</td><td class="p-3"><button class="btn-edit-unit text-blue-500 mr-2" data-index="${index}"><i class="fas fa-edit"></i></button>${unit.id !== 'utama' ? `<button class="btn-delete-unit text-red-500" data-index="${index}"><i class="fas fa-trash"></i></button>` : ''}</td>`;
+            row.innerHTML = `<td class="p-3">${unit.nama}</td><td class="p-3">${unit.deskripsi}</td><td class="p-3"><button class="btn-edit-unit text-blue-500 mr-2" data-id="${unit.id}"><i class="fas fa-edit"></i></button>${unit.id !== '1' ? `<button class="btn-delete-unit text-red-500" data-id="${unit.id}"><i class="fas fa-trash"></i></button>` : ''}</td>`;
             tbody.appendChild(row);
         });
-        all('.btn-edit-unit').forEach(btn => btn.addEventListener('click', e => showUnitUsahaModal(e.currentTarget.dataset.index)));
-        all('.btn-delete-unit').forEach(btn => btn.addEventListener('click', e => deleteUnitUsaha(e.currentTarget.dataset.index)));
+        all('.btn-edit-unit').forEach(btn => btn.addEventListener('click', e => showUnitUsahaModal(e.currentTarget.dataset.id)));
+        all('.btn-delete-unit').forEach(btn => btn.addEventListener('click', e => deleteUnitUsaha(e.currentTarget.dataset.id)));
     }
     
     el('#btn-tambah-unit').addEventListener('click', () => showUnitUsahaModal());
     
-    function showUnitUsahaModal(index = null) {
-        const isEdit = index !== null;
-        const unit = isEdit ? sikBumdesData.unitUsaha[index] : { id: `unit_${Date.now()}`, nama: '', deskripsi: '' };
+    function showUnitUsahaModal(unitId = null) {
+        const isEdit = unitId !== null;
+        const unit = isEdit ? sikBumdesData.unitUsaha.find(u => u.id === unitId) : { id: `unit_${Date.now()}`, nama: '', deskripsi: '' };
         const modalHtml = `<div id="unit-modal" class="modal show fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50"><div class="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-md"><h2 class="text-xl font-bold mb-4">${isEdit ? 'Edit' : 'Tambah'} Unit Usaha</h2><form id="form-unit"><div class="mb-4"><label>Nama Unit</label><input type="text" name="nama" value="${unit.nama}" class="form-input" required></div><div class="mb-4"><label>Deskripsi</label><textarea name="deskripsi" rows="3" class="form-input">${unit.deskripsi}</textarea></div><div class="flex justify-end space-x-4"><button type="button" id="btn-cancel-unit" class="bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">Batal</button><button type="submit" class="bg-[var(--color-primary-start)] text-white font-bold py-2 px-4 rounded-lg">Simpan</button></div></form></div></div>`;
         el('#modal-container').innerHTML = modalHtml.replace(/class="form-input"/g, 'class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"');
+        
         el('#form-unit').addEventListener('submit', (e) => {
             e.preventDefault();
-            const newUnit = { id: unit.id, nama: e.target.nama.value, deskripsi: e.target.deskripsi.value };
-            if (isEdit) { sikBumdesData.unitUsaha[index] = newUnit; } else { sikBumdesData.unitUsaha.push(newUnit); }
+            const form = e.target;
+            const newUnit = { id: unit.id, nama: form.nama.value, deskripsi: form.deskripsi.value };
+            
+            if (isEdit) {
+                const index = sikBumdesData.unitUsaha.findIndex(u => u.id === unitId);
+                if (index > -1) sikBumdesData.unitUsaha[index] = newUnit;
+            } else {
+                sikBumdesData.unitUsaha.push(newUnit);
+                // Generate accounts for the new unit
+                const newAccounts = generateUnitAccounts(newUnit);
+                sikBumdesData.coa.push(...newAccounts);
+            }
             saveData();
             renderUnitUsahaTable();
             closeModal('unit-modal');
@@ -1178,13 +1374,30 @@ document.addEventListener('DOMContentLoaded', () => {
         el('#btn-cancel-unit').addEventListener('click', () => closeModal('unit-modal'));
     }
 
-    function deleteUnitUsaha(index) {
-        if (confirm('Yakin ingin menghapus unit usaha ini?')) {
-            sikBumdesData.unitUsaha.splice(index, 1);
+    function deleteUnitUsaha(unitId) {
+        if (confirm('Yakin ingin menghapus unit usaha ini? Ini juga akan menghapus akun terkait.')) {
+            sikBumdesData.unitUsaha = sikBumdesData.unitUsaha.filter(u => u.id !== unitId);
+            // Remove related accounts
+            const unitIdentifier = `Unit Usaha ${unitId}`;
+            sikBumdesData.coa = sikBumdesData.coa.filter(a => !a.nama.includes(unitIdentifier));
             saveData();
             renderUnitUsahaTable();
         }
     }
+    
+    function generateUnitAccounts(unit) {
+        const unitNumber = sikBumdesData.unitUsaha.length;
+        const unitName = unit.nama;
+        const templateAccounts = [
+            { no: `1.1.05.${String(unitNumber).padStart(2, '0')}`, nama: `Persediaan Barang Dagang ${unitName}`, saldoNormal: 'DEBET', kelompok: 'NERACA' },
+            { no: `4.1.${String(unitNumber).padStart(2, '0')}`, nama: `Pendapatan ${unitName}`, saldoNormal: 'KREDIT', kelompok: 'LABA RUGI' },
+            { no: `5.1.${String(unitNumber).padStart(2, '0')}.01`, nama: `HPP ${unitName}`, saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+            { no: `5.1.${String(unitNumber).padStart(2, '0')}.02`, nama: `Biaya Gaji/Upah Produksi ${unitName}`, saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+            // Add more template accounts here if needed
+        ];
+        return templateAccounts;
+    }
+
 
     // --- Administrasi ---
     function renderDokumenList() {
@@ -1227,6 +1440,11 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.readAsDataURL(file);
     });
     
+    el('#btn-cetak-struktur').addEventListener('click', () => {
+        const content = generateStrukturOrganisasi();
+        printReportWithHeader('Bagan Struktur Organisasi', '', content, true);
+    });
+    
     // --- Laporan ---
     all('.btn-laporan').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -1241,29 +1459,39 @@ document.addEventListener('DOMContentLoaded', () => {
         const contentEl = el('#laporan-content');
         const controlsEl = el('#laporan-controls');
         const now = new Date();
-        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0,10);
-        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0,10);
+        const firstDay = new Date(now.getFullYear(), 0, 1).toISOString().slice(0,10);
+        const lastDay = new Date(now.getFullYear(), 11, 31).toISOString().slice(0,10);
         let controlsHtml = '';
         const dateControls = `<span id="date-range-controls"><label>Dari:</label> <input type="date" id="report-start-date" value="${firstDay}" class="form-control"> <label>Sampai:</label> <input type="date" id="report-end-date" value="${lastDay}" class="form-control"></span>`;
         const singleDateControl = `<span id="single-date-controls"><label>Per Tanggal:</label> <input type="date" id="report-end-date" value="${lastDay}" class="form-control"></span>`;
+        
+        controlsEl.innerHTML = ''; // Clear previous controls
         
         switch(type) {
             case 'buku-besar':
                 const coaOptions = sikBumdesData.coa.sort((a,b) => a.no.localeCompare(b.no)).map(akun => `<option value="${akun.no}">${akun.no} - ${akun.nama}</option>`).join('');
                 controlsHtml += `<label>Akun:</label> <select id="report-akun-select" class="form-control">${coaOptions}</select>${dateControls}`;
                 break;
-            case 'posisi-keuangan': case 'neraca-saldo': case 'inventaris':
+            case 'posisi-keuangan': case 'neraca-saldo': case 'inventaris': case 'shu':
                 controlsHtml += singleDateControl;
+                break;
+             case 'struktur-organisasi':
+                // No controls needed, handled in Administrasi page
                 break;
             default:
                 controlsHtml += dateControls;
         }
-        controlsHtml += `<button id="btn-filter-report" class="bg-blue-500 text-white px-3 py-1 rounded">Tampilkan</button><button id="btn-print-report" class="bg-green-500 text-white px-3 py-1 rounded"><i class="fas fa-print"></i> Cetak</button>`;
+        if(type !== 'struktur-organisasi') {
+            controlsHtml += `<button id="btn-filter-report" class="bg-blue-500 text-white px-3 py-1 rounded">Tampilkan</button><button id="btn-print-report" class="bg-green-500 text-white px-3 py-1 rounded"><i class="fas fa-print"></i> Cetak</button>`;
+        }
         controlsEl.innerHTML = controlsHtml.replace(/class="form-control"/g, 'class="p-1 border rounded dark:bg-gray-700 dark:border-gray-600"');
         
         const renderFunction = () => {
-            const startDate = el('#report-start-date') ? el('#report-start-date').value : null;
-            const endDate = el('#report-end-date').value;
+            const startDateEl = el('#report-start-date');
+            const endDateEl = el('#report-end-date');
+            const startDate = startDateEl ? startDateEl.value : null;
+            const endDate = endDateEl ? endDateEl.value : null;
+
             let reportHtml = '';
             switch (type) {
                 case 'laba-rugi': reportHtml = generateLabaRugi(startDate, endDate); break;
@@ -1272,30 +1500,260 @@ document.addEventListener('DOMContentLoaded', () => {
                 case 'buku-besar': reportHtml = generateBukuBesar(el('#report-akun-select').value, startDate, endDate); break;
                 case 'arus-kas': reportHtml = generateArusKas(startDate, endDate); break;
                 case 'inventaris': reportHtml = generateLaporanInventaris(endDate); break;
+                case 'shu': reportHtml = generateShuReport(endDate); break;
                 default: reportHtml = `<p class="text-center text-gray-500">Laporan '${type}' belum tersedia.</p>`;
             }
             contentEl.innerHTML = reportHtml;
         };
 
-        el('#btn-filter-report').addEventListener('click', renderFunction);
-        el('#btn-print-report').addEventListener('click', () => {
-            const reportTitle = getReportTitle(type);
-            const period = el('#report-start-date') ? `Periode ${el('#report-start-date').value} s/d ${el('#report-end-date').value}` : `Per Tanggal ${el('#report-end-date').value}`;
-            printReportWithHeader(reportTitle, period, contentEl.innerHTML);
-        });
+        if(el('#btn-filter-report')) {
+            el('#btn-filter-report').addEventListener('click', renderFunction);
+        }
+        if(el('#btn-print-report')) {
+            el('#btn-print-report').addEventListener('click', () => {
+                const reportTitle = getReportTitle(type);
+                const period = el('#report-start-date') ? `Periode ${el('#report-start-date').value} s/d ${el('#report-end-date').value}` : (el('#report-end-date') ? `Per Tanggal ${el('#report-end-date').value}` : '');
+                printReportWithHeader(reportTitle, period, contentEl.innerHTML, type === 'struktur-organisasi');
+            });
+        }
         renderFunction();
     }
 
     function getReportTitle(type) {
-        const titles = { 'laba-rugi': 'Laporan Laba Rugi', 'posisi-keuangan': 'Laporan Posisi Keuangan', 'neraca-saldo': 'Laporan Neraca Saldo', 'buku-besar': 'Laporan Buku Besar', 'arus-kas': 'Laporan Arus Kas', 'inventaris': 'Laporan Daftar Inventaris' };
+        const titles = { 'laba-rugi': 'Laporan Laba Rugi', 'posisi-keuangan': 'Laporan Posisi Keuangan', 'neraca-saldo': 'Laporan Neraca Saldo', 'buku-besar': 'Laporan Buku Besar', 'arus-kas': 'Laporan Arus Kas', 'inventaris': 'Laporan Daftar Inventaris', 'struktur-organisasi': 'Bagan Struktur Organisasi', 'shu': 'Perhitungan Sisa Hasil Usaha (SHU)' };
         return titles[type] || 'Laporan';
     }
 
-    function generateLabaRugi(startDate, endDate) { return 'Laporan Laba Rugi'; }
-    function generatePosisiKeuangan(endDate) { return 'Laporan Posisi Keuangan'; }
-    function generateNeracaSaldo(endDate) { return 'Laporan Neraca Saldo'; }
-    function generateBukuBesar(akunNo, startDate, endDate) { return 'Laporan Buku Besar'; }
-    function generateArusKas(startDate, endDate) { return 'Laporan Arus Kas'; }
+    function generateLabaRugi(startDate, endDate) {
+        const { ledger } = calculateLedger(sikBumdesData.jurnal, sikBumdesData.coa, endDate);
+        const { ledger: prevLedger } = calculateLedger(sikBumdesData.jurnal, sikBumdesData.coa, new Date(new Date(startDate) - 1).toISOString().slice(0,10));
+
+        let html = `<table class="w-full text-sm report-table">`;
+        let totalPendapatan = 0;
+        let totalBiaya = 0;
+
+        html += `<tr><td class="level-1" colspan="2">Pendapatan</td></tr>`;
+        sikBumdesData.coa.filter(a => a.kelompok === 'LABA RUGI' && a.saldoNormal === 'KREDIT').sort((a,b) => a.no.localeCompare(b.no)).forEach(akun => {
+            const balance = (ledger[akun.no]?.balance || 0) - (prevLedger[akun.no]?.balance || 0);
+            if (balance !== 0) {
+                html += `<tr><td class="level-2">${akun.nama}</td><td class="text-right">${formatCurrency(balance)}</td></tr>`;
+                totalPendapatan += balance;
+            }
+        });
+        html += `<tr class="total-row"><td class="level-2">Total Pendapatan</td><td class="text-right">${formatCurrency(totalPendapatan)}</td></tr>`;
+
+        html += `<tr><td class="level-1 pt-4" colspan="2">Biaya-biaya</td></tr>`;
+        sikBumdesData.coa.filter(a => a.kelompok === 'LABA RUGI' && a.saldoNormal === 'DEBET').sort((a,b) => a.no.localeCompare(b.no)).forEach(akun => {
+            const balance = (ledger[akun.no]?.balance || 0) - (prevLedger[akun.no]?.balance || 0);
+            if (balance !== 0) {
+                html += `<tr><td class="level-2">${akun.nama}</td><td class="text-right">${formatCurrency(balance)}</td></tr>`;
+                totalBiaya += balance;
+            }
+        });
+        html += `<tr class="total-row"><td class="level-2">Total Biaya</td><td class="text-right">${formatCurrency(totalBiaya)}</td></tr>`;
+
+        const labaRugi = totalPendapatan - totalBiaya;
+        html += `<tr class="total-row mt-4"><td class="level-1">Laba (Rugi) Bersih</td><td class="text-right">${formatCurrency(labaRugi)}</td></tr>`;
+        html += `</table>`;
+        return html;
+    }
+    
+    function generatePosisiKeuangan(endDate) {
+        const { ledger, totals } = calculateLedger(sikBumdesData.jurnal, sikBumdesData.coa, endDate);
+        
+        let html = `<table class="w-full text-sm report-table">`;
+        let totalAktivaLancar = 0;
+        let totalAktivaTetap = 0;
+        let totalUtang = 0;
+        let totalModal = 0;
+
+        // AKTIVA
+        html += `<tr><td class="level-1" colspan="2">AKTIVA</td></tr>`;
+        html += `<tr><td class="level-2" colspan="2">Aktiva Lancar</td></tr>`;
+        sikBumdesData.coa.filter(a => a.no.startsWith('1.1')).sort((a,b) => a.no.localeCompare(b.no)).forEach(akun => {
+            const balance = ledger[akun.no]?.balance || 0;
+            totalAktivaLancar += balance;
+            html += `<tr><td class="level-3">${akun.nama}</td><td class="text-right">${formatCurrency(balance)}</td></tr>`;
+        });
+        html += `<tr class="total-row"><td class="level-2">Total Aktiva Lancar</td><td class="text-right">${formatCurrency(totalAktivaLancar)}</td></tr>`;
+        
+        html += `<tr><td class="level-2 pt-2" colspan="2">Aktiva Tetap</td></tr>`;
+        sikBumdesData.coa.filter(a => a.no.startsWith('1.2')).sort((a,b) => a.no.localeCompare(b.no)).forEach(akun => {
+            const balance = ledger[akun.no]?.balance || 0;
+            totalAktivaTetap += balance;
+            html += `<tr><td class="level-3">${akun.nama}</td><td class="text-right">${formatCurrency(balance)}</td></tr>`;
+        });
+        html += `<tr class="total-row"><td class="level-2">Total Aktiva Tetap</td><td class="text-right">${formatCurrency(totalAktivaTetap)}</td></tr>`;
+        const totalAktiva = totalAktivaLancar + totalAktivaTetap;
+        html += `<tr class="total-row"><td class="level-1">TOTAL AKTIVA</td><td class="text-right">${formatCurrency(totalAktiva)}</td></tr>`;
+
+        // PASIVA
+        html += `<tr><td class="level-1 pt-4" colspan="2">KEWAJIBAN DAN MODAL</td></tr>`;
+        html += `<tr><td class="level-2" colspan="2">Utang</td></tr>`;
+        sikBumdesData.coa.filter(a => a.no.startsWith('2')).sort((a,b) => a.no.localeCompare(b.no)).forEach(akun => {
+            const balance = ledger[akun.no]?.balance || 0;
+            totalUtang += balance;
+            html += `<tr><td class="level-3">${akun.nama}</td><td class="text-right">${formatCurrency(balance)}</td></tr>`;
+        });
+        html += `<tr class="total-row"><td class="level-2">Total Utang</td><td class="text-right">${formatCurrency(totalUtang)}</td></tr>`;
+
+        html += `<tr><td class="level-2 pt-2" colspan="2">Modal</td></tr>`;
+        sikBumdesData.coa.filter(a => a.no.startsWith('3')).sort((a,b) => a.no.localeCompare(b.no)).forEach(akun => {
+            const balance = ledger[akun.no]?.balance || 0;
+            totalModal += balance;
+            html += `<tr><td class="level-3">${akun.nama}</td><td class="text-right">${formatCurrency(balance)}</td></tr>`;
+        });
+         html += `<tr class="total-row"><td class="level-2">Total Modal</td><td class="text-right">${formatCurrency(totalModal)}</td></tr>`;
+        
+        const totalPasiva = totalUtang + totalModal;
+        html += `<tr class="total-row"><td class="level-1">TOTAL KEWAJIBAN DAN MODAL</td><td class="text-right">${formatCurrency(totalPasiva)}</td></tr>`;
+
+        html += `</table>`;
+        return html;
+    }
+
+    function generateNeracaSaldo(endDate) {
+        const { ledger } = calculateLedger(sikBumdesData.jurnal, sikBumdesData.coa, endDate);
+        let html = `<table class="w-full text-sm report-table"><thead class="bg-gray-100 dark:bg-gray-700"><tr><th class="p-2">No. Akun</th><th class="p-2">Nama Akun</th><th class="p-2 text-right">Debit</th><th class="p-2 text-right">Kredit</th></tr></thead><tbody>`;
+        let totalDebit = 0;
+        let totalKredit = 0;
+
+        Object.values(ledger).sort((a,b) => a.no.localeCompare(b.no)).forEach(akun => {
+            if (akun.balance !== 0) {
+                let debit = 0;
+                let kredit = 0;
+                if (akun.saldoNormal === 'DEBET') {
+                    debit = akun.balance > 0 ? akun.balance : 0;
+                    kredit = akun.balance < 0 ? -akun.balance : 0;
+                } else {
+                    kredit = akun.balance > 0 ? akun.balance : 0;
+                    debit = akun.balance < 0 ? -akun.balance : 0;
+                }
+                html += `<tr><td class="p-2">${akun.no}</td><td class="p-2">${akun.nama}</td><td class="p-2 text-right">${formatCurrency(debit)}</td><td class="p-2 text-right">${formatCurrency(kredit)}</td></tr>`;
+                totalDebit += debit;
+                totalKredit += kredit;
+            }
+        });
+
+        html += `</tbody><tfoot class="font-bold border-t-2"><tr><td class="p-2" colspan="2">Total</td><td class="p-2 text-right">${formatCurrency(totalDebit)}</td><td class="p-2 text-right">${formatCurrency(totalKredit)}</td></tr></tfoot></table>`;
+        return html;
+    }
+
+    function generateBukuBesar(akunNo, startDate, endDate) {
+        const { ledger: prevLedger } = calculateLedger(sikBumdesData.jurnal, sikBumdesData.coa, new Date(new Date(startDate) - 1).toISOString().slice(0,10));
+        const saldoAwal = prevLedger[akunNo]?.balance || 0;
+        const akun = sikBumdesData.coa.find(a => a.no === akunNo);
+
+        let html = `<h4 class="font-bold text-lg mb-2">${akun.no} - ${akun.nama}</h4><table class="w-full text-sm report-table"><thead class="bg-gray-100 dark:bg-gray-700"><tr><th class="p-2">Tanggal</th><th class="p-2">Keterangan</th><th class="p-2">Kode Bantu</th><th class="p-2 text-right">Debit</th><th class="p-2 text-right">Kredit</th><th class="p-2 text-right">Saldo</th></tr></thead><tbody>`;
+        html += `<tr><td class="p-2" colspan="5"><b>Saldo Awal</b></td><td class="p-2 text-right"><b>${formatCurrency(saldoAwal)}</b></td></tr>`;
+        
+        let saldoBerjalan = saldoAwal;
+        const filteredJurnal = sikBumdesData.jurnal.filter(j => j.akunNo === akunNo && j.tanggal >= startDate && j.tanggal <= endDate);
+        
+        filteredJurnal.forEach(j => {
+            if (akun.saldoNormal === 'DEBET') {
+                saldoBerjalan += j.debit - j.credit;
+            } else {
+                saldoBerjalan += j.credit - j.debit;
+            }
+            html += `<tr><td class="p-2">${j.tanggal}</td><td class="p-2">${j.keterangan}</td><td class="p-2">${j.bukti}</td><td class="p-2 text-right">${formatCurrency(j.debit)}</td><td class="p-2 text-right">${formatCurrency(j.credit)}</td><td class="p-2 text-right">${formatCurrency(saldoBerjalan)}</td></tr>`;
+        });
+
+        html += `</tbody></table>`;
+        return html;
+    }
+
+    function generateArusKas(startDate, endDate) {
+        const { ledger: endLedger } = calculateLedger(sikBumdesData.jurnal, sikBumdesData.coa, endDate);
+        const { ledger: startLedger } = calculateLedger(sikBumdesData.jurnal, sikBumdesData.coa, new Date(new Date(startDate) - 1).toISOString().slice(0,10));
+        
+        // 1. Laba Rugi
+        let labaRugi = 0;
+        sikBumdesData.coa.filter(a => a.kelompok === 'LABA RUGI').forEach(akun => {
+            const balanceChange = (endLedger[akun.no]?.balance || 0) - (startLedger[akun.no]?.balance || 0);
+            labaRugi += balanceChange;
+        });
+
+        let html = `<table class="w-full text-sm report-table">`;
+        html += `<tr><td class="level-1" colspan="2">Arus Kas dari Aktivitas Operasi</td></tr>`;
+        html += `<tr><td class="level-2">Laba Bersih</td><td class="text-right">${formatCurrency(labaRugi)}</td></tr>`;
+        
+        let totalAktivitasOperasi = labaRugi;
+
+        // 2. Penyesuaian (Non-kas dan Perubahan Modal Kerja)
+        html += `<tr><td class="level-2" colspan="2">Penyesuaian untuk merekonsiliasi laba bersih ke kas bersih:</td></tr>`;
+        const penyusutanAccNos = ['1.2.01.07', '1.2.01.08', '1.2.01.10'];
+        penyusutanAccNos.forEach(no => {
+            const akun = sikBumdesData.coa.find(a => a.no === no);
+            if (akun) {
+                const change = (endLedger[no]?.balance || 0) - (startLedger[no]?.balance || 0);
+                if (change !== 0) {
+                    html += `<tr><td class="level-3">Penyusutan - ${akun.nama.replace('Akumulasi Penyusutan ', '')}</td><td class="text-right">${formatCurrency(change)}</td></tr>`;
+                    totalAktivitasOperasi += change;
+                }
+            }
+        });
+
+        const modalKerjaAccNos = ['1.1.03.02', '1.1.05.01', '2.1.01.01', '2.1.03.01']; // Piutang, Persediaan, Utang Usaha, Utang Gaji
+        modalKerjaAccNos.forEach(no => {
+             const akun = sikBumdesData.coa.find(a => a.no === no);
+            if (akun) {
+                let change = (endLedger[no]?.balance || 0) - (startLedger[no]?.balance || 0);
+                // Perubahan aktiva berbanding terbalik, perubahan kewajiban berbanding lurus
+                if(akun.no.startsWith('1')) {
+                    change = -change;
+                }
+                if (change !== 0) {
+                    html += `<tr><td class="level-3">${change > 0 ? 'Kenaikan' : 'Penurunan'} ${akun.nama}</td><td class="text-right">${formatCurrency(change)}</td></tr>`;
+                    totalAktivitasOperasi += change;
+                }
+            }
+        });
+        html += `<tr class="total-row"><td class="level-2">Kas Bersih dari Aktivitas Operasi</td><td class="text-right">${formatCurrency(totalAktivitasOperasi)}</td></tr>`;
+
+        // 3. Aktivitas Investasi & Pendanaan (Metode Langsung Sederhana)
+        let totalAktivitasInvestasi = 0;
+        html += `<tr><td class="level-1 pt-4" colspan="2">Arus Kas dari Aktivitas Investasi</td></tr>`;
+        const investasiAccNos = ['1.2.01.02', '1.2.01.03', '1.2.01.05']; // Bangunan, Kendaraan, Inventaris
+        investasiAccNos.forEach(no => {
+            const akun = sikBumdesData.coa.find(a => a.no === no);
+            if (akun) {
+                const change = (endLedger[no]?.balance || 0) - (startLedger[no]?.balance || 0);
+                if (change !== 0) {
+                     html += `<tr><td class="level-2">${change > 0 ? 'Pembelian' : 'Penjualan'} ${akun.nama}</td><td class="text-right">${formatCurrency(-change)}</td></tr>`;
+                    totalAktivitasInvestasi -= change;
+                }
+            }
+        });
+        html += `<tr class="total-row"><td class="level-2">Kas Bersih dari Aktivitas Investasi</td><td class="text-right">${formatCurrency(totalAktivitasInvestasi)}</td></tr>`;
+
+        let totalAktivitasPendanaan = 0;
+        html += `<tr><td class="level-1 pt-4" colspan="2">Arus Kas dari Aktivitas Pendanaan</td></tr>`;
+        const pendanaanAccNos = ['3.1.01.01', '3.1.01.03']; // Modal Desa, Modal Masyarakat
+        pendanaanAccNos.forEach(no => {
+             const akun = sikBumdesData.coa.find(a => a.no === no);
+            if (akun) {
+                const change = (endLedger[no]?.balance || 0) - (startLedger[no]?.balance || 0);
+                 if (change !== 0) {
+                    html += `<tr><td class="level-2">${change > 0 ? 'Penerimaan' : 'Pembayaran'} ${akun.nama}</td><td class="text-right">${formatCurrency(change)}</td></tr>`;
+                    totalAktivitasPendanaan += change;
+                }
+            }
+        });
+        html += `<tr class="total-row"><td class="level-2">Kas Bersih dari Aktivitas Pendanaan</td><td class="text-right">${formatCurrency(totalAktivitasPendanaan)}</td></tr>`;
+
+        // 4. Rekonsiliasi Kas
+        const kenaikanKas = totalAktivitasOperasi + totalAktivitasInvestasi + totalAktivitasPendanaan;
+        const kasAwal = (startLedger['1.1.01.01']?.balance || 0) + (startLedger['1.1.02.01']?.balance || 0);
+        const kasAkhir = (endLedger['1.1.01.01']?.balance || 0) + (endLedger['1.1.02.01']?.balance || 0);
+
+        html += `<tr class="total-row mt-4"><td class="level-1">Kenaikan (Penurunan) Kas Bersih</td><td class="text-right">${formatCurrency(kenaikanKas)}</td></tr>`;
+        html += `<tr><td class="level-1">Kas dan Setara Kas Awal Periode</td><td class="text-right">${formatCurrency(kasAwal)}</td></tr>`;
+        html += `<tr class="total-row"><td class="level-1">Kas dan Setara Kas Akhir Periode</td><td class="text-right">${formatCurrency(kasAkhir)}</td></tr>`;
+
+        html += `</table>`;
+        return html;
+    }
     
     function generateLaporanInventaris(endDate) {
         let html = `<table class="w-full text-sm report-table"><thead class="bg-gray-100 dark:bg-gray-700"><tr><th class="p-2">Nama</th><th class="p-2">Tgl Beli</th><th class="p-2 text-right">Harga</th><th class="p-2 text-center">Umur</th><th class="p-2 text-right">Penyusutan/Thn</th><th class="p-2 text-right">Akum. Penyusutan</th><th class="p-2 text-right">Nilai Buku</th></tr></thead><tbody>`;
@@ -1318,9 +1776,119 @@ document.addEventListener('DOMContentLoaded', () => {
         html += `</tbody><tfoot class="font-bold border-t-2"><tr><td class="p-2" colspan="2">Total</td><td class="p-2 text-right">${formatCurrency(totalHarga)}</td><td colspan="2"></td><td class="p-2 text-right">${formatCurrency(totalAkumulasi)}</td><td class="p-2 text-right">${formatCurrency(totalNilaiBuku)}</td></tr></tfoot></table>`;
         return html;
     }
+
+    function generateStrukturOrganisasi() {
+        const { identitas } = sikBumdesData;
+        const { penasihat, pengelola, pengawas, ketuaUnit } = identitas;
+        const placeholderImg = 'https://placehold.co/100x100/e2e8f0/333333?text=?';
+
+        const card = (jabatan, data) => `
+            <div class="org-card shadow-lg">
+                <img src="${data.foto || placeholderImg}" class="w-20 h-20 rounded-full object-cover mb-3 mx-auto">
+                <div class="org-card-title">
+                    <h4 class="font-bold text-sm">${data.nama || '[Nama]'}</h4>
+                    <p class="text-xs">${jabatan}</p>
+                </div>
+            </div>
+        `;
+
+        let pengawasHtml = pengawas.map(p => card('Pengawas', p)).join('<div class="w-px org-connector h-6"></div>');
+        let ketuaUnitHtml = ketuaUnit.map(ku => card('Ketua Unit', ku)).join('<div class="w-px org-connector h-6"></div>');
+
+        let html = `<div class="struktur-organisasi space-y-4 p-4 bg-white dark:bg-gray-800 rounded-lg overflow-x-auto">
+            <div class="text-center font-bold text-xl">${getReportTitle('struktur-organisasi')}</div>
+            <div class="text-center font-bold text-lg">${identitas.nama}</div>
+            <div class="flex flex-col items-center">
+                <!-- Top Level: Pengawas & Penasihat -->
+                <div class="flex items-start justify-center gap-8">
+                    <div class="flex flex-col items-center space-y-4">
+                        ${pengawasHtml}
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-px org-connector h-16 border-l-2 border-dashed"></div>
+                         ${card('Penasehat', penasihat)}
+                    </div>
+                </div>
+                
+                <!-- Connector to Direktur -->
+                <div class="w-px org-connector h-8"></div>
+                
+                <!-- Direktur -->
+                <div class="flex justify-center">${card('Direktur', pengelola.direktur)}</div>
+                
+                <!-- Connector to Sekretaris/Bendahara -->
+                <div class="w-px org-connector h-8"></div>
+                <div class="w-1/2 border-t org-connector"></div>
+                <div class="flex justify-center">
+                    <div class="w-px org-connector h-8"></div>
+                </div>
+                
+                <!-- Sekretaris & Bendahara -->
+                <div class="flex justify-center gap-16">
+                    ${card('Sekretaris', pengelola.sekretaris)}
+                    ${card('Bendahara', pengelola.bendahara)}
+                </div>
+
+                <!-- Connector to Units -->
+                ${ketuaUnit.length > 0 ? `
+                <div class="w-px org-connector h-8"></div>
+                <div class="w-full border-t org-connector"></div>
+                <div class="flex justify-center"><div class="w-px org-connector h-8"></div></div>
+                <div class="flex justify-center flex-wrap gap-8">
+                    ${ketuaUnitHtml}
+                </div>
+                ` : ''}
+            </div>
+        </div>`;
+        return html;
+    }
+
+    function generateShuReport(endDate) {
+        const year = new Date(endDate).getFullYear();
+        const firstDayOfYear = `${year}-01-01`;
+        
+        const { totals: endTotals } = calculateLedger(sikBumdesData.jurnal, sikBumdesData.coa, endDate);
+        const { totals: startTotals } = calculateLedger(sikBumdesData.jurnal, sikBumdesData.coa, new Date(new Date(firstDayOfYear) - 1).toISOString().slice(0,10));
+
+        const labaRugiTahunBerjalan = (endTotals.labaRugi || 0) - (startTotals.labaRugi || 0);
+
+        const { shu } = sikBumdesData;
+        const bonus = (labaRugiTahunBerjalan * shu.bonusPengurus) / 100;
+        const pendidikan = (labaRugiTahunBerjalan * shu.pendidikan) / 100;
+        const danaSosial = (labaRugiTahunBerjalan * shu.danaSosial) / 100;
+        const totalAlokasiAwal = bonus + pendidikan + danaSosial;
+        const surplusSementara = labaRugiTahunBerjalan - totalAlokasiAwal;
+        const paDesa = (surplusSementara * shu.paDesa) / 100;
+        const penambahanModal = (surplusSementara * shu.penambahanModal) / 100;
+        const totalAlokasiAkhir = paDesa + penambahanModal;
+
+        let html = `<table class="w-full text-sm report-table">
+            <thead class="bg-gray-100 dark:bg-gray-700">
+                <tr>
+                    <th class="p-2 text-left">Peruntukan</th>
+                    <th class="p-2 text-center">Persentase</th>
+                    <th class="p-2 text-right">Jumlah (Rp)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td colspan="3" class="level-1 pt-2">Laba Rugi Tahun Berjalan: ${formatCurrency(labaRugiTahunBerjalan)}</td></tr>
+                <tr><td>Bonus Tahunan Perangkat BUM Desa</td><td class="text-center">${shu.bonusPengurus}%</td><td class="text-right">${formatCurrency(bonus)}</td></tr>
+                <tr><td>Pendidikan (Capacity Building)</td><td class="text-center">${shu.pendidikan}%</td><td class="text-right">${formatCurrency(pendidikan)}</td></tr>
+                <tr><td>Dana Sosial/CSR/TJSL/RTM</td><td class="text-center">${shu.danaSosial}%</td><td class="text-right">${formatCurrency(danaSosial)}</td></tr>
+                <tr class="total-row"><td>Total</td><td></td><td class="text-right">${formatCurrency(totalAlokasiAwal)}</td></tr>
+                <tr class="font-bold"><td>Surplus di tahan sementara</td><td></td><td class="text-right">${formatCurrency(surplusSementara)}</td></tr>
+                <tr><td colspan="3" class="pt-4"></td></tr>
+                <tr><td>Pendapatan Asli Desa (PA Desa)</td><td class="text-center">${shu.paDesa}%</td><td class="text-right">${formatCurrency(paDesa)}</td></tr>
+                <tr><td>Surplus ditahan/Penambahan Modal</td><td class="text-center">${shu.penambahanModal}%</td><td class="text-right">${formatCurrency(penambahanModal)}</td></tr>
+                <tr class="total-row"><td>Total</td><td></td><td class="text-right">${formatCurrency(totalAlokasiAkhir)}</td></tr>
+            </tbody>
+        </table>`;
+        return html;
+    }
     
-    function printReportWithHeader(reportTitle, period, content) {
+    function printReportWithHeader(reportTitle, period, content, isStruktur = false) {
         const { identitas, pengaturan } = sikBumdesData;
+        const { direktur, bendahara } = identitas.pengelola;
         const header = `
             <div style="display: flex; align-items: center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 20px;">
                 <img src="${pengaturan.logo}" alt="Logo" style="width: 70px; height: 70px; margin-right: 20px;">
@@ -1332,22 +1900,28 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div style="text-align: center; margin-bottom: 20px;">
                 <h3 style="font-size: 1.2rem; font-weight: bold; margin: 0; text-decoration: underline;">${reportTitle}</h3>
-                <p style="margin: 0;">${period}</p>
+                ${!isStruktur ? `<p style="margin: 0;">${period}</p>` : ''}
             </div>
         `;
 
         const footer = `
-            <div style="margin-top: 50px; width: 100%; text-align: right;">
-                <div style="display: inline-block; text-align: center;">
-                    <p>${identitas.alamat.desa || 'Tempat'}, ${new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+            <div style="margin-top: 50px; width: 100%; display: flex; justify-content: space-around;">
+                <div style="text-align: center;">
+                    <p>Mengetahui,</p>
                     <p>Direktur BUMDes,</p>
                     <br><br><br>
-                    <p style="text-decoration: underline; font-weight: bold;">${identitas.pengelola.direktur.nama || '(.........................)'}</p>
+                    <p style="text-decoration: underline; font-weight: bold;">${direktur.nama || '(.........................)'}</p>
+                </div>
+                <div style="text-align: center;">
+                    <p>${identitas.alamat.desa || 'Tempat'}, ${new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                    <p>Bendahara BUMDes,</p>
+                    <br><br><br>
+                    <p style="text-decoration: underline; font-weight: bold;">${bendahara.nama || '(.........................)'}</p>
                 </div>
             </div>
         `;
 
-        el('#print-area').innerHTML = `<div style="font-family: 'Times New Roman', serif;">${header}${content}${footer}</div>`;
+        el('#print-area').innerHTML = `<div style="font-family: 'Times New Roman', serif;">${header}${content}${!isStruktur ? footer : ''}</div>`;
         el('#print-area').classList.remove('hidden');
         window.print();
         el('#print-area').classList.add('hidden');
