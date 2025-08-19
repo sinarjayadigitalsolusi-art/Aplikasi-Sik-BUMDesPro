@@ -378,6 +378,13 @@
                 </div>
 
                 <div id="bantuan-page" class="page hidden">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+        <h2 class="text-2xl font-bold mb-4">Bantuan & FAQ</h2>
+
+        <button id="btn-show-jurnal-guide" class="w-full mb-6 bg-blue-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-600 transition duration-300 flex items-center justify-center text-lg">
+            <i class="fas fa-book-open mr-3"></i>Buka Panduan Jurnal & COA
+        </button>
+        <div class="space-y-4">
                 <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
                     <h1 class="text-3xl font-bold text-center mb-6 pb-2 border-b">Buku Panduan Aplikasi Sik-BUMDes</h1>
                     <div class="text-center p-4 my-4 border-2 border-dashed rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-500">
@@ -978,7 +985,27 @@ window.onload = () => {
         const modal = el(`#${modalId}`);
         if (modal) modal.remove();
     }
+function showContentModal(title, contentHtml) {
+        const modalId = `content-modal-${Date.now()}`;
+        const modalHtml = `
+            <div id="${modalId}" class="modal show fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100] p-4">
+                <div class="bg-white dark:bg-gray-800 rounded-lg w-full max-w-4xl h-[90vh] flex flex-col shadow-xl">
+                    <div class="flex justify-between items-center p-4 border-b dark:border-gray-700">
+                        <h2 class="text-xl font-bold">${title}</h2>
+                        <button class="btn-close-modal text-gray-500 hover:text-red-500">&times;</button>
+                    </div>
+                    <div class="p-6 flex-grow overflow-y-auto">
+                        ${contentHtml}
+                    </div>
+                </div>
+            </div>`;
+        el('#modal-container').insertAdjacentHTML('beforeend', modalHtml);
 
+        const modalElement = el(`#${modalId}`);
+        modalElement.querySelector('.btn-close-modal').addEventListener('click', () => {
+            modalElement.remove();
+        });
+    }
     // ===================================================================================
     // --- REPORTING ENGINE ---
     // ===================================================================================
@@ -2778,6 +2805,129 @@ window.onload = () => {
     // --- EVENT LISTENERS & APP START ---
     // ===================================================================================
     function addEventListeners() {
+	// --- Logika untuk menampilkan Modal Panduan Akuntansi ---
+    const btnShowGuide = el('#btn-show-jurnal-guide');
+    if (btnShowGuide) {
+        const panduanAkuntansiHtml = `
+            <div class="prose dark:prose-invert max-w-none">
+                <h2 class="text-2xl font-bold mt-6 mb-3 text-[var(--color-primary-text)]">Bagian 1: Mengelola Daftar Akun (Chart of Accounts - COA)</h2>
+                
+                <h3 class="text-xl font-semibold mt-4 mb-2">1.1. Apa itu COA?</h3>
+                <p><strong>Daftar Akun</strong> atau <strong>Chart of Accounts (COA)</strong> adalah daftar lengkap dari semua akun yang digunakan oleh BUMDes untuk mencatat transaksi keuangannya. Anggap saja ini seperti "daftar isi" untuk keuangan Anda. COA yang terstruktur adalah fondasi dari laporan keuangan yang akurat.</p>
+
+                <h3 class="text-xl font-semibold mt-4 mb-2">1.2. Memahami Struktur COA di Aplikasi</h3>
+                <p>COA diatur dengan nomor untuk mengelompokkan jenis akun. Standar umumnya adalah:</p>
+                <ul class="list-disc list-inside space-y-1">
+                    <li><strong>1-xxxx</strong>: <strong>Aset/Harta</strong> (Kas, Bank, Piutang, Inventaris)</li>
+                    <li><strong>2-xxxx</strong>: <strong>Kewajiban/Utang</strong> (Utang Usaha, Utang Gaji)</li>
+                    <li><strong>3-xxxx</strong>: <strong>Ekuitas/Modal</strong> (Modal Desa, Laba Ditahan)</li>
+                    <li><strong>4-xxxx</strong>: <strong>Pendapatan</strong> (Pendapatan Unit Usaha, Pendapatan Jasa)</li>
+                    <li><strong>5-xxxx</strong>: <strong>Beban/Biaya</strong> (Biaya Gaji, Biaya Listrik, Harga Pokok Penjualan)</li>
+                </ul>
+
+                <h3 class="text-xl font-semibold mt-4 mb-2">1.3. Kapan Anda Perlu Mengedit COA?</h3>
+                <p>Anda hanya perlu menambah atau mengedit COA jika ada kebutuhan spesifik, seperti:</p>
+                <ul class="list-disc list-inside space-y-1">
+                    <li><strong>Menambah Akun Bank Baru</strong>: Jika BUMDes membuka rekening di bank baru (misal: Bank Mandiri).</li>
+                    <li><strong>Mencatat Biaya Spesifik</strong>: Anda ingin memisahkan pencatatan "Biaya Internet" dari "Biaya Listrik".</li>
+                </ul>
+                <p class="mt-2 font-semibold text-red-500">Kapan Sebaiknya TIDAK Mengedit?</p>
+                <p>Hindari mengubah atau menghapus akun-akun fundamental seperti <strong>Kas</strong>, <strong>Modal dari Desa</strong>, atau <strong>Laba (Rugi) Tahun Berjalan</strong>, karena akun-akun ini adalah inti dari perhitungan laporan keuangan.</p>
+
+                <h3 class="text-xl font-semibold mt-4 mb-2">1.4. Cara Menambah Akun Baru</h3>
+                <p>Buka menu <strong>Input Data > Daftar Akun (COA)</strong>, lalu klik <strong>Tambah</strong>. Isi formulir dengan memperhatikan kolom <strong>Saldo Normal</strong>. Ini adalah bagian paling krusial.</p>
+                <div class="overflow-x-auto my-4">
+                    <table class="w-full text-left border-collapse border">
+                        <thead class="bg-gray-100 dark:bg-gray-700">
+                            <tr>
+                                <th class="border p-2">Tipe Akun</th>
+                                <th class="border p-2">Saldo Normal (Posisi Bertambah)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="border p-2"><strong>Aset / Harta</strong></td><td class="border p-2"><strong>DEBIT</strong></td></tr>
+                            <tr><td class="border p-2"><strong>Beban / Biaya</strong></td><td class="border p-2"><strong>DEBIT</strong></td></tr>
+                            <tr><td class="border p-2"><strong>Kewajiban / Utang</strong></td><td class="border p-2"><strong>KREDIT</strong></td></tr>
+                            <tr><td class="border p-2"><strong>Ekuitas / Modal</strong></td><td class="border p-2"><strong>KREDIT</strong></td></tr>
+                            <tr><td class="border p-2"><strong>Pendapatan</strong></td><td class="border p-2"><strong>KREDIT</strong></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <hr class="my-6">
+
+                <h2 class="text-2xl font-bold mt-6 mb-3 text-[var(--color-primary-text)]">Bagian 2: Panduan Menginput Jurnal Umum</h2>
+                <h3 class="text-xl font-semibold mt-4 mb-2">2.1. Konsep Dasar Debit dan Kredit</h3>
+                <p>Setiap transaksi keuangan pasti seimbang. Total nilai di sisi <strong>Debit</strong> harus selalu sama dengan total nilai di sisi <strong>Kredit</strong>.</p>
+                <p>Gunakan analogi sederhana ini:</p>
+                <ul class="list-disc list-inside">
+                    <li><strong>DEBIT (D)</strong>: Digunakan untuk apa uang itu? (Tujuan / Penerima Manfaat)</li>
+                    <li><strong>KREDIT (K)</strong>: Dari mana sumber uang itu? (Sumber Dana)</li>
+                </ul>
+
+                <h3 class="text-xl font-semibold mt-4 mb-2">2.2. Contoh Kasus Transaksi Umum di BUMDes</h3>
+                
+                <div class="p-4 border rounded-lg my-3 bg-gray-50 dark:bg-gray-700">
+                    <p class="font-bold">Kasus 1: Menerima Setoran Modal dari Desa Rp 50.000.000,- Masuk ke Bank BRI</p>
+                    <p class="mt-2"><strong>Analisis:</strong> Uang masuk ke <strong>Bank BRI</strong> (Aset bertambah), sumbernya dari <strong>Modal Desa</strong> (Modal bertambah).</p>
+                    <ul class="list-disc list-inside mt-2 text-sm">
+                        <li><strong>DEBIT</strong>: <code>1.1.02.01 - Bank BRI</code></li>
+                        <li><strong>KREDIT</strong>: <code>3.1.01.01 - Modal dari Desa</code></li>
+                    </ul>
+                </div>
+                
+                <div class="p-4 border rounded-lg my-3 bg-gray-50 dark:bg-gray-700">
+                    <p class="font-bold">Kasus 2: Membeli Barang Dagangan secara Tunai dari Kas Rp 2.000.000,-</p>
+                    <p class="mt-2"><strong>Analisis:</strong> Uang digunakan untuk membeli <strong>Persediaan Barang</strong> (Aset bertambah), sumbernya dari <strong>Kas</strong> (Aset berkurang).</p>
+                    <ul class="list-disc list-inside mt-2 text-sm">
+                        <li><strong>DEBIT</strong>: <code>1.1.05.01 - Persediaan Barang Dagang</code></li>
+                        <li><strong>KREDIT</strong>: <code>1.1.01.01 - Kas</code></li>
+                    </ul>
+                </div>
+
+                <div class="p-4 border rounded-lg my-3 bg-gray-50 dark:bg-gray-700">
+                    <p class="font-bold">Kasus 3: Penjualan Tunai di Unit Usaha Rp 500.000,- Uang Diterima di Kas</p>
+                    <p class="mt-2"><strong>Analisis:</strong> Uang masuk ke <strong>Kas</strong> (Aset bertambah), sumbernya dari <strong>Pendapatan Unit Usaha</strong> (Pendapatan bertambah).</p>
+                    <ul class="list-disc list-inside mt-2 text-sm">
+                        <li><strong>DEBIT</strong>: <code>1.1.01.01 - Kas</code></li>
+                        <li><strong>KREDIT</strong>: <code>4.1.01 - Pendapatan Unit Usaha 1</code></li>
+                    </ul>
+                </div>
+
+                <div class="p-4 border rounded-lg my-3 bg-gray-50 dark:bg-gray-700">
+                    <p class="font-bold">Kasus 4: Membayar Biaya Listrik Rp 300.000,- dari Bank BRI</p>
+                    <p class="mt-2"><strong>Analisis:</strong> Uang digunakan untuk <strong>Biaya Listrik</strong> (Beban bertambah), sumbernya dari <strong>Bank BRI</strong> (Aset berkurang).</p>
+                    <ul class="list-disc list-inside mt-2 text-sm">
+                        <li><strong>DEBIT</strong>: <code>5.1.08.12 - Biaya Listrik dan PDAM</code></li>
+                        <li><strong>KREDIT</strong>: <code>1.1.02.01 - Bank BRI</code></li>
+                    </ul>
+                </div>
+
+                <div class="p-4 border rounded-lg my-3 bg-gray-50 dark:bg-gray-700">
+                    <p class="font-bold">Kasus 5: Membeli Komputer (Inventaris) secara Kredit/Utang Rp 7.000.000,-</p>
+                    <p class="mt-2"><strong>Analisis:</strong> Kita mendapatkan <strong>Inventaris Kantor</strong> (Aset bertambah), sumbernya dari <strong>Utang Usaha</strong> (Utang bertambah).</p>
+                    <ul class="list-disc list-inside mt-2 text-sm">
+                        <li><strong>DEBIT</strong>: <code>1.2.01.05 - Inventaris Kantor</code></li>
+                        <li><strong>KREDIT</strong>: <code>2.1.01.01 - Utang Usaha</code></li>
+                    </ul>
+                </div>
+
+                <h3 class="text-xl font-semibold mt-4 mb-2">2.3. Langkah-langkah Mengisi Formulir Jurnal</h3>
+                <ol class="list-decimal list-inside space-y-2 mt-2">
+                    <li>Buka menu <strong>Input Data > Input Jurnal</strong>.</li>
+                    <li>Isi <strong>Tanggal</strong>, <strong>Kode Bantu</strong> (No. Nota/Kwitansi), dan <strong>Keterangan</strong> yang jelas.</li>
+                    <li>Di bagian <strong>Akun DEBIT</strong>, pilih akun yang sesuai dengan "tujuan/penggunaan dana".</li>
+                    <li>Di bagian <strong>Akun KREDIT</strong>, pilih akun yang sesuai dengan "sumber dana".</li>
+                    <li>Masukkan <strong>Nominal</strong>. Nominal di sisi Kredit akan terisi otomatis.</li>
+                    <li>Klik <strong>Simpan Jurnal</strong>.</li>
+                </ol>
+
+            </div>
+        `;
+        btnShowGuide.addEventListener('click', () => {
+            showContentModal('Panduan Akuntansi: Jurnal & COA', panduanAkuntansiHtml);
+        });
+    }
         // --- Authentication ---
         el('#login-form').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -2842,6 +2992,7 @@ window.onload = () => {
                 generateReport(reportType);
                 all('.btn-laporan').forEach(b => b.classList.remove('bg-[var(--color-primary-start)]', 'text-white'));
                 btn.classList.add('bg-[var(--color-primary-start)]', 'text-white');
+				
             });
         });
 
