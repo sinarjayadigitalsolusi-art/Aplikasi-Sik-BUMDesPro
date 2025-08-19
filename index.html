@@ -378,19 +378,103 @@
                 </div>
 
                 <div id="bantuan-page" class="page hidden">
-                    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-                        <h2 class="text-2xl font-bold mb-4">Bantuan & FAQ</h2>
-                        <div class="space-y-4">
-                            <div><h3 class="font-semibold">Bagaimana cara memulai?</h3><p>Mulai dengan mengisi 'Identitas BUMDes' di menu 'Input Data'. Selanjutnya, periksa dan sesuaikan 'Daftar Akun (COA)' jika perlu. Setelah itu, Anda bisa mulai mencatat transaksi melalui 'Input Jurnal'.</p></div>
-                            <div><h3 class="font-semibold">Bagaimana cara melihat laporan?</h3><p>Pergi ke menu 'Laporan', lalu pilih jenis laporan yang ingin Anda lihat (misal: Laba Rugi). Anda bisa mengatur periode laporan dan mencetaknya.</p></div>
-                            <div><h3 class="font-semibold">Apakah data saya aman?</h3><p>Semua data disimpan di browser Anda (localStorage). Data tidak dikirim ke server manapun. Untuk keamanan, lakukan 'Backup Data' secara berkala melalui menu 'Pengaturan'.</p></div>
-                        </div>
-                        <div class="mt-8 text-center">
-                            <a href="https://wa.me/6281991810355?text=Halo%20Admin%20Sik-BUMDes,%20saya%20butuh%20bantuan." target="_blank" class="bg-green-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-600 transition duration-300 inline-flex items-center"><i class="fab fa-whatsapp mr-2"></i>Chat Administrator</a>
-                        </div>
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                    <h1 class="text-3xl font-bold text-center mb-6 pb-2 border-b">Buku Panduan Aplikasi Sik-BUMDes</h1>
+                    <div class="text-center p-4 my-4 border-2 border-dashed rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-500">
+                        <em>[Gambar: Logo BUMDes yang modern dan profesional]</em>
                     </div>
-                </div>
 
+                    <h2 class="text-2xl font-bold mt-8 mb-4 text-[var(--color-primary-text)]">Selamat Datang</h2>
+                    <p>Selamat datang di Buku Panduan Aplikasi Sik-BUMDes. Dokumen ini akan memandu Anda langkah demi langkah dalam menggunakan seluruh fitur aplikasi, mulai dari pengaturan awal hingga pelaporan keuangan. Aplikasi ini dirancang untuk menjadi alat bantu yang lengkap, mudah digunakan, dan dapat diakses secara offline untuk mengelola administrasi dan keuangan BUMDes Anda.</p>
+
+                    <h2 class="text-2xl font-bold mt-8 mb-4 text-[var(--color-primary-text)]">Bab 1: Memulai Aplikasi</h2>
+                    <h3 class="text-xl font-semibold mt-6 mb-2">1.1. Halaman Login</h3>
+                    <p>Saat pertama kali membuka aplikasi, Anda akan disambut oleh halaman Login.</p>
+                    <div class="text-center p-4 my-4 border-2 border-dashed rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-500">
+                        <em>[Gambar: Tampilan layar login Sik-BUMDes]</em>
+                    </div>
+                    <p><strong class="text-red-500">Langkah-langkah:</strong></p>
+                    <ol class="list-decimal list-inside space-y-2 mt-2">
+                        <li>Masukkan <strong>Username</strong> dan <strong>Password</strong> Anda pada kolom yang tersedia.</li>
+                        <li>Secara default, pengguna pertama adalah <strong>Username:</strong> <code>admin</code> dan <strong>Password:</strong> <code>password</code>.</li>
+                        <li>Klik tombol <strong>Login</strong>.</li>
+                    </ol>
+                    
+                    <h3 class="text-xl font-semibold mt-6 mb-2">1.2. Pengenalan Tampilan Utama</h3>
+                    <p>Setelah berhasil login, Anda akan masuk ke halaman utama yang terdiri dari tiga bagian.</p>
+                    <div class="text-center p-4 my-4 border-2 border-dashed rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-500">
+                        <em>[Gambar: Tampilan antarmuka aplikasi utama dengan penunjuk ke sidebar, header, dan area konten]</em>
+                    </div>
+                    <ol class="list-decimal list-inside space-y-2 mt-2">
+                        <li><strong>Sidebar (Menu Navigasi):</strong> Terletak di sebelah kiri, berisi semua menu utama untuk mengakses berbagai fitur aplikasi.</li>
+                        <li><strong>Header (Bagian Atas):</strong> Menampilkan judul halaman yang sedang aktif dan informasi pengguna.</li>
+                        <li><strong>Area Konten Utama:</strong> Bagian tengah yang luas tempat semua fitur akan ditampilkan.</li>
+                    </ol>
+
+                    <h2 class="text-2xl font-bold mt-8 mb-4 text-[var(--color-primary-text)]">Bab 2: Dasbor Utama</h2>
+                    <p>Dasbor adalah halaman pertama yang Anda lihat. Halaman ini memberikan ringkasan visual dari kondisi BUMDes Anda secara <em>real-time</em>.</p>
+                    <div class="text-center p-4 my-4 border-2 border-dashed rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-500">
+                        <em>[Gambar: Dasbor utama dengan kartu ringkasan dan grafik laba/rugi]</em>
+                    </div>
+                    <ul class="list-disc list-inside space-y-2 mt-2">
+                        <li><strong>Informasi Umum BUMDes:</strong> Menampilkan nama, alamat, dan nomor AHU BUMDes Anda.</li>
+                        <li><strong>Ringkasan Keuangan:</strong> Kartu berwarna-warni yang menampilkan data kunci seperti Total Aktiva, Laba Rugi, dan lainnya.</li>
+                        <li><strong>Grafik Laba/Rugi:</strong> Visualisasi keuntungan atau kerugian BUMDes selama 6 bulan terakhir.</li>
+                    </ul>
+
+                    <h2 class="text-2xl font-bold mt-8 mb-4 text-[var(--color-primary-text)]">Bab 3: Pengaturan Data Awal & Master</h2>
+                    <p>Ini adalah langkah paling penting sebelum Anda mulai. Semua pengaturan dasar BUMDes dilakukan di menu <strong>Input Data</strong>.</p>
+                    <div class="text-center p-4 my-4 border-2 border-dashed rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-500">
+                        <em>[Gambar: Halaman Input Data dengan 7 tombol fiturnya]</em>
+                    </div>
+                    <ul class="list-disc list-inside space-y-2 mt-2">
+                        <li><strong>Identitas BUMDes:</strong> Mengisi nama, alamat, dan sumber permodalan BUMDes.</li>
+                        <li><strong>Struktur Kepengurusan:</strong> Mendata semua personel (Penasehat, Direktur, dll) dan mengunggah foto mereka.</li>
+                        <li><strong>Daftar Akun (COA):</strong> Menyesuaikan daftar akun keuangan jika diperlukan.</li>
+                        <li><strong>Input Saldo Awal:</strong> Memasukkan saldo neraca terakhir sebelum menggunakan aplikasi.</li>
+                        <li><strong>Pengaturan SHU:</strong> Menentukan persentase alokasi pembagian Sisa Hasil Usaha.</li>
+                    </ul>
+
+                    <h2 class="text-2xl font-bold mt-8 mb-4 text-[var(--color-primary-text)]">Bab 4: Transaksi Sehari-hari</h2>
+                    <h3 class="text-xl font-semibold mt-6 mb-2">4.1. Input Jurnal Umum</h3>
+                    <p>Gunakan menu <strong>Input Data > Input Jurnal</strong> untuk mencatat semua transaksi keuangan yang terjadi, baik pemasukan maupun pengeluaran.</p>
+                    <div class="text-center p-4 my-4 border-2 border-dashed rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-500">
+                        <em>[Gambar: Formulir Input Jurnal]</em>
+                    </div>
+                    
+                    <h3 class="text-xl font-semibold mt-6 mb-2">4.2. Input Inventaris BUMDes</h3>
+                    <p>Gunakan menu <strong>Input Data > Input Inventaris</strong> untuk mencatat aset tetap atau barang inventaris yang dimiliki BUMDes.</p>
+
+                    <h2 class="text-2xl font-bold mt-8 mb-4 text-[var(--color-primary-text)]">Bab 5: Mengelola Unit Usaha</h2>
+                    <p>Akses menu <strong>Unit Usaha</strong> di sidebar untuk menambah, mengubah, atau menghapus unit-unit usaha yang dijalankan oleh BUMDes.</p>
+
+                    <h2 class="text-2xl font-bold mt-8 mb-4 text-[var(--color-primary-text)]">Bab 6: Laporan & Cetak</h2>
+                    <p>Akses menu <strong>Laporan</strong> di sidebar untuk melihat dan mencetak semua hasil olahan data menjadi laporan keuangan yang siap disajikan. Anda bisa mengatur periode laporan dan mencetaknya lengkap dengan kop surat.</p>
+                    <div class="text-center p-4 my-4 border-2 border-dashed rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-500">
+                        <em>[Gambar: Halaman Laporan dengan tombol-tombol pilihan laporan]</em>
+                    </div>
+
+                    <h2 class="text-2xl font-bold mt-8 mb-4 text-[var(--color-primary-text)]">Bab 7: Administrasi & Legalitas</h2>
+                    <p>Akses menu <strong>Administrasi</strong> untuk mengarsipkan dokumen penting (Perdes, AD/ART), mencatat hasil musyawarah, dan melihat/mencetak bagan struktur organisasi.</p>
+                    
+                    <h2 class="text-2xl font-bold mt-8 mb-4 text-[var(--color-primary-text)]">Bab 8: Pengaturan Aplikasi</h2>
+                    <p>Akses menu <strong>Pengaturan</strong> untuk melakukan kustomisasi aplikasi, seperti:</p>
+                    <ul class="list-disc list-inside space-y-2 mt-2">
+                        <li><strong>Manajemen Pengguna:</strong> Mengatur siapa saja yang bisa login.</li>
+                        <li><strong>Upload Logo:</strong> Mengganti logo BUMDes untuk kop surat.</li>
+                        <li><strong>Tema Aplikasi:</strong> Mengubah skema warna aplikasi.</li>
+                        <li><strong>Backup & Restore Data:</strong> Fitur <strong>SANGAT PENTING</strong> untuk mengamankan dan memulihkan data Anda.</li>
+                        <li><strong>Pengaturan Tarif Pajak:</strong> Menyesuaikan tarif pajak yang berlaku.</li>
+                    </ul>
+
+                    <h2 class="text-2xl font-bold mt-8 mb-4 text-[var(--color-primary-text)]">Bab 9: Bantuan</h2>
+                    <p>Jika Anda masih memiliki pertanyaan setelah membaca panduan ini, jangan ragu untuk menghubungi kontak yang tersedia.</p>
+        <div class="mt-8 text-center">
+            <a href="https://wa.me/6281991810355?text=Halo%20Admin%20Sik-BUMDes,%20saya%20butuh%20bantuan." target="_blank" class="bg-green-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-600 transition duration-300 inline-flex items-center"><i class="fab fa-whatsapp mr-2"></i>Chat Administrator</a>
+        </div>
+    </div>
+</div>
+                  
                 <footer class="text-center text-sm text-gray-500 mt-8 pb-4">
                     <p class="mb-2">©2025 Sinar Jaya Digital Solusi</p>
                     <div class="flex justify-center space-x-4">
@@ -2576,7 +2660,120 @@ window.onload = () => {
             </div>
         `;
     }
+// ===================================================================================
+    // --- MANAJEMEN PENGGUNA (FUNGSI YANG HILANG) ---
+    // ===================================================================================
+    function renderPenggunaTable() {
+        const tbody = el('#pengguna-table-body');
+        tbody.innerHTML = '';
+        sikBumdesData.pengguna.forEach((user) => {
+            const row = document.createElement('tr');
+            row.className = 'border-b dark:border-gray-700';
+            let actions = `<button class="btn-edit-pengguna text-blue-500 mr-2" data-username="${user.username}"><i class="fas fa-edit"></i></button>`;
+            // Mencegah pengguna 'admin' dihapus
+            if (user.username !== 'admin') {
+                actions += `<button class="btn-delete-pengguna text-red-500" data-username="${user.username}"><i class="fas fa-trash"></i></button>`;
+            }
+            row.innerHTML = `<td class="p-3">${user.username}</td><td class="p-3">${user.peran}</td><td class="p-3">${actions}</td>`;
+            tbody.appendChild(row);
+        });
 
+        all('.btn-edit-pengguna').forEach(btn => btn.addEventListener('click', (e) => showPenggunaModal(e.currentTarget.dataset.username)));
+        all('.btn-delete-pengguna').forEach(btn => btn.addEventListener('click', (e) => deletePengguna(e.currentTarget.dataset.username)));
+    }
+
+    function showPenggunaModal(username = null) {
+        const isEdit = username !== null;
+        const user = isEdit ? sikBumdesData.pengguna.find(u => u.username === username) : { username: '', password: '', peran: 'Operator' };
+        
+        const modalHtml = `
+            <div id="pengguna-modal" class="modal show fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-md">
+                    <h2 class="text-xl font-bold mb-4">${isEdit ? 'Edit' : 'Tambah'} Pengguna</h2>
+                    <form id="form-pengguna">
+                        <div class="mb-4">
+                            <label>Username</label>
+                            <input type="text" name="username" value="${user.username}" class="form-input" ${isEdit ? 'readonly' : ''} required>
+                        </div>
+                        <div class="mb-4">
+                            <label>Password</label>
+                            <input type="password" name="password" value="" class="form-input" ${isEdit ? '' : 'required'}>
+                            ${isEdit ? '<p class="text-xs text-gray-500">Kosongkan jika tidak ingin mengubah password.</p>' : ''}
+                        </div>
+                        <div class="mb-4">
+                            <label>Peran</label>
+                            <select name="peran" class="form-input">
+                                <option value="Admin" ${user.peran === 'Admin' ? 'selected' : ''}>Admin</option>
+                                <option value="Operator" ${user.peran === 'Operator' ? 'selected' : ''}>Operator</option>
+                            </select>
+                        </div>
+                        <div class="flex justify-end space-x-4">
+                            <button type="button" id="btn-cancel-pengguna" class="bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">Batal</button>
+                            <button type="submit" class="bg-[var(--color-primary-start)] text-white font-bold py-2 px-4 rounded-lg">Simpan</button>
+                        </div>
+                    </form>
+                </div>
+            </div>`;
+        
+        el('#modal-container').innerHTML = modalHtml.replace(/class="form-input"/g, 'class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"');
+        
+        el('#form-pengguna').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const newUsername = form.username.value;
+            const newPassword = form.password.value;
+
+            if (isEdit) {
+                const userIndex = sikBumdesData.pengguna.findIndex(u => u.username === username);
+                if (userIndex > -1) {
+                    sikBumdesData.pengguna[userIndex].peran = form.peran.value;
+                    if (newPassword) { // Hanya update password jika diisi
+                        sikBumdesData.pengguna[userIndex].password = newPassword;
+                    }
+                }
+            } else {
+                if (sikBumdesData.pengguna.some(u => u.username === newUsername)) {
+                    showNotification('Username sudah digunakan!', 'error');
+                    return;
+                }
+                sikBumdesData.pengguna.push({
+                    username: newUsername,
+                    password: newPassword,
+                    peran: form.peran.value
+                });
+            }
+            saveData();
+            renderPenggunaTable();
+            closeModal('pengguna-modal');
+            showNotification('Data pengguna berhasil disimpan!');
+        });
+
+        el('#btn-cancel-pengguna').addEventListener('click', () => closeModal('pengguna-modal'));
+    }
+
+    function deletePengguna(username) {
+        if (username === 'admin') {
+            showNotification('Pengguna admin tidak dapat dihapus.', 'error');
+            return;
+        }
+        showConfirmationModal(`Yakin ingin menghapus pengguna '${username}'?`, () => {
+            sikBumdesData.pengguna = sikBumdesData.pengguna.filter(u => u.username !== username);
+            saveData();
+            renderPenggunaTable();
+            showNotification('Pengguna berhasil dihapus.');
+        });
+    }
+
+    function loadPengaturan() {
+        el('#logo-preview').src = sikBumdesData.pengaturan.logo;
+        const formPajak = el('#form-pajak');
+        const pajakRates = sikBumdesData.pengaturan.pajak;
+        for (const key in pajakRates) {
+            if (formPajak[key]) {
+                formPajak[key].value = pajakRates[key];
+            }
+        }
+    }
     // ===================================================================================
     // --- EVENT LISTENERS & APP START ---
     // ===================================================================================
