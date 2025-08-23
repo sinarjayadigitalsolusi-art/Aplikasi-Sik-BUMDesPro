@@ -806,7 +806,8 @@ window.onload = () => {
                 { no: '5.1.08.01', nama: 'Gaji & Tunjangan Pengurus', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
                 { no: '5.1.08.12', nama: 'Biaya Listrik dan PDAM', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
                 { no: '5.1.08.18', nama: 'Biaya ATK dan Fotocopy', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
-                { no: '5.1.08.34', nama: 'Biaya Penyusutan Bangunan', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+                { no: '5.1.08.20', nama: 'Biaya Sewa', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+				{ no: '5.1.08.34', nama: 'Biaya Penyusutan Bangunan', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
                 { no: '5.1.08.35', nama: 'Biaya Penyusutan Kendaraan', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
                 { no: '5.1.08.36', nama: 'Biaya Penyusutan Inventaris', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
             ],
@@ -1456,6 +1457,7 @@ function renderPenyesuaianPage() {
     });
 }
 
+// ▼▼▼ GANTI FUNGSI LAMA ANDA DENGAN VERSI BARU INI ▼▼▼
 function showPenyesuaianModal(akunNo, sisaSaldo, tipe) {
     const akunAsal = sikBumdesData.coa.find(a => a.no === akunNo);
     let akunLawanOptions = '';
@@ -1465,16 +1467,20 @@ function showPenyesuaianModal(akunNo, sisaSaldo, tipe) {
         judulModal = 'Penyesuaian Biaya Dibayar di Muka';
         labelJumlah = 'Jumlah Biaya yang Diakui Bulan Ini';
         labelAkunLawan = 'Pilih Akun Beban Terkait';
+        // --- PERBAIKAN LOGIKA FILTER ---
         akunLawanOptions = sikBumdesData.coa
-            .filter(a => a.no.startsWith('5.1.09')) // Akun Beban Sewa, Asuransi, dll.
-            .map(a => `<option value="${a.no}">${a.nama}</option>`).join('');
+            .filter(a => a.kelompok === 'LABA RUGI' && a.saldoNormal === 'DEBET') // Filter semua akun beban
+            .sort((a, b) => a.no.localeCompare(b.no)) // Urutkan berdasarkan nomor akun
+            .map(a => `<option value="${a.no}">${a.no} - ${a.nama}</option>`).join('');
     } else { // unearned
         judulModal = 'Penyesuaian Pendapatan Diterima di Muka';
         labelJumlah = 'Jumlah Pendapatan yang Direalisasi';
         labelAkunLawan = 'Pilih Akun Pendapatan Terkait';
+        // Filter semua akun pendapatan
         akunLawanOptions = sikBumdesData.coa
-            .filter(a => a.no.startsWith('4.')) // Akun Pendapatan
-            .map(a => `<option value="${a.no}">${a.nama}</option>`).join('');
+            .filter(a => a.kelompok === 'LABA RUGI' && a.saldoNormal === 'KREDIT')
+            .sort((a, b) => a.no.localeCompare(b.no))
+            .map(a => `<option value="${a.no}">${a.no} - ${a.nama}</option>`).join('');
     }
 
     const modalHtml = `
@@ -1501,7 +1507,7 @@ function showPenyesuaianModal(akunNo, sisaSaldo, tipe) {
     });
     el('#penyesuaian-modal .btn-cancel').addEventListener('click', () => closeModal('penyesuaian-modal'));
 }
-
+// ▲▲▲ AKHIR DARI FUNGSI PENGGANTI ▲▲▲
 function prosesJurnalPenyesuaian(akunAsalNo, tipe, form) {
     const jumlah = parseFloat(form.jumlah.value);
     const akunLawanNo = form.akunLawan.value;
