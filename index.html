@@ -167,6 +167,54 @@
     .dark .btn-laporan-sekunder:hover {
         background-color: #4b5563; /* dark:bg-gray-600 */
     }
+	.slider-container {
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+.slider-track {
+    animation: scroll 40s linear infinite;
+}
+
+.slider-container:hover .slider-track {
+    animation-play-state: paused;
+}
+
+@keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+.slide-card {
+    width: 180px; /* Lebar setiap kartu pengurus */
+    flex-shrink: 0;
+    height: 100%;
+    margin: 0 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #f9fafb;
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+    padding: 10px;
+}
+.dark .slide-card {
+    background: #1f2937;
+    border-color: #374151;
+}
+/* >>> TAMBAHKAN BLOK KODE CSS INI <<< */
+
+/* Definisikan class untuk kartu dasbor agar mudah ditargetkan */
+.dashboard-card {
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+/* Efek saat kursor mouse berada di atas kartu */
+.dashboard-card:hover {
+    transform: scale(1.05); /* Memperbesar kartu sebanyak 5% */
+    z-index: 10; /* Memastikan kartu yang diperbesar ada di atas yang lain */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2); /* Menambah bayangan agar terkesan melayang */
+}
     </style>
 	
 </head>
@@ -213,6 +261,7 @@
                      <li><a href="#kasir" class="nav-link flex items-center p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white transition-colors"><i class="fas fa-cash-register w-6 mr-3"></i>Kasir (POS)</a></li>
 					<li><a href="#simpanan" class="nav-link flex items-center p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white transition-colors"><i class="fas fa-users-cog w-6 mr-3"></i>Simpanan Anggota</a></li>
 					<li><a href="#pinjaman" class="nav-link flex items-center p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white transition-colors"><i class="fas fa-handshake w-6 mr-3"></i>Pinjaman Anggota</a></li>
+					<li><a href="#bagi-hasil" class="nav-link flex items-center p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white transition-colors"><i class="fas fa-gifts w-6 mr-3"></i>Bagi Hasil (SHU)</a></li>
 					<li><a href="#laporan" class="nav-link flex items-center p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white transition-colors"><i class="fas fa-file-alt w-6 mr-3"></i>Laporan</a></li>
                      <li><a href="#analisa" class="nav-link flex items-center p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white transition-colors"><i class="fas fa-chart-bar w-6 mr-3"></i>Analisa Keuangan</a></li>
 					 <li><a href="#utang-piutang" class="nav-link flex items-center p-3 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white transition-colors"><i class="fas fa-hand-holding-usd w-6 mr-3"></i>Utang Piutang</a></li>
@@ -272,35 +321,35 @@
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-                <div class="bg-gradient-to-br from-teal-400 to-emerald-500 text-white p-5 rounded-xl shadow-md flex items-center">
+                <div class="bg-gradient-to-br from-teal-400 to-emerald-500 text-white p-5 rounded-xl shadow-md flex items-center dashboard-card">
                     <div class="bg-white/20 p-4 rounded-full mr-4"><i class="fas fa-wallet fa-2x"></i></div>
                     <div><p class="font-light">Total Aktiva</p><p id="summary-aktiva" class="text-2xl font-bold">Rp 0</p></div>
                 </div>
-                <div class="bg-gradient-to-br from-sky-400 to-blue-500 text-white p-5 rounded-xl shadow-md flex items-center">
+                <div class="bg-gradient-to-br from-sky-400 to-blue-500 text-white p-5 rounded-xl shadow-md flex items-center dashboard-card">
                     <div class="bg-white/20 p-4 rounded-full mr-4"><i class="fas fa-balance-scale fa-2x"></i></div>
                     <div><p class="font-light">Total Pasiva</p><p id="summary-pasiva" class="text-2xl font-bold">Rp 0</p></div>
                 </div>
-                <div class="bg-gradient-to-br from-indigo-400 to-purple-500 text-white p-5 rounded-xl shadow-md flex items-center">
+                <div class="bg-gradient-to-br from-indigo-400 to-purple-500 text-white p-5 rounded-xl shadow-md flex items-center dashboard-card">
                     <div class="bg-white/20 p-4 rounded-full mr-4"><i class="fas fa-landmark fa-2x"></i></div>
                     <div><p class="font-light">Modal Dari Desa</p><p id="summary-modal-desa" class="text-2xl font-bold">Rp 0</p></div>
                 </div>
-                <div class="bg-gradient-to-br from-amber-400 to-orange-500 text-white p-5 rounded-xl shadow-md flex items-center">
+                <div class="bg-gradient-to-br from-amber-400 to-orange-500 text-white p-5 rounded-xl shadow-md flex items-center dashboard-card">
                     <div class="bg-white/20 p-4 rounded-full mr-4"><i class="fas fa-chart-line fa-2x"></i></div>
                     <div><p class="font-light">Laba Rugi Tahun Ini</p><p id="summary-laba-rugi" class="text-2xl font-bold">Rp 0</p></div>
                 </div>
-                <div class="bg-gradient-to-br from-cyan-400 to-blue-600 text-white p-5 rounded-xl shadow-md flex items-center">
+                <div class="bg-gradient-to-br from-cyan-400 to-blue-600 text-white p-5 rounded-xl shadow-md flex items-center dashboard-card">
                     <div class="bg-white/20 p-4 rounded-full mr-4"><i class="fas fa-tasks fa-2x"></i></div>
                     <div><p class="font-light">Rasio Lancar (CR)</p><p id="kpi-current-ratio" class="text-2xl font-bold">0</p></div>
                 </div>
-                <div class="bg-gradient-to-br from-pink-500 to-rose-600 text-white p-5 rounded-xl shadow-md flex items-center">
+                <div class="bg-gradient-to-br from-pink-500 to-rose-600 text-white p-5 rounded-xl shadow-md flex items-center dashboard-card">
                     <div class="bg-white/20 p-4 rounded-full mr-4"><i class="fas fa-chart-pie fa-2x"></i></div>
                     <div><p class="font-light">Rasio Utang/Modal (DER)</p><p id="kpi-der" class="text-2xl font-bold">0</p></div>
                 </div>
-                <div class="bg-gradient-to-br from-lime-400 to-green-500 text-white p-5 rounded-xl shadow-md flex items-center">
+                <div class="bg-gradient-to-br from-lime-400 to-green-500 text-white p-5 rounded-xl shadow-md flex items-center dashboard-card">
                     <div class="bg-white/20 p-4 rounded-full mr-4"><i class="fas fa-arrow-up fa-2x"></i></div>
                     <div><p class="font-light">Pendapatan Bulan Ini</p><p id="summary-pendapatan" class="text-2xl font-bold">Rp 0</p></div>
                 </div>
-                <div class="bg-gradient-to-br from-rose-400 to-red-500 text-white p-5 rounded-xl shadow-md flex items-center">
+                <div class="bg-gradient-to-br from-rose-400 to-red-500 text-white p-5 rounded-xl shadow-md flex items-center dashboard-card">
                     <div class="bg-white/20 p-4 rounded-full mr-4"><i class="fas fa-arrow-down fa-2x"></i></div>
                     <div><p class="font-light">Biaya Bulan Ini</p><p id="summary-biaya" class="text-2xl font-bold">Rp 0</p></div>
                 </div>
@@ -310,19 +359,14 @@
                     <h3 class="font-semibold mb-4">Grafik Laba/Rugi (6 Bulan Terakhir)</h3>
                     <canvas id="labaRugiChart"></canvas>
                 </div>
-                <div class="space-y-6">
-                    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-                        <h3 class="font-semibold mb-4">Informasi Singkat</h3>
-                        <div class="space-y-3">
-                            <div class="flex justify-between items-center"><span><i class="fas fa-users text-blue-500 mr-2"></i> Pelanggan/Anggota</span><span id="info-pelanggan" class="font-bold">0</span></div>
-                            <div class="flex justify-between items-center"><span><i class="fas fa-exchange-alt text-green-500 mr-2"></i> Transaksi Hari Ini</span><span id="info-transaksi" class="font-bold">0</span></div>
-                        </div>
-                    </div>
-                    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-                        <h3 class="font-semibold mb-4">Notifikasi Penting</h3>
-                        <ul id="notifikasi-list" class="space-y-2 text-sm"><li class="text-gray-500">Tidak ada notifikasi.</li></ul>
-                    </div>
-                </div>
+                <div class="mt-6 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+    <h3 class="font-semibold mb-4 text-center text-xl">Struktur Pengurus BUMDes</h3>
+    <div class="slider-container overflow-hidden relative w-full h-48">
+        <div id="pengurus-slider" class="slider-track flex absolute left-0 top-0 h-full">
+            </div>
+    </div>
+</div>
+				
             </div>
             <div id="dashboard-analitik-charts" class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
                 <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
@@ -334,25 +378,38 @@
                     <canvas id="revenueChart"></canvas>
                 </div>
             </div>
-        </div>
+        <div class="space-y-6">
+                    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                        <h3 class="font-semibold mb-4">Informasi Singkat</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center"><span><i class="fas fa-users text-blue-500 mr-2"></i> Pelanggan/Anggota</span><span id="info-pelanggan" class="font-bold">0</span></div>
+                            <div class="flex justify-between items-center"><span><i class="fas fa-exchange-alt text-green-500 mr-2"></i> Transaksi Hari Ini</span><span id="info-transaksi" class="font-bold">0</span></div>
+                        </div>
+                    </div>
+					<div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+                        <h3 class="font-semibold mb-4">Notifikasi Penting</h3>
+                        <ul id="notifikasi-list" class="space-y-2 text-sm"><li class="text-gray-500">Tidak ada notifikasi.</li></ul>
+                    </div>
+                </div>
+		</div>
 
         <div id="input-data-page" class="page hidden">
              <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
                 <h2 class="text-2xl font-bold mb-4">Input Data Awal & Master</h2>
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mb-6">
-                    <button id="btn-show-identitas" class="bg-teal-500 text-white font-bold p-2 rounded-lg hover:bg-teal-600 transition duration-300 flex items-center justify-center text-sm"><i class="fas fa-id-card mr-2"></i>Identitas BUMDes</button>
-                    <button id="btn-show-kepengurusan" class="bg-cyan-500 text-white font-bold p-2 rounded-lg hover:bg-cyan-600 transition duration-300 flex items-center justify-center text-sm"><i class="fas fa-sitemap mr-2"></i>Struktur Kepengurusan</button>
-                    <button id="btn-show-coa" class="bg-blue-500 text-white font-bold p-2 rounded-lg hover:bg-blue-600 transition duration-300 flex items-center justify-center text-sm"><i class="fas fa-list-ol mr-2"></i>Daftar Akun (COA)</button>
-                    <button id="btn-show-saldo-awal" class="bg-indigo-500 text-white font-bold p-2 rounded-lg hover:bg-indigo-600 transition duration-300 flex items-center justify-center text-sm"><i class="fas fa-file-invoice-dollar mr-2"></i>Input Saldo Awal</button>
-                    <button id="btn-show-jurnal" class="bg-green-500 text-white font-bold p-2 rounded-lg hover:bg-green-600 transition duration-300 flex items-center justify-center text-sm"><i class="fas fa-book mr-2"></i>Input Jurnal</button>
-                    <button id="btn-show-inventaris" class="bg-purple-500 text-white font-bold p-2 rounded-lg hover:bg-purple-600 transition duration-300 flex items-center justify-center text-sm"><i class="fas fa-boxes mr-2"></i>Input Inventaris</button>
-                    <button id="btn-show-shu" class="bg-yellow-500 text-white font-bold p-2 rounded-lg hover:bg-yellow-600 transition duration-300 flex items-center justify-center text-sm"><i class="fas fa-percentage mr-2"></i>Pengaturan SHU</button>
-                    <button id="btn-show-pelanggan" class="bg-sky-500 text-white font-bold p-2 rounded-lg hover:bg-sky-600 transition duration-300 flex items-center justify-center text-sm"><i class="fas fa-users mr-2"></i>Master Pelanggan</button>
-                    <button id="btn-show-anggota" class="bg-emerald-500 text-white font-bold p-2 rounded-lg hover:bg-emerald-600 transition duration-300 flex items-center justify-center text-sm"><i class="fas fa-user-check mr-2"></i>Master Anggota</button>
-                    <button id="btn-show-pemasok" class="bg-slate-500 text-white font-bold p-2 rounded-lg hover:bg-slate-600 transition duration-300 flex items-center justify-center text-sm"><i class="fas fa-truck mr-2"></i>Master Pemasok</button>
-                    <button id="btn-show-produk" class="bg-orange-500 text-white font-bold p-2 rounded-lg hover:bg-orange-600 transition duration-300 flex items-center justify-center text-sm"><i class="fas fa-box-open mr-2"></i>Master Produk/Jasa</button>
-                    <button id="btn-show-stok" class="bg-indigo-700 text-white font-bold p-2 rounded-lg hover:bg-indigo-800 transition duration-300 flex items-center justify-center text-sm"><i class="fas fa-warehouse mr-2"></i>Manajemen Stok</button>
-                    <button id="btn-show-pengurus" class="bg-red-500 text-white font-bold p-2 rounded-lg hover:bg-red-600 transition duration-300 flex items-center justify-center text-sm"><i class="fas fa-users-cog mr-2"></i>Master Pengurus/Karyawan</button>
+                    <button id="btn-show-identitas" class="bg-teal-500 text-white font-bold p-2 rounded-lg hover:bg-teal-600 transition duration-300 flex items-center justify-center text-sm dashboard-card"><i class="fas fa-id-card mr-2"></i>Identitas BUMDes</button>
+                    <button id="btn-show-kepengurusan" class="bg-cyan-500 text-white font-bold p-2 rounded-lg hover:bg-cyan-600 transition duration-300 flex items-center justify-center text-sm dashboard-card"><i class="fas fa-sitemap mr-2"></i>Struktur Kepengurusan</button>
+                    <button id="btn-show-coa" class="bg-blue-500 text-white font-bold p-2 rounded-lg hover:bg-blue-600 transition duration-300 flex items-center justify-center text-sm dashboard-card"><i class="fas fa-list-ol mr-2"></i>Daftar Akun (COA)</button>
+                    <button id="btn-show-saldo-awal" class="bg-indigo-500 text-white font-bold p-2 rounded-lg hover:bg-indigo-600 transition duration-300 flex items-center justify-center text-sm dashboard-card"><i class="fas fa-file-invoice-dollar mr-2"></i>Input Saldo Awal</button>
+                    <button id="btn-show-jurnal" class="bg-green-500 text-white font-bold p-2 rounded-lg hover:bg-green-600 transition duration-300 flex items-center justify-center text-sm dashboard-card"><i class="fas fa-book mr-2"></i>Input Jurnal</button>
+                    <button id="btn-show-inventaris" class="bg-purple-500 text-white font-bold p-2 rounded-lg hover:bg-purple-600 transition duration-300 flex items-center justify-center text-sm dashboard-card"><i class="fas fa-boxes mr-2"></i>Input Inventaris</button>
+                    <button id="btn-show-shu" class="bg-yellow-500 text-white font-bold p-2 rounded-lg hover:bg-yellow-600 transition duration-300 flex items-center justify-center text-sm dashboard-card"><i class="fas fa-percentage mr-2"></i>Pengaturan SHU</button>
+                    <button id="btn-show-pelanggan" class="bg-sky-500 text-white font-bold p-2 rounded-lg hover:bg-sky-600 transition duration-300 flex items-center justify-center text-sm dashboard-card"><i class="fas fa-users mr-2"></i>Master Pelanggan</button>
+                    <button id="btn-show-anggota" class="bg-emerald-500 text-white font-bold p-2 rounded-lg hover:bg-emerald-600 transition duration-300 flex items-center justify-center text-sm dashboard-card"><i class="fas fa-user-check mr-2"></i>Master Anggota</button>
+                    <button id="btn-show-pemasok" class="bg-slate-500 text-white font-bold p-2 rounded-lg hover:bg-slate-600 transition duration-300 flex items-center justify-center text-sm dashboard-card"><i class="fas fa-truck mr-2"></i>Master Pemasok</button>
+                    <button id="btn-show-produk" class="bg-orange-500 text-white font-bold p-2 rounded-lg hover:bg-orange-600 transition duration-300 flex items-center justify-center text-sm dashboard-card"><i class="fas fa-box-open mr-2"></i>Master Produk/Jasa</button>
+                    <button id="btn-show-stok" class="bg-indigo-700 text-white font-bold p-2 rounded-lg hover:bg-indigo-800 transition duration-300 flex items-center justify-center text-sm dashboard-card"><i class="fas fa-warehouse mr-2"></i>Manajemen Stok</button>
+                    <button id="btn-show-pengurus" class="bg-red-500 text-white font-bold p-2 rounded-lg hover:bg-red-600 transition duration-300 flex items-center justify-center text-sm dashboard-card"><i class="fas fa-users-cog mr-2"></i>Master Pengurus/Karyawan</button>
                 </div>
                 <div id="input-data-content"><p class="text-center text-gray-500">Pilih salah satu tombol di atas untuk memulai.</p></div>
             </div>
@@ -435,7 +492,8 @@
                 <div id="laporan-content" class="border dark:border-gray-700 rounded-lg p-4 min-h-[300px]"><p class="text-center text-gray-500">Pilih jenis laporan untuk ditampilkan.</p></div>
             </div>
         </div>
-
+<div id="bagi-hasil-page" class="page hidden">
+    </div>
         <div id="analisa-page" class="page hidden">
             <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
                 <h2 class="text-2xl font-bold mb-4">Analisa Laporan Keuangan</h2>
@@ -801,7 +859,7 @@ window.onload = () => {
                 }
             },
             shu: {
-                bonusPengurus: 20, pendidikan: 10, danaSosial: 15, paDesa: 50, penambahanModal: 50
+                bonusPengurus: 20, pendidikan: 10, danaSosial: 15, jasaModal: 10, paDesa: 50, penambahanModal: 50
             },
 			pinjaman: [], // <-- TAMBAHKAN BARIS INI
 			angsuran: [], // <-- TAMBAHKAN BARIS INI
@@ -830,7 +888,8 @@ window.onload = () => {
                 { no: '2.1.04.03', nama: 'Utang PPh 22', saldoNormal: 'KREDIT', kelompok: 'NERACA' },
                 { no: '2.1.04.04', nama: 'Utang PPh 23', saldoNormal: 'KREDIT', kelompok: 'NERACA' },
                 { no: '2.1.04.05', nama: 'Utang Pajak Lainnya', saldoNormal: 'KREDIT', kelompok: 'NERACA' },
-                { no: '2.2.01.01', nama: 'Simpanan Pokok Anggota', saldoNormal: 'KREDIT', kelompok: 'NERACA' },
+                { no: '2.1.05.01', nama: 'Utang SHU Anggota', saldoNormal: 'KREDIT', kelompok: 'NERACA' },
+				{ no: '2.2.01.01', nama: 'Simpanan Pokok Anggota', saldoNormal: 'KREDIT', kelompok: 'NERACA' },
                 { no: '2.2.01.02', nama: 'Simpanan Wajib Anggota', saldoNormal: 'KREDIT', kelompok: 'NERACA' },
 				{ no: '3.1.01.01', nama: 'Modal dari Desa', saldoNormal: 'KREDIT', kelompok: 'NERACA' },
                 { no: '3.1.01.03', nama: 'Modal dari Masyarakat', saldoNormal: 'KREDIT', kelompok: 'NERACA' },
@@ -1492,7 +1551,10 @@ function navigateTo(pageId) {
             el('#laporan-content').innerHTML = '<p class="text-center text-gray-500">Pilih jenis laporan untuk ditampilkan.</p>';
             el('#laporan-controls').innerHTML = '';
             break;
-        case 'analisa':
+        case 'bagi-hasil':
+		renderBagiHasilPage();
+		break;
+		case 'analisa':
             renderAnalisaPage();
             break;
         case 'utang-piutang':
@@ -1905,6 +1967,54 @@ function generateAnalisisUnitUsaha(startDate, endDate) {
     tableHtml += `</tbody></table>`;
     return tableHtml;
 }
+// >>> TEMPEL FUNGSI BARU INI <<<
+
+function renderPengurusSlider() {
+    const sliderTrack = el('#pengurus-slider');
+    if (!sliderTrack) return;
+
+    const { identitas } = sikBumdesData;
+    const pengurusList = [];
+
+    // Kumpulkan semua data pengurus menjadi satu array
+    if (identitas.penasihat && identitas.penasihat.nama) {
+        pengurusList.push({ ...identitas.penasihat, jabatan: 'Penasehat' });
+    }
+    if (identitas.pengelola.direktur && identitas.pengelola.direktur.nama) {
+        pengurusList.push({ ...identitas.pengelola.direktur, jabatan: 'Direktur' });
+    }
+    if (identitas.pengelola.sekretaris && identitas.pengelola.sekretaris.nama) {
+        pengurusList.push({ ...identitas.pengelola.sekretaris, jabatan: 'Sekretaris' });
+    }
+    if (identitas.pengelola.bendahara && identitas.pengelola.bendahara.nama) {
+        pengurusList.push({ ...identitas.pengelola.bendahara, jabatan: 'Bendahara' });
+    }
+    identitas.pengawas.forEach(p => {
+        if (p.nama) pengurusList.push({ ...p, jabatan: 'Pengawas' });
+    });
+    identitas.ketuaUnit.forEach(p => {
+        if (p.nama) pengurusList.push({ ...p, jabatan: 'Ketua Unit' });
+    });
+
+    if (pengurusList.length === 0) {
+        sliderTrack.innerHTML = '<p class="text-gray-500 w-full text-center">Data pengurus belum diinput.</p>';
+        return;
+    }
+
+    // Buat HTML untuk setiap kartu pengurus
+    const cardHtml = pengurusList.map(p => `
+        <div class="slide-card">
+            <img src="${p.foto}" alt="${p.nama}" class="w-20 h-20 rounded-full object-cover mb-2 border-2 border-[var(--color-primary-start)]">
+            <p class="font-bold text-sm text-center truncate w-full">${p.nama}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">${p.jabatan}</p>
+            ${p.nip ? `<p class="text-xs text-gray-400">${p.nip}</p>` : ''}
+        </div>
+    `).join('');
+
+    // Duplikasi kartu untuk menciptakan efek perulangan yang mulus
+    sliderTrack.innerHTML = cardHtml + cardHtml;
+    sliderTrack.style.width = `${(180 + 30) * pengurusList.length * 2}px`;
+}
 // ▲▲▲ AKHIR DARI FUNGSI BARU ▲▲▲
     // ===================================================================================
     // --- MODALS & NOTIFICATIONS ---
@@ -2164,6 +2274,136 @@ function prosesPembayaran() {
     // Reset kasir
     kasirCart = [];
     updateCartView();
+}
+// ===================================================================================
+// --- BAGI HASIL (SHU) MODULE ---
+// ===================================================================================
+
+function renderBagiHasilPage() {
+    const pageContainer = el('#bagi-hasil-page');
+    const tahunJurnal = [...new Set(sikBumdesData.jurnal.map(j => new Date(j.tanggal).getFullYear()))];
+    const tahunTutupBuku = sikBumdesData.tutupBuku || [];
+    
+    // Hanya tampilkan tahun yang sudah ditutup bukunya
+    const tahunTersedia = tahunJurnal.filter(y => tahunTutupBuku.includes(y) && !isNaN(y));
+
+    pageContainer.innerHTML = `
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+        <h2 class="text-2xl font-bold mb-4">Proses Bagi Hasil (SHU) untuk Jasa Simpanan Anggota</h2>
+        <div class="flex items-center gap-4 mb-6 bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+            <label>Pilih Tahun Buku:</label>
+            <select id="select-tahun-shu" class="p-2 border rounded dark:bg-gray-600">
+                ${tahunTersedia.sort((a,b)=>b-a).map(y => `<option value="${y}">${y}</option>`).join('') || `<option disabled>Belum ada tahun yang ditutup buku</option>`}
+            </select>
+            <button id="btn-proses-shu" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700" ${tahunTersedia.length === 0 ? 'disabled' : ''}>
+                <i class="fas fa-cogs mr-2"></i>Proses Perhitungan
+            </button>
+        </div>
+        <div id="shu-table-container">
+            <p class="text-center text-gray-500">Pilih tahun buku yang telah ditutup, lalu klik "Proses Perhitungan".</p>
+        </div>
+    </div>
+    `;
+
+    el('#btn-proses-shu').addEventListener('click', prosesBagiHasil);
+}
+
+function prosesBagiHasil() {
+    const tahun = parseInt(el('#select-tahun-shu').value);
+    const container = el('#shu-table-container');
+    container.innerHTML = `<p class="text-center">Menghitung...</p>`;
+
+    // 1. Hitung total SHU tahunan
+    const labaRugiTahun = calculateLabaRugiPeriod(`${tahun}-01-01`, `${tahun}-12-31`);
+    if (labaRugiTahun <= 0) {
+        container.innerHTML = `<p class="text-center text-red-500 font-bold">Tidak ada laba (SHU) untuk dibagikan pada tahun ${tahun}.</p>`;
+        return;
+    }
+
+    // 2. Hitung dana yang dialokasikan untuk Jasa Modal
+    const alokasiJasaModal = labaRugiTahun * (sikBumdesData.shu.jasaModal / 100);
+
+    // 3. Hitung total simpanan semua anggota selama tahun tersebut
+    const totalSimpananTahunIni = sikBumdesData.simpanan
+        .filter(s => new Date(s.tanggal).getFullYear() === tahun)
+        .reduce((sum, s) => sum + s.jumlah, 0);
+
+    if (totalSimpananTahunIni === 0) {
+        container.innerHTML = `<p class="text-center text-orange-500 font-bold">Tidak ada transaksi simpanan anggota pada tahun ${tahun}.</p>`;
+        return;
+    }
+
+    // 4. Hitung SHU untuk setiap anggota
+    const hasilPerAnggota = sikBumdesData.anggota.map(anggota => {
+        const simpananAnggotaTahunIni = sikBumdesData.simpanan
+            .filter(s => s.anggotaId === anggota.id && new Date(s.tanggal).getFullYear() === tahun)
+            .reduce((sum, s) => sum + s.jumlah, 0);
+        
+        const porsi = (simpananAnggotaTahunIni / totalSimpananTahunIni);
+        const shuDiterima = porsi * alokasiJasaModal;
+
+        return {
+            id: anggota.id,
+            nama: anggota.nama,
+            totalSimpanan: simpananAnggotaTahunIni,
+            shuDiterima: shuDiterima
+        };
+    }).filter(h => h.totalSimpanan > 0); // Hanya tampilkan anggota yang menabung di tahun tsb
+
+    // 5. Tampilkan hasil dalam tabel
+    let tableRows = hasilPerAnggota.map(h => `
+        <tr class="border-b dark:border-gray-700">
+            <td class="p-2">${h.nama}</td>
+            <td class="p-2 text-right">${formatCurrency(h.totalSimpanan)}</td>
+            <td class="p-2 text-right font-bold">${formatCurrency(h.shuDiterima)}</td>
+        </tr>
+    `).join('');
+
+    container.innerHTML = `
+        <div class="mb-4 p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
+            <p>Total SHU ${tahun}: <strong>${formatCurrency(labaRugiTahun)}</strong></p>
+            <p>Alokasi Dana Jasa Modal (${sikBumdesData.shu.jasaModal}%): <strong>${formatCurrency(alokasiJasaModal)}</strong></p>
+            <p>Total Simpanan Anggota di ${tahun}: <strong>${formatCurrency(totalSimpananTahunIni)}</strong></p>
+        </div>
+        <table class="w-full text-sm">
+            <thead class="bg-gray-100 dark:bg-gray-700">
+                <tr><th class="p-2">Nama Anggota</th><th class="p-2 text-right">Total Simpanan (${tahun})</th><th class="p-2 text-right">SHU Diterima</th></tr>
+            </thead>
+            <tbody>${tableRows}</tbody>
+        </table>
+        <div class="text-right mt-4">
+            <button id="btn-posting-shu" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700">
+                <i class="fas fa-check mr-2"></i>Posting Jurnal Utang SHU
+            </button>
+        </div>
+    `;
+
+    el('#btn-posting-shu').addEventListener('click', () => postingJurnalSHU(tahun, hasilPerAnggota, alokasiJasaModal));
+}
+
+function postingJurnalSHU(tahun, hasilPerAnggota, totalUtangSHU) {
+    showConfirmationModal(`Anda yakin ingin membuat jurnal Utang SHU sebesar ${formatCurrency(totalUtangSHU)} untuk tahun ${tahun}?`, () => {
+        const tanggalJurnal = `${tahun}-12-31`;
+        const commonJurnalData = {
+            id: `SHU-JM-${tahun}-${Date.now()}`,
+            tanggal: tanggalJurnal,
+            bukti: `SHU-JM-${tahun}`,
+            keterangan: `Pencatatan Utang SHU Jasa Modal tahun ${tahun}`
+        };
+
+        // Jurnal Otomatis:
+        // Debit: Laba Ditahan (mengurangi laba yang ditahan)
+        // Kredit: Utang SHU Anggota (mencatat kewajiban yang harus dibayar)
+        sikBumdesData.jurnal.push({ ...commonJurnalData, akunNo: '3.1.02.01', debit: totalUtangSHU, credit: 0 });
+        sikBumdesData.jurnal.push({ ...commonJurnalData, akunNo: '2.1.05.01', debit: 0, credit: totalUtangSHU });
+        
+        // Simpan catatan SHU yang diterima per anggota (jika perlu untuk rekam jejak)
+        // (Fitur ini bisa dikembangkan lebih lanjut)
+
+        saveData();
+        showNotification('Jurnal Utang SHU berhasil diposting!');
+        el('#shu-table-container').innerHTML = `<p class="text-center text-green-600 font-bold">Jurnal Utang SHU untuk tahun ${tahun} telah berhasil dibuat.</p>`;
+    });
 }
     // ===================================================================================
     // --- REPORTING ENGINE ---
@@ -2539,7 +2779,7 @@ el('#summary-biaya').textContent = formatCurrencyFlexible(biaya);
     
     // Render grafik-grafik
     renderLabaRugiChart(); // Grafik lama
-
+ renderPengurusSlider();
     // Render grafik baru: Komposisi Aset (Pie Chart)
     const assetData = prepareAssetCompositionData(ledger);
     const assetCtx = el('#assetChart').getContext('2d');
@@ -4243,6 +4483,17 @@ function saveInventaris(e) {
                     <label class="block mb-1">Dana Sosial/CSR/TJSL/RTM (%)</label>
                     <input type="number" name="danaSosial" value="${shu.danaSosial || 0}" class="form-input">
                 </div>
+				<div>
+    <label class="block mb-1">Dana Sosial/CSR/TJSL/RTM (%)</label>
+    <input type="number" name="danaSosial" value="${shu.danaSosial || 0}" class="form-input">
+</div>
+
+<div>
+    <label class="block mb-1">Jasa Modal / Jasa Simpanan Anggota (%)</label>
+    <input type="number" name="jasaModal" value="${shu.jasaModal || 0}" class="form-input">
+</div>
+
+<hr class="my-6">
                 <hr class="my-6">
                 <p class="text-sm text-gray-500">Persentase berikut dihitung dari sisa SHU setelah dikurangi alokasi di atas.</p>
                 <div>
@@ -4265,10 +4516,11 @@ function saveInventaris(e) {
             const form = e.target;
             sikBumdesData.shu = {
                 bonusPengurus: parseFloat(form.bonusPengurus.value),
-                pendidikan: parseFloat(form.pendidikan.value),
-                danaSosial: parseFloat(form.danaSosial.value),
-                paDesa: parseFloat(form.paDesa.value),
-                penambahanModal: parseFloat(form.penambahanModal.value),
+				pendidikan: parseFloat(form.pendidikan.value),
+				danaSosial: parseFloat(form.danaSosial.value),
+				jasaModal: parseFloat(form.jasaModal.value), // <-- TAMBAHKAN BARIS INI
+				paDesa: parseFloat(form.paDesa.value),
+				penambahanModal: parseFloat(form.penambahanModal.value),
             };
             saveData();
             showNotification('Pengaturan SHU berhasil disimpan!');
