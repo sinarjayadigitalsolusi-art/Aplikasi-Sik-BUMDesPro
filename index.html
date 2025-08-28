@@ -898,7 +898,7 @@ window.onload = () => {
                 { no: '3.1.03.01', nama: 'Prive / Penarikan Modal', saldoNormal: 'DEBET', kelompok: 'NERACA' },
 				{ no: '4.1.01', nama: 'Pendapatan Unit Usaha 1', saldoNormal: 'KREDIT', kelompok: 'LABA RUGI' },
                 { no: '4.2.01', nama: 'Pendapatan Bunga Pinjaman', saldoNormal: 'KREDIT', kelompok: 'LABA RUGI' },
-				{ no: '5.1.0.01', nama: 'HPP Unit Usaha 1', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+				{ no: '5.1.01.01', nama: 'HPP Unit Usaha 1', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
                 { no: '5.1.08.01', nama: 'Gaji & Tunjangan Pengurus', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
                 { no: '5.1.08.12', nama: 'Biaya Listrik dan PDAM', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
                 { no: '5.1.08.18', nama: 'Biaya ATK dan Fotocopy', saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
@@ -2223,49 +2223,91 @@ function showPembayaranModal() {
         prosesPembayaran();
     });
 }
-
 function prosesPembayaran() {
-    const totalPenjualan = kasirCart.reduce((sum, item) => sum + (item.hargaJual * item.qty), 0);
-    const totalHpp = kasirCart.reduce((sum, item) => sum + (item.hargaPokok * item.qty), 0);
     const itemNames = kasirCart.map(item => `${item.nama} (x${item.qty})`).join(', ');
-
-    // Asumsi: Penjualan pertama di keranjang menentukan Unit Usaha
-    const unitUsahaId = kasirCart.length > 0 ? kasirCart[0].unitUsahaId : '1'; 
-    const unit = sikBumdesData.unitUsaha.find(u => u.id === unitUsahaId) || {nama: 'Umum'};
-
     const commonData = { 
         id: `POS-${Date.now()}`, 
         tanggal: new Date().toISOString().slice(0,10),
         bukti: `POS-${Date.now().toString().slice(-6)}`,
-        keterangan: `Penjualan: ${itemNames}`,
-        unitUsahaId: unitUsahaId
+        keterangan: `Penjualan: ${itemNames}`
+        // unitUsahaId dihapus dari sini karena akan bervariasi
     };
-	 // ▼▼▼ TAMBAHKAN BLOK KODE INTEGRASI STOK DI SINI ▼▼▼
+
+    // --- PERUBAHAN LOGIKA INTI DIMULAI DI SINI ---
+
+    // 1. Kelompokkan item di keranjang berdasarkan unitUsahaId
+    const groupedByUnit = kasirCart.reduce((acc, item) => {
+        const unitId = item.unitUsahaId || '1'; // Default ke unit '1' jika tidak ada
+        if (!acc[unitId]) {
+            acc[unitId] = { items: [], totalPenjualan: 0, totalHpp: 0 };
+        }
+        acc[unitId].items.push(item);
+        acc[unitId].totalPenjualan += item.hargaJual * item.qty;
+        acc[unitId].totalHpp += item.hargaPokok * item.qty;
+        return acc;
+    }, {});
+
+    // 2. Hitung total keseluruhan penjualan untuk satu entri Kas
+    const grandTotalPenjualan = Object.values(groupedByUnit).reduce((sum, unit) => sum + unit.totalPenjualan, 0);
+
+    // 3. Buat Jurnal: Satu entri Debit ke Kas
+    sikBumdesData.jurnal.push({ 
+        ...commonData, 
+        akunNo: '1.1.01.01', // Asumsi kas masuk ke Akun Kas utama
+        debit: grandTotalPenjualan, 
+        credit: 0 
+    });
+
+    // 4. Buat Jurnal terpisah untuk setiap unit usaha
+    for (const unitId in groupedByUnit) {
+        const unitData = groupedByUnit[unitId];
+        const unitNumber = String(unitId).padStart(2, '0');
+
+        // Tentukan nomor akun yang benar untuk unit ini
+        const akunPendapatanNo = `4.1.${unitNumber}`;
+        const akunHppNo = `5.1.${unitNumber}.01`;
+        const akunPersediaanNo = `1.1.05.${unitNumber}`;
+
+        // Jurnal Kredit Pendapatan (per unit)
+        sikBumdesData.jurnal.push({ 
+            ...commonData, 
+            unitUsahaId: unitId,
+            akunNo: akunPendapatanNo, 
+            debit: 0, 
+            credit: unitData.totalPenjualan 
+        });
+
+        // Jurnal untuk HPP dan Persediaan (per unit)
+        sikBumdesData.jurnal.push({ 
+            ...commonData, 
+            unitUsahaId: unitId,
+            akunNo: akunHppNo, 
+            debit: unitData.totalHpp, 
+            credit: 0 
+        });
+        sikBumdesData.jurnal.push({ 
+            ...commonData, 
+            unitUsahaId: unitId,
+            akunNo: akunPersediaanNo, 
+            debit: 0, 
+            credit: unitData.totalHpp 
+        });
+    }
+
+    // 5. Logika pengurangan stok tidak berubah, karena sudah memproses setiap item
     kasirCart.forEach(item => {
         const stokKeluar = {
             id: `stok_pos_${Date.now()}_${item.id}`,
             tanggal: commonData.tanggal,
             produkId: item.id,
-            tipe: 'keluar', // Tipe baru untuk penjualan
-            qty: item.qty, // Jumlah yang terjual
+            tipe: 'keluar',
+            qty: item.qty,
             keterangan: `Penjualan POS (Bukti: ${commonData.bukti})`
         };
         sikBumdesData.stok.push(stokKeluar);
     });
-
-    // PENTING: Kode akun di bawah ini adalah contoh. Anda mungkin perlu menyesuaikannya
-    // dengan nomor akun yang benar di COA Anda.
-    const akunPendapatanNo = `4.1.${String(unit.id).padStart(2, '0')}`;
-    const akunHppNo = `5.1.${String(unit.id).padStart(2, '0')}.01`;
-    const akunPersediaanNo = `1.1.05.${String(unit.id).padStart(2, '0')}`;
-
-    // 1. Jurnal untuk mencatat Pendapatan
-    sikBumdesData.jurnal.push({ ...commonData, akunNo: '1.1.01.01', debit: totalPenjualan, credit: 0 }); // Kas (D)
-    sikBumdesData.jurnal.push({ ...commonData, akunNo: akunPendapatanNo, debit: 0, credit: totalPenjualan }); // Pendapatan (K)
-
-    // 2. Jurnal untuk mencatat HPP & mengurangi Persediaan
-    sikBumdesData.jurnal.push({ ...commonData, akunNo: akunHppNo, debit: totalHpp, credit: 0 }); // HPP (D)
-    sikBumdesData.jurnal.push({ ...commonData, akunNo: akunPersediaanNo, debit: 0, credit: totalHpp }); // Persediaan (K)
+    
+    // --- AKHIR PERUBAHAN LOGIKA ---
 
     saveData();
     closeModal('pembayaran-modal');
@@ -4653,33 +4695,34 @@ function showSaldoAwalForm() {
         all('.btn-edit-unit').forEach(btn => btn.addEventListener('click', e => showUnitUsahaModal(e.currentTarget.dataset.id)));
         all('.btn-delete-unit').forEach(btn => btn.addEventListener('click', e => deleteUnitUsaha(e.currentTarget.dataset.id)));
     }
-    
     function showUnitUsahaModal(unitId = null) {
-        const isEdit = unitId !== null;
-        const unit = isEdit ? sikBumdesData.unitUsaha.find(u => u.id === unitId) : { id: `unit_${Date.now()}`, nama: '', deskripsi: '' };
-        const modalHtml = `<div id="unit-modal" class="modal show fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50"><div class="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-md"><h2 class="text-xl font-bold mb-4">${isEdit ? 'Edit' : 'Tambah'} Unit Usaha</h2><form id="form-unit"><div class="mb-4"><label>Nama Unit</label><input type="text" name="nama" value="${unit.nama}" class="form-input" required></div><div class="mb-4"><label>Deskripsi</label><textarea name="deskripsi" rows="3" class="form-input">${unit.deskripsi}</textarea></div><div class="flex justify-end space-x-4"><button type="button" id="btn-cancel-unit" class="bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">Batal</button><button type="submit" class="bg-[var(--color-primary-start)] text-white font-bold py-2 px-4 rounded-lg">Simpan</button></div></form></div></div>`;
-        el('#modal-container').innerHTML = modalHtml.replace(/class="form-input"/g, 'class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"');
+    const isEdit = unitId !== null;
+    // --- PERBAIKAN: Logika pembuatan ID baru ---
+    const nextId = sikBumdesData.unitUsaha.length > 0 ? String(Math.max(...sikBumdesData.unitUsaha.map(u => parseInt(u.id))) + 1) : '1';
+    const unit = isEdit ? sikBumdesData.unitUsaha.find(u => u.id === unitId) : { id: nextId, nama: '', deskripsi: '' };
+    // --- AKHIR PERBAIKAN ---
+    const modalHtml = `<div id="unit-modal" class="modal show fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50"><div class="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-md"><h2 class="text-xl font-bold mb-4">${isEdit ? 'Edit' : 'Tambah'} Unit Usaha</h2><form id="form-unit"><div class="mb-4"><label>Nama Unit</label><input type="text" name="nama" value="${unit.nama}" class="form-input" required></div><div class="mb-4"><label>Deskripsi</label><textarea name="deskripsi" rows="3" class="form-input">${unit.deskripsi}</textarea></div><div class="flex justify-end space-x-4"><button type="button" id="btn-cancel-unit" class="bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">Batal</button><button type="submit" class="bg-[var(--color-primary-start)] text-white font-bold py-2 px-4 rounded-lg">Simpan</button></div></form></div></div>`;
+    el('#modal-container').innerHTML = modalHtml.replace(/class="form-input"/g, 'class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"');
+    
+    el('#form-unit').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const newUnit = { id: unit.id, nama: form.nama.value, deskripsi: form.deskripsi.value };
         
-        el('#form-unit').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const form = e.target;
-            const newUnit = { id: unit.id, nama: form.nama.value, deskripsi: form.deskripsi.value };
-            
-            if (isEdit) {
-                const index = sikBumdesData.unitUsaha.findIndex(u => u.id === unitId);
-                if (index > -1) sikBumdesData.unitUsaha[index] = newUnit;
-            } else {
-                sikBumdesData.unitUsaha.push(newUnit);
-                const newAccounts = generateUnitAccounts(newUnit);
-                sikBumdesData.coa.push(...newAccounts);
-            }
-            saveData();
-            renderUnitUsahaTable();
-            closeModal('unit-modal');
-        });
-        el('#btn-cancel-unit').addEventListener('click', () => closeModal('unit-modal'));
-    }
-
+        if (isEdit) {
+            const index = sikBumdesData.unitUsaha.findIndex(u => u.id === unitId);
+            if (index > -1) sikBumdesData.unitUsaha[index] = newUnit;
+        } else {
+            sikBumdesData.unitUsaha.push(newUnit);
+            const newAccounts = generateUnitAccounts(newUnit);
+            sikBumdesData.coa.push(...newAccounts);
+        }
+        saveData();
+        renderUnitUsahaTable();
+        closeModal('unit-modal');
+    });
+    el('#btn-cancel-unit').addEventListener('click', () => closeModal('unit-modal'));
+}
     function deleteUnitUsaha(unitId) {
         showConfirmationModal('Yakin ingin menghapus unit usaha ini? Ini juga akan menghapus akun terkait.', () => {
             sikBumdesData.unitUsaha = sikBumdesData.unitUsaha.filter(u => u.id !== unitId);
@@ -4690,17 +4733,16 @@ function showSaldoAwalForm() {
             showNotification('Unit usaha berhasil dihapus.');
         });
     }
-    
-    function generateUnitAccounts(unit) {
-        const unitNumber = sikBumdesData.unitUsaha.length;
-        const unitName = unit.nama;
-        return [
-            { no: `1.1.05.${String(unitNumber).padStart(2, '0')}`, nama: `Persediaan Barang Dagang ${unitName}`, saldoNormal: 'DEBET', kelompok: 'NERACA' },
-            { no: `4.1.${String(unitNumber).padStart(2, '0')}`, nama: `Pendapatan ${unitName}`, saldoNormal: 'KREDIT', kelompok: 'LABA RUGI' },
-            { no: `5.1.${String(unitNumber).padStart(2, '0')}.01`, nama: `HPP ${unitName}`, saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
-        ];
-    }
-
+   function generateUnitAccounts(unit) {
+    // --- PERBAIKAN: Menggunakan ID unit, bukan panjang array ---
+    const unitNumber = String(unit.id).padStart(2, '0');
+    const unitName = unit.nama;
+    return [
+        { no: `1.1.05.${unitNumber}`, nama: `Persediaan Barang Dagang ${unitName}`, saldoNormal: 'DEBET', kelompok: 'NERACA' },
+        { no: `4.1.${unitNumber}`, nama: `Pendapatan ${unitName}`, saldoNormal: 'KREDIT', kelompok: 'LABA RUGI' },
+        { no: `5.1.${unitNumber}.01`, nama: `HPP ${unitName}`, saldoNormal: 'DEBET', kelompok: 'LABA RUGI' },
+    ];
+}
     // ===================================================================================
     // --- ADMINISTRASI MODULE ---
     // ===================================================================================
