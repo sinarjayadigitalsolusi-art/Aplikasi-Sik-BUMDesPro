@@ -2224,22 +2224,25 @@ function showPembayaranModal() {
     });
 }
 function prosesPembayaran() {
-    const itemNames = kasirCart.map(item => `${item.nama} (x${item.qty})`).join(', ');
-    const commonData = { 
-        id: `POS-${Date.now()}`, 
-        tanggal: new Date().toISOString().slice(0,10),
-        bukti: `POS-${Date.now().toString().slice(-6)}`,
-        keterangan: `Penjualan: ${itemNames}`
-        // unitUsahaId dihapus dari sini karena akan bervariasi
-    };
+    // Deskripsi umum yang berisi semua item untuk entri KAS dan catatan stok
+    const allItemNames = kasirCart.map(item => `${item.nama} (x${item.qty})`).join(', ');
 
-    // --- PERUBAHAN LOGIKA INTI DIMULAI DI SINI ---
+    // Data dasar untuk semua entri jurnal dari transaksi ini
+    const baseCommonData = {
+        id: `POS-${Date.now()}`,
+        tanggal: new Date().toISOString().slice(0, 10),
+        bukti: `POS-${Date.now().toString().slice(-6)}`,
+    };
 
     // 1. Kelompokkan item di keranjang berdasarkan unitUsahaId
     const groupedByUnit = kasirCart.reduce((acc, item) => {
-        const unitId = item.unitUsahaId || '1'; // Default ke unit '1' jika tidak ada
+        const unitId = item.unitUsahaId || '1';
         if (!acc[unitId]) {
-            acc[unitId] = { items: [], totalPenjualan: 0, totalHpp: 0 };
+            acc[unitId] = {
+                items: [],
+                totalPenjualan: 0,
+                totalHpp: 0
+            };
         }
         acc[unitId].items.push(item);
         acc[unitId].totalPenjualan += item.hargaJual * item.qty;
@@ -2247,72 +2250,77 @@ function prosesPembayaran() {
         return acc;
     }, {});
 
-    // 2. Hitung total keseluruhan penjualan untuk satu entri Kas
+    // 2. Hitung total keseluruhan penjualan untuk satu entri Debit ke Kas
     const grandTotalPenjualan = Object.values(groupedByUnit).reduce((sum, unit) => sum + unit.totalPenjualan, 0);
 
-    // 3. Buat Jurnal: Satu entri Debit ke Kas
-    sikBumdesData.jurnal.push({ 
-        ...commonData, 
+    // 3. Buat Jurnal Debit ke Kas (dengan keterangan lengkap semua item)
+    sikBumdesData.jurnal.push({
+        ...baseCommonData,
+        keterangan: `Penjualan Kasir: ${allItemNames}`, // Keterangan ini berisi semua item
         akunNo: '1.1.01.01', // Asumsi kas masuk ke Akun Kas utama
-        debit: grandTotalPenjualan, 
-        credit: 0 
+        debit: grandTotalPenjualan,
+        credit: 0
     });
 
-    // 4. Buat Jurnal terpisah untuk setiap unit usaha
+    // 4. Buat Jurnal terpisah untuk setiap unit usaha DENGAN KETERANGAN SPESIFIK
     for (const unitId in groupedByUnit) {
         const unitData = groupedByUnit[unitId];
         const unitNumber = String(unitId).padStart(2, '0');
+        
+        // --- PERBAIKAN INTI ADA DI SINI ---
+        // Buat keterangan spesifik HANYA untuk item di unit ini
+        const unitItemNames = unitData.items.map(item => `${item.nama} (x${item.qty})`).join(', ');
 
-        // Tentukan nomor akun yang benar untuk unit ini
         const akunPendapatanNo = `4.1.${unitNumber}`;
         const akunHppNo = `5.1.${unitNumber}.01`;
         const akunPersediaanNo = `1.1.05.${unitNumber}`;
 
-        // Jurnal Kredit Pendapatan (per unit)
-        sikBumdesData.jurnal.push({ 
-            ...commonData, 
+        // Jurnal Kredit Pendapatan (per unit) dengan keterangan spesifik
+        sikBumdesData.jurnal.push({
+            ...baseCommonData,
             unitUsahaId: unitId,
-            akunNo: akunPendapatanNo, 
-            debit: 0, 
-            credit: unitData.totalPenjualan 
+            keterangan: `Pendapatan: ${unitItemNames}`, // Keterangan spesifik unit
+            akunNo: akunPendapatanNo,
+            debit: 0,
+            credit: unitData.totalPenjualan
         });
 
-        // Jurnal untuk HPP dan Persediaan (per unit)
-        sikBumdesData.jurnal.push({ 
-            ...commonData, 
+        // Jurnal HPP & Persediaan (per unit) dengan keterangan spesifik
+        sikBumdesData.jurnal.push({
+            ...baseCommonData,
             unitUsahaId: unitId,
-            akunNo: akunHppNo, 
-            debit: unitData.totalHpp, 
-            credit: 0 
+            keterangan: `HPP: ${unitItemNames}`, // Keterangan spesifik unit
+            akunNo: akunHppNo,
+            debit: unitData.totalHpp,
+            credit: 0
         });
-        sikBumdesData.jurnal.push({ 
-            ...commonData, 
+        sikBumdesData.jurnal.push({
+            ...baseCommonData,
             unitUsahaId: unitId,
-            akunNo: akunPersediaanNo, 
-            debit: 0, 
-            credit: unitData.totalHpp 
+            keterangan: `Persediaan Keluar: ${unitItemNames}`, // Keterangan spesifik unit
+            akunNo: akunPersediaanNo,
+            debit: 0,
+            credit: unitData.totalHpp
         });
     }
 
-    // 5. Logika pengurangan stok tidak berubah, karena sudah memproses setiap item
+    // 5. Logika pengurangan stok (tidak berubah)
     kasirCart.forEach(item => {
         const stokKeluar = {
             id: `stok_pos_${Date.now()}_${item.id}`,
-            tanggal: commonData.tanggal,
+            tanggal: baseCommonData.tanggal,
             produkId: item.id,
             tipe: 'keluar',
             qty: item.qty,
-            keterangan: `Penjualan POS (Bukti: ${commonData.bukti})`
+            keterangan: `Penjualan POS (Bukti: ${baseCommonData.bukti})`
         };
         sikBumdesData.stok.push(stokKeluar);
     });
-    
-    // --- AKHIR PERUBAHAN LOGIKA ---
 
     saveData();
     closeModal('pembayaran-modal');
     showNotification('Transaksi berhasil!', 'success');
-    
+
     // Reset kasir
     kasirCart = [];
     updateCartView();
