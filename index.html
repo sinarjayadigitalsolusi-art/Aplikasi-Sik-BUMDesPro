@@ -2464,62 +2464,80 @@ function postingJurnalSHU(tahun, hasilPerAnggota, totalUtangSHU) {
         }
         return { ledger };
     }
- function renderUtangPiutangPage() {
-        const allJurnal = getJurnalWithSaldoAwal();
-        const kontakMap = {
-            pelanggan: new Map(sikBumdesData.pelanggan.map(k => [k.id, { ...k, saldo: 0, jatuhTempo: null }])),
-            pemasok: new Map(sikBumdesData.pemasok.map(k => [k.id, { ...k, saldo: 0, jatuhTempo: null }]))
-        };
+ // GANTI SELURUH FUNGSI LAMA DENGAN KODE LENGKAP INI
+function renderUtangPiutangPage() {
+    // Fungsi ini akan menghitung ulang semua saldo utang/piutang dari awal setiap kali dibuka
+    const allJurnal = getJurnalWithSaldoAwal();
+    
+    // 1. Siapkan wadah untuk data pelanggan dan pemasok
+    const kontakMap = {
+        pelanggan: new Map(sikBumdesData.pelanggan.map(k => [k.id, { ...k, saldo: 0, jatuhTempo: null }])),
+        pemasok: new Map(sikBumdesData.pemasok.map(k => [k.id, { ...k, saldo: 0, jatuhTempo: null }]))
+    };
 
-        allJurnal.forEach(j => {
-            if (j.kontakId && j.tipeKontak) {
-                const kontak = kontakMap[j.tipeKontak]?.get(j.kontakId);
-                if (kontak) {
-                    if (j.tipeKontak === 'pelanggan') { // Piutang
-                        kontak.saldo += j.debit - j.credit;
-                    } else { // Utang
-                        kontak.saldo += j.credit - j.debit;
-                    }
-                    if (j.jatuhTempo) kontak.jatuhTempo = j.jatuhTempo; // Ambil jatuh tempo terakhir
+    // 2. Loop melalui semua jurnal untuk mengakumulasi saldo
+    allJurnal.forEach(j => {
+        // Hanya proses jurnal yang memiliki ID dan Tipe Kontak
+        if (j.kontakId && j.tipeKontak) {
+            const kontak = kontakMap[j.tipeKontak]?.get(j.kontakId);
+            
+            // Jika kontak ditemukan di master data
+            if (kontak) {
+                // PERBAIKAN: UNTUK PIUTANG (PELANGGAN), hanya proses transaksi di akun Piutang Usaha ('1.1.03.02')
+                if (j.tipeKontak === 'pelanggan' && j.akunNo === '1.1.03.02') {
+                    kontak.saldo += j.debit - j.credit;
+                } 
+                // PERBAIKAN: UNTUK UTANG (PEMASOK), hanya proses transaksi di akun Utang Usaha ('2.1.01.01')
+                else if (j.tipeKontak === 'pemasok' && j.akunNo === '2.1.01.01') {
+                    kontak.saldo += j.credit - j.debit;
+                }
+                
+                // Update tanggal jatuh tempo jika ada di jurnal (hanya untuk entri piutang/utang)
+                if ((j.akunNo === '1.1.03.02' || j.akunNo === '2.1.01.01') && j.jatuhTempo) {
+                    kontak.jatuhTempo = j.jatuhTempo;
                 }
             }
+        }
+    });
+    // 3. Fungsi internal untuk membuat tabel HTML
+    const generateTable = (tipe, containerId) => {
+        const container = el(containerId);
+        // Ambil semua data dari Map dan filter yang saldonya tidak nol
+        const data = Array.from(kontakMap[tipe].values()).filter(k => Math.abs(k.saldo) > 0.01);
+
+        if (data.length === 0) {
+            container.innerHTML = `<p class="text-gray-500">Tidak ada data ${tipe} yang memiliki sisa tagihan.</p>`;
+            return;
+        }
+
+        let tableHtml = `<table class="w-full text-sm">
+            <thead class="border-b-2 dark:border-gray-600"><tr><th class="p-2">Nama</th><th class="p-2 text-right">Jumlah</th><th class="p-2">Jatuh Tempo</th><th class="p-2">Aksi</th></tr></thead>
+            <tbody>`;
+
+        data.forEach(kontak => {
+            const isJatuhTempo = kontak.jatuhTempo && new Date(kontak.jatuhTempo) < new Date();
+            tableHtml += `
+                <tr>
+                    <td class="p-2">${kontak.nama}<br><small class="text-gray-500">${kontak.hp || ''}</small></td>
+                    <td class="p-2 text-right font-semibold">${formatCurrency(kontak.saldo)}</td>
+                    <td class="p-2 ${isJatuhTempo ? 'text-red-500 font-bold' : ''}">${kontak.jatuhTempo || '-'}</td>
+                    <td class="p-2"><button class="btn-bayar bg-blue-500 text-white text-xs px-2 py-1 rounded" data-tipe="${tipe}" data-id="${kontak.id}" data-sisa="${kontak.saldo}">Bayar</button></td>
+                </tr>`;
         });
-
-        const generateTable = (tipe, containerId) => {
-            const container = el(containerId);
-            const data = Array.from(kontakMap[tipe].values()).filter(k => Math.abs(k.saldo) > 0.1); // Filter yang punya saldo
-
-            if (data.length === 0) {
-                container.innerHTML = `<p class="text-gray-500">Tidak ada data ${tipe}.</p>`;
-                return;
-            }
-
-            let tableHtml = `<table class="w-full text-sm">
-                <thead class="border-b-2 dark:border-gray-600"><tr><th class="p-2">Nama</th><th class="p-2 text-right">Jumlah</th><th class="p-2">Jatuh Tempo</th><th class="p-2">Aksi</th></tr></thead>
-                <tbody>`;
-
-            data.forEach(kontak => {
-                const isJatuhTempo = kontak.jatuhTempo && new Date(kontak.jatuhTempo) < new Date();
-                tableHtml += `
-                    <tr>
-                        <td class="p-2">${kontak.nama}<br><small class="text-gray-500">${kontak.hp || ''}</small></td>
-                        <td class="p-2 text-right font-semibold">${formatCurrency(kontak.saldo)}</td>
-                        <td class="p-2 ${isJatuhTempo ? 'text-red-500 font-bold' : ''}">${kontak.jatuhTempo || '-'}</td>
-                        <td class="p-2"><button class="btn-bayar bg-blue-500 text-white text-xs px-2 py-1 rounded" data-tipe="${tipe}" data-id="${kontak.id}" data-sisa="${kontak.saldo}">Bayar</button></td>
-                    </tr>`;
-            });
-            tableHtml += `</tbody></table>`;
-            container.innerHTML = tableHtml;
-        };
-        
-        generateTable('pelanggan', '#piutang-container');
-        generateTable('pemasok', '#utang-container');
-        
-        all('.btn-bayar').forEach(btn => btn.addEventListener('click', (e) => {
-            const {tipe, id, sisa} = e.currentTarget.dataset;
-            showPelunasanModal(tipe, id, parseFloat(sisa));
-        }));
-    }
+        tableHtml += `</tbody></table>`;
+        container.innerHTML = tableHtml;
+    };
+    
+    // 4. Panggil fungsi untuk membuat tabel Piutang dan Utang
+    generateTable('pelanggan', '#piutang-container');
+    generateTable('pemasok', '#utang-container');
+    
+    // 5. Tambahkan kembali event listener untuk tombol "Bayar"
+    all('.btn-bayar').forEach(btn => btn.addEventListener('click', (e) => {
+        const {tipe, id, sisa} = e.currentTarget.dataset;
+        showPelunasanModal(tipe, id, parseFloat(sisa));
+    }));
+}
 // ▼▼▼ TAMBAHKAN FUNGSI BARU INI ▼▼▼
 function generateBukuKas(startDate, endDate) {
     // 1. Identifikasi semua akun Kas dan Bank
@@ -3828,7 +3846,11 @@ function showKontakForm(tipe) { // tipe bisa 'pelanggan' atau 'pemasok'
 </div>
 		<div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-100 dark:bg-gray-700"><tr><th class="p-2">Tgl</th><th class="p-2">Kode Bantu</th><th class="p-2">Keterangan</th><th class="p-2">Akun</th><th class="p-2">Debit</th><th class="p-2">Kredit</th><th class="p-2">Aksi</th></tr></thead><tbody id="jurnal-table-body"></tbody></table></div></div>`;
         inputDataContent.innerHTML = formHtml.replace(/class="form-input"/g, 'class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"');
-        
+        // --- KODE BARU UNTUK MENGISI DROPDOWN ASET TETAP ---
+const kategoriAkunSelect = el('#form-inventaris [name="kategoriAkun"]');
+const akunAsetTetap = sikBumdesData.coa.filter(a => a.no.startsWith('1.2') && !a.nama.toLowerCase().includes('akumulasi'));
+kategoriAkunSelect.innerHTML = akunAsetTetap.map(a => `<option value="${a.no}">${a.nama}</option>`).join('');
+// --- AKHIR KODE BARU ---
         const form = el('#form-jurnal');
         form.nominal.addEventListener('input', () => { form.nominalKredit.value = form.nominal.value; });
         
@@ -3867,9 +3889,7 @@ function showKontakForm(tipe) { // tipe bisa 'pelanggan' atau 'pemasok'
     endDateInput.addEventListener('change', triggerRender);
     // ▲▲▲ AKHIR BLOK KODE ▲▲▲
 }
-    
-    
-    // GANTI SELURUH FUNGSI LAMA DENGAN VERSI BARU INI
+ // GANTI SELURUH FUNGSI LAMA DENGAN KODE LENGKAP INI
 async function saveJurnal(e) {
     e.preventDefault();
     const form = e.target;
@@ -3877,13 +3897,10 @@ async function saveJurnal(e) {
     if (!nominal || nominal <= 0) return showNotification('Nominal harus lebih besar dari nol.', 'error');
     if (form.akunDebit.value === form.akunKredit.value) return showNotification('Akun Debit dan Kredit tidak boleh sama.', 'error');
 
-    // --- LOGIKA BARU UNTUK MEMBACA FILE ---
     const fileInput = form.buktiFile;
-    let buktiUrl = null; // Default null jika tidak ada file
-
+    let buktiUrl = null;
     if (fileInput.files.length > 0) {
         const file = fileInput.files[0];
-        // Batasi ukuran file (contoh: 1MB) untuk menjaga localStorage tetap ringan
         if (file.size > 1 * 1024 * 1024) {
             showNotification('Ukuran file bukti terlalu besar, maksimal 1MB.', 'error');
             return;
@@ -3900,10 +3917,34 @@ async function saveJurnal(e) {
             return;
         }
     }
-    // --- AKHIR LOGIKA BARU ---
 
-    const isUtangPiutang = el('#jurnal-utang-piutang-fields')?.style.display !== 'none';
-    const kontakSelect = el('#jurnal-kontak-select');
+    // --- LOGIKA BARU DAN LEBIH AMAN ---
+    const akunDebitNo = form.akunDebit.value;
+    const akunKreditNo = form.akunKredit.value;
+    let kontakId = null;
+    let tipeKontak = null;
+    let jatuhTempo = null;
+    
+    // Cek secara eksplisit apakah ini transaksi utang atau piutang berdasarkan nomor akun
+    const isPiutang = akunDebitNo === '1.1.03.02' || akunKreditNo === '1.1.03.02';
+    const isUtang = akunDebitNo === '2.1.01.01' || akunKreditNo === '2.1.01.01';
+
+    if (isPiutang || isUtang) {
+        const kontakSelect = el('#jurnal-kontak-select');
+        const selectedOption = kontakSelect.options[kontakSelect.selectedIndex];
+        
+        // Pastikan ada kontak yang dipilih di dropdown
+        if (selectedOption && selectedOption.value) {
+            kontakId = selectedOption.value;
+            tipeKontak = selectedOption.dataset.tipe;
+            jatuhTempo = el('#jurnal-jatuh-tempo').value;
+        } else {
+            // Jika tidak ada kontak yang dipilih, batalkan penyimpanan dan beri peringatan
+            showNotification('Harap pilih Pelanggan/Pemasok untuk transaksi ini.', 'error');
+            return; // Menghentikan proses simpan
+        }
+    }
+    // --- AKHIR DARI LOGIKA BARU ---
 
     const commonData = {
         id: Date.now().toString(),
@@ -3911,14 +3952,13 @@ async function saveJurnal(e) {
         bukti: form.bukti.value,
         keterangan: form.keterangan.value,
         unitUsahaId: form.unitUsaha.value,
-        kontakId: isUtangPiutang ? kontakSelect.value : null,
-        tipeKontak: isUtangPiutang ? kontakSelect.options[kontakSelect.selectedIndex]?.dataset.tipe : null,
-        jatuhTempo: isUtangPiutang ? el('#jurnal-jatuh-tempo').value : null,
+        kontakId: kontakId, // Menyimpan data yang sudah pasti benar
+        tipeKontak: tipeKontak, // Menyimpan data yang sudah pasti benar
+        jatuhTempo: jatuhTempo, // Menyimpan data yang sudah pasti benar
         pajak: [],
-        buktiUrl: buktiUrl // Simpan data gambar Base64 di sini
+        buktiUrl: buktiUrl
     };
     
-    // ... (sisa fungsi saveJurnal tidak berubah, biarkan seperti semula)
     const isPajak = form.kenaPajakToggle.checked;
     if (isPajak) {
         const selectedPajak = all('input[name="pajak"]:checked');
@@ -3945,6 +3985,7 @@ async function saveJurnal(e) {
     form.reset();
     form.tanggal.value = new Date().toISOString().slice(0, 10);
     el('#pajak-container').classList.add('hidden');
+	toggleUtangPiutangFields();
     renderJurnalTable();
 }
 // ▼▼▼ TAMBAHKAN FUNGSI BARU INI SECARA LENGKAP ▼▼▼
@@ -4303,17 +4344,14 @@ function saveEditedJurnal(e) {
     renderJurnalTable();
     showNotification('Jurnal berhasil diperbarui!');
 }
-    function showInventarisForm() {
+   function showInventarisForm() {
         const formHtml = `<h3 class="text-xl font-semibold mb-4 border-b pb-2">Input Inventaris</h3><form id="form-inventaris" class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg space-y-4 mb-6"><input type="hidden" name="id"><div class="grid grid-cols-1 md:grid-cols-3 gap-4"><div><label class="block">Nama Barang</label><input type="text" name="nama" class="form-input" required></div><div><label class="block">Tanggal Beli</label><input type="date" name="tanggalBeli" class="form-input" required></div><div><label class="block">Harga Perolehan</label><input type="number" name="harga" class="form-input" required></div></div><div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 		<div><label class="block">Jumlah</label><input type="number" name="jumlah" value="1" class="form-input" required></div>
     <div><label class="block">Umur Ekonomis (Tahun)</label><input type="number" name="umurEkonomis" class="form-input" required></div>
     <div>
         <label class="block">Kategori Akun</label>
         <select name="kategoriAkun" class="form-input" required>
-            <option value="inventaris">Inventaris Kantor</option>
-            <option value="kendaraan">Kendaraan</option>
-            <option value="bangunan">Bangunan</option>
-        </select>
+            </select>
     </div>
 
     <div class="md:col-span-3">
@@ -4329,11 +4367,21 @@ function saveEditedJurnal(e) {
     </button>
 </div>
 		<div class="mt-6"><h3 class="text-xl font-semibold mb-4">Data Inventaris</h3><div class="overflow-x-auto"><table class="w-full text-left text-sm"><thead class="bg-gray-100 dark:bg-gray-700"><tr><th class="p-2">Nama</th><th class="p-2">Tgl Beli</th><th class="p-2">Harga</th><th class="p-2">Umur</th><th class="p-2">Penyusutan/Thn</th><th class="p-2">Akum. Penyusutan</th><th class="p-2">Nilai Buku</th><th class="p-2">Aksi</th></tr></thead><tbody id="inventaris-table-body"></tbody></table></div></div>`;
+        
         inputDataContent.innerHTML = formHtml.replace(/class="form-input"/g, 'class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"');
+        
+        // --- KODE BARU UNTUK MENGISI DROPDOWN ASET TETAP ---
+        const kategoriAkunSelect = el('#form-inventaris [name="kategoriAkun"]');
+        // Filter untuk mengambil semua akun aset tetap (diawali 1.2) dan membuang akun "Akumulasi"
+        const akunAsetTetap = sikBumdesData.coa.filter(a => a.no.startsWith('1.2') && !a.nama.toLowerCase().includes('akumulasi'));
+        kategoriAkunSelect.innerHTML = akunAsetTetap.map(a => `<option value="${a.no}">${a.no} - ${a.nama}</option>`).join('');
+
+        // Kode untuk mengisi dropdown sumber dana
         const sumberDanaSelect = el('#form-inventaris [name="sumberDana"]');
-const akunKasBank = sikBumdesData.coa.filter(a => a.no.startsWith('1.1.01') || a.no.startsWith('1.1.02'));
-sumberDanaSelect.innerHTML = akunKasBank.map(a => `<option value="${a.no}">${a.nama}</option>`).join('');
-		renderInventarisTable();
+        const akunKasBank = sikBumdesData.coa.filter(a => a.no.startsWith('1.1.01') || a.no.startsWith('1.1.02'));
+        sumberDanaSelect.innerHTML = akunKasBank.map(a => `<option value="${a.no}">${a.nama}</option>`).join('');
+		
+        renderInventarisTable();
         el('#form-inventaris').addEventListener('submit', saveInventaris);
     }
 // ▼▼▼ FUNGSI BARU UNTUK MENAMPILKAN MODAL BUKTI ▼▼▼
@@ -4436,12 +4484,7 @@ function saveInventaris(e) {
         sikBumdesData.inventaris.push(newItem);
 
         // --- Bagian Pembuatan Jurnal Otomatis ---
-        const akunMapping = {
-            'inventaris': '1.2.01.05',
-            'kendaraan': '1.2.01.03',
-            'bangunan': '1.2.01.02'
-        };
-        const akunAset = akunMapping[newItem.kategoriAkun];
+        const akunAset = newItem.kategoriAkun;
         const akunSumberDana = form.sumberDana.value;
         const totalHarga = newItem.harga * newItem.jumlah;
 
