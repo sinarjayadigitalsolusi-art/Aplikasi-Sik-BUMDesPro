@@ -3108,7 +3108,6 @@ function renderPengurusTable() {
     all('.btn-edit-pengurus').forEach(btn => btn.addEventListener('click', (e) => showPengurusModal(e.currentTarget.dataset.id)));
     all('.btn-delete-pengurus').forEach(btn => btn.addEventListener('click', (e) => deletePengurus(e.currentTarget.dataset.id)));
 }
-
 function showPengurusModal(pengurusId = null) {
     const isEdit = pengurusId !== null;
     const p = isEdit ? sikBumdesData.pengurus.find(x => x.id === pengurusId) : { id: `pg_${Date.now()}`, nama: '', jabatan: '', gajiPokok: 0, kenaPajak: false };
@@ -3130,10 +3129,34 @@ function showPengurusModal(pengurusId = null) {
     </div>`;
     el('#modal-container').innerHTML = modalHtml.replace(/class="form-input"/g, 'class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"');
 
-    el('#form-pengurus').addEventListener('submit', savePengurus);
+    el('#form-pengurus').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const form = e.target;
+        
+        const newPengurusData = {
+            id: p.id,
+            nama: form.nama.value,
+            jabatan: form.jabatan.value,
+            gajiPokok: parseFloat(form.gajiPokok.value),
+            kenaPajak: form.kenaPajak.checked
+        };
+
+        if (isEdit) {
+            const index = sikBumdesData.pengurus.findIndex(peng => peng.id === pengurusId);
+            if (index > -1) {
+                sikBumdesData.pengurus[index] = newPengurusData;
+            }
+        } else {
+            sikBumdesData.pengurus.push(newPengurusData);
+        }
+
+        saveData();
+        renderPengurusTable();
+        closeModal('pengurus-modal');
+        showNotification('Data pengurus berhasil disimpan.');
+    });
     el('#pengurus-modal .btn-cancel').addEventListener('click', () => closeModal('pengurus-modal'));
 }
-
 function savePengurus(e) {
     e.preventDefault();
     const form = e.target;
@@ -3758,8 +3781,7 @@ function showKontakForm(tipe) { // tipe bisa 'pelanggan' atau 'pemasok'
             showNotification('Akun berhasil dihapus.');
         });
     }
-    
-    function showJurnalForm() {
+ function showJurnalForm() {
         const coaOptions = sikBumdesData.coa.sort((a,b) => a.no.localeCompare(b.no)).map(akun => `<option value="${akun.no}">${akun.no} - ${akun.nama}</option>`).join('');
         const formHtml = `<h3 class="text-xl font-semibold mb-4">Input Jurnal Umum</h3>
         <form id="form-jurnal" class="space-y-4">
@@ -3802,7 +3824,6 @@ function showKontakForm(tipe) { // tipe bisa 'pelanggan' atau 'pemasok'
         <input type="number" name="nominalKredit" class="form-input bg-gray-200 dark:bg-gray-600" readonly>
     </div>
 </div>
-            <!-- PERBAIKAN: Opsi Pajak menjadi checklist -->
             <div class="border-t pt-4 space-y-3">
                 <div class="flex items-center">
                     <input type="checkbox" id="kena-pajak-toggle" name="kenaPajakToggle" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
@@ -3844,13 +3865,9 @@ function showKontakForm(tipe) { // tipe bisa 'pelanggan' atau 'pemasok'
         </div>
     </div>
 </div>
-		<div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-100 dark:bg-gray-700"><tr><th class="p-2">Tgl</th><th class="p-2">Kode Bantu</th><th class="p-2">Keterangan</th><th class="p-2">Akun</th><th class="p-2">Debit</th><th class="p-2">Kredit</th><th class="p-2">Aksi</th></tr></thead><tbody id="jurnal-table-body"></tbody></table></div></div>`;
+		<div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-100 dark:bg-gray-700"><tr><th class="p-2">Tgl</th><th class="p-2">Kode Bantu</th><th class="p-2">Keterangan</th><th class="p-2">Akun</th><th class="p-2">Debit</th><th class="p-2">Kredit</th><th class="p-2">Aksi</th></tr></thead><tbody id="jurnal-table-body"></tbody></table></div>`;
         inputDataContent.innerHTML = formHtml.replace(/class="form-input"/g, 'class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"');
-        // --- KODE BARU UNTUK MENGISI DROPDOWN ASET TETAP ---
-const kategoriAkunSelect = el('#form-inventaris [name="kategoriAkun"]');
-const akunAsetTetap = sikBumdesData.coa.filter(a => a.no.startsWith('1.2') && !a.nama.toLowerCase().includes('akumulasi'));
-kategoriAkunSelect.innerHTML = akunAsetTetap.map(a => `<option value="${a.no}">${a.nama}</option>`).join('');
-// --- AKHIR KODE BARU ---
+        
         const form = el('#form-jurnal');
         form.nominal.addEventListener('input', () => { form.nominalKredit.value = form.nominal.value; });
         
