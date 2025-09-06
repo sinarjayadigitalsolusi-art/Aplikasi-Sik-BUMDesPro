@@ -459,25 +459,34 @@
         <div id="pinjaman-page" class="page hidden">
             </div>
 
-        <div id="laporan-page" class="page hidden">
-            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-                <h2 class="text-2xl font-bold mb-4">Laporan & Cetak</h2>
-                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2 mb-6">
-                    <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="profil-bumdes">Profil BUMDes</button>
-                    <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="kwitansi">Cetak Kwitansi</button>
-                    <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="buku-kas">Buku Kas Harian</button>
-                    <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="buku-besar">Buku Besar</button>
-                    <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="neraca-saldo">Neraca Saldo</button>
-                    <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="laba-rugi">Laba Rugi</button>
-                    <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="kinerja-unit-usaha">Kinerja per Unit</button>
-                    <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="posisi-keuangan">Posisi Keuangan</button>
-                    <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="perubahan-modal">Perubahan Modal</button>
-                    <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="arus-kas">Arus Kas</button>
-                    <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="shu">Perhitungan SHU</button>
-                    <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="inventaris">Daftar Inventaris</button>
-                    <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="anggaran">Anggaran vs Realisasi</button>
-                    <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="laporan-stok">Laporan Stok</button>
-                </div>
+        <div id="laporan-page" class="page hidden space-y-6">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+        <h2 class="text-2xl font-bold mb-4">Generator Laporan Utama</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Gunakan fitur ini untuk membuat dokumen Laporan Pertanggungjawaban (LPJ) tahunan secara otomatis.</p>
+        <button id="btn-generate-lpj" class="bg-emerald-600 text-white font-bold py-3 px-5 rounded-lg hover:bg-emerald-700 w-full md:w-auto">
+            <i class="fas fa-file-invoice mr-2"></i>Buat Laporan Pertanggungjawaban (LPJ)
+        </button>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+        <h2 class="text-2xl font-bold mb-4">Laporan Individual & Cetak</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2 mb-6">
+            <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="profil-bumdes">Profil BUMDes</button>
+            <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="kwitansi">Cetak Kwitansi</button>
+            <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="buku-kas">Buku Kas Harian</button>
+            <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="buku-besar">Buku Besar</button>
+            <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="buku-pembantu-pajak">Buku Pembantu Pajak</button>
+            <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="neraca-saldo">Neraca Saldo</button>
+            <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="laba-rugi">Laba Rugi</button>
+            <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="kinerja-unit-usaha">Kinerja per Unit</button>
+            <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="posisi-keuangan">Posisi Keuangan</button>
+            <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="perubahan-modal">Perubahan Modal</button>
+            <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="arus-kas">Arus Kas</button>
+            <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="shu">Perhitungan SHU</button>
+            <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="inventaris">Daftar Inventaris</button>
+            <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="anggaran">Anggaran vs Realisasi</button>
+            <button class="btn-laporan bg-gray-200 dark:bg-gray-700 p-2 rounded-lg hover:bg-[var(--color-primary-start)] hover:text-white text-sm" data-report="laporan-stok">Laporan Stok</button>
+        </div>
                 <div id="tutup-buku-section" class="mt-6 p-4 border-t border-dashed dark:border-gray-600">
                     <h3 class="text-lg font-bold text-red-600 dark:text-red-400">Tindakan Akhir Periode</h3>
                     <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Proses ini akan mengunci transaksi pada tahun yang dipilih dan memindahkan laba/rugi ke modal. <strong>Tindakan ini tidak dapat dibatalkan.</strong></p>
@@ -561,37 +570,48 @@
         <div id="anggaran-page" class="page hidden">
              </div>
         
-        <div id="administrasi-page" class="page hidden">
-            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-                <h2 class="text-2xl font-bold mb-4">Administrasi & Legalitas</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <h3 class="text-lg font-semibold mb-3 border-b pb-2">Dokumen Legalitas</h3>
-                        <form id="form-upload-dokumen" class="space-y-3">
-                            <select id="select-jenis-dokumen" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"><option value="perdes">Perdes Pendirian</option><option value="adart">AD/ART</option><option value="sk">SK Pengurus</option><option value="sertifikat">Sertifikat Badan Hukum</option></select>
-                            <input type="file" id="input-file-dokumen" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100">
-                            <button type="submit" class="bg-[var(--color-primary-start)] text-white font-bold py-2 px-4 rounded-lg hover:opacity-90 w-full">Upload Dokumen</button>
-                        </form>
-                        <div id="list-dokumen" class="mt-4 space-y-2"></div>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-semibold mb-3 border-b pb-2">Catatan Musyawarah Desa</h3>
-                        <form id="form-musyawarah" class="space-y-3">
-                            <input type="hidden" name="musyawarahId">
-                            <input type="date" name="tanggal" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600" required>
-                            <textarea name="hasil" rows="3" placeholder="Hasil Keputusan..." class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600" required></textarea>
-                            <button type="submit" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 w-full">Simpan Catatan</button>
-                        </form>
-                        <div id="list-musyawarah" class="mt-4 space-y-4 max-h-60 overflow-y-auto"></div>
-                    </div>
-                    <div class="md:col-span-2">
-                        <h3 class="text-lg font-semibold mb-3 border-b pb-2">Struktur Organisasi</h3>
-                        <button id="btn-tampilkan-struktur" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600"><i class="fas fa-eye mr-2"></i>Tampilkan Preview Struktur</button>
-                        <div id="struktur-preview-container" class="mt-4"></div>
-                    </div>
-                </div>
+        <div id="administrasi-page" class="page hidden space-y-6">
+    
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+        <h2 class="text-2xl font-bold mb-4">Generator Dokumen Otomatis</h2>
+        <div>
+            <button id="btn-buat-ba-modal" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 w-full md:w-auto">
+                <i class="fas fa-file-signature mr-2"></i>Buat Berita Acara Penyertaan Modal
+            </button>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+        <h2 class="text-2xl font-bold mb-4">Administrasi & Legalitas</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <h3 class="text-lg font-semibold mb-3 border-b pb-2">Dokumen Legalitas</h3>
+                <form id="form-upload-dokumen" class="space-y-3">
+                    <select id="select-jenis-dokumen" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"><option value="perdes">Perdes Pendirian</option><option value="adart">AD/ART</option><option value="sk">SK Pengurus</option><option value="sertifikat">Sertifikat Badan Hukum</option></select>
+                    <input type="file" id="input-file-dokumen" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100">
+                    <button type="submit" class="bg-[var(--color-primary-start)] text-white font-bold py-2 px-4 rounded-lg hover:opacity-90 w-full">Upload Dokumen</button>
+                </form>
+                <div id="list-dokumen" class="mt-4 space-y-2"></div>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold mb-3 border-b pb-2">Catatan Musyawarah Desa</h3>
+                <form id="form-musyawarah" class="space-y-3">
+                    <input type="hidden" name="musyawarahId">
+                    <input type="date" name="tanggal" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600" required>
+                    <textarea name="hasil" rows="3" placeholder="Hasil Keputusan..." class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600" required></textarea>
+                    <button type="submit" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 w-full">Simpan Catatan</button>
+                </form>
+                <div id="list-musyawarah" class="mt-4 space-y-4 max-h-60 overflow-y-auto"></div>
+            </div>
+            <div class="md:col-span-2">
+                <h3 class="text-lg font-semibold mb-3 border-b pb-2">Struktur Organisasi</h3>
+                <button id="btn-tampilkan-struktur" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600"><i class="fas fa-eye mr-2"></i>Tampilkan Preview Struktur</button>
+                <div id="struktur-preview-container" class="mt-4"></div>
             </div>
         </div>
+    </div>
+
+</div>
 
         <div id="pengaturan-page" class="page hidden">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1373,61 +1393,57 @@ async function createDigitalSignature(docContent) {
     };
 }
 // ▲▲▲ AKHIR DARI 3 FUNGSI BARU ▲▲▲
-// GANTI FUNGSI LAMA DENGAN VERSI BARU INI
-
-async function printReportWithHeader(title, period, content, isLandscape = false, reportType = '') {
+// ▼▼▼ GANTI FUNGSI LAMA DENGAN VERSI BARU INI ▼▼▼
+async function printReportWithHeader(title, period, content, isLandscape = false, reportType = '', disableDefaultSignature = false) {
     const { identitas, pengaturan } = sikBumdesData;
 
-    // >>> BARIS BARU DITAMBAHKAN DI SINI <<<
-    // Menambahkan kelas khusus ke body saat mencetak struktur organisasi
     if (reportType === 'struktur-organisasi') {
         document.body.classList.add('printing-struktur-organisasi');
     }
 
     const signature = await createDigitalSignature(content);
-    const now = new Date();
     const tanggalCetak = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
     const namaDesa = identitas.alamat.desa;
     let signatureHtml = '';
     
-    const direkturNama = identitas.pengelola.direktur.nama || '(.................................)';
-    const bendaharaNama = identitas.pengelola.bendahara.nama || '(.................................)';
-
-    signatureHtml = `
-        <div class="signature-section" style="display: flex; justify-content: space-between; margin-top: 50px; page-break-inside: avoid; width: 100%;">
-            <div class="signature-block" style="text-align: center; width: 250px;">
-                <p>Bendahara</p>
-                <p class="signature-name" style="margin-top: 70px; font-weight: bold; text-decoration: underline;">${bendaharaNama}</p>
+    // --- PERBAIKAN UTAMA: Tanda tangan default hanya muncul jika tidak dinonaktifkan ---
+    if (!disableDefaultSignature) {
+        const direkturNama = identitas.pengelola.direktur.nama || '(.................................)';
+        const bendaharaNama = identitas.pengelola.bendahara.nama || '(.................................)';
+        signatureHtml = `
+            <div class="signature-section" style="display: flex; justify-content: space-between; margin-top: 50px; page-break-inside: avoid; width: 100%;">
+                <div class="signature-block" style="text-align: center; width: 250px;">
+                    <p>Bendahara</p>
+                    <p class="signature-name" style="margin-top: 70px; font-weight: bold; text-decoration: underline;">${bendaharaNama}</p>
+                </div>
+                <div class="signature-block" style="text-align: center; width: 250px;">
+                    <p>${namaDesa}, ${tanggalCetak}</p>
+                    <p>Direktur</p>
+                    <p class="signature-name" style="margin-top: 70px; font-weight: bold; text-decoration: underline;">${direkturNama}</p>
+                </div>
             </div>
-          
-            <div class="signature-block" style="text-align: center; width: 250px;">
-                <p>${namaDesa}, ${tanggalCetak}</p>
-                <p>Direktur</p>
-                <p class="signature-name" style="margin-top: 70px; font-weight: bold; text-decoration: underline;">${direkturNama}</p>
-            </div>
-        </div>
-    `;
+        `;
+    }
 
     const printHtml = `
         <style>
-            /* >>> KODE CSS BARU UNTUK MENGATUR CETAK STRUKTUR ORGANISASI <<< */
             @media print {
                 @page {
-                    /* Atur orientasi kertas menjadi landscape khusus untuk cetak struktur */
-                    size: landscape; 
+                    size: ${isLandscape ? 'landscape' : 'portrait'};
+                    margin: 0.75in;
+                }
+                body {
+                    -webkit-print-color-adjust: exact !important;
+                    color-adjust: exact !important;
                 }
                 .printing-struktur-organisasi #print-area {
-                    /* Perkecil skala agar muat dalam satu halaman */
                     transform: scale(0.8);
                     transform-origin: top center;
                 }
             }
-
-            /* Kode CSS yang sudah ada sebelumnya */
             .report-table { border-collapse: collapse; width: 100%; }
             .report-table th, .report-table td { border: 1px solid #333; padding: 6px; text-align: left; }
             .report-table th { background-color: #f2f2f2 !important; font-weight: bold; }
-            /* ... sisa CSS lainnya ... */
         </style>
         ${generatePrintHeaderHtml(title, period)}
         <div class="print-content-wrapper">
@@ -1447,8 +1463,6 @@ async function printReportWithHeader(title, period, content, isLandscape = false
     setTimeout(() => {
         printArea.innerHTML = '';
         printArea.classList.add('hidden');
-        // >>> BARIS BARU DITAMBAHKAN DI SINI <<<
-        // Menghapus kelas khusus setelah selesai mencetak
         document.body.classList.remove('printing-struktur-organisasi');
     }, 500);
 }
@@ -2274,6 +2288,222 @@ function prosesPembayaran() {
     // Reset kasir
     kasirCart = [];
     updateCartView();
+}
+// ▼▼▼ SALIN DAN TEMPEL DUA FUNGSI BARU INI SECARA LENGKAP ▼▼▼
+// ▼▼▼ GANTI FUNGSI LAMA DENGAN VERSI FINAL YANG SUDAH DIPERBAIKI INI ▼▼▼
+
+function showLPJModal() {
+    const currentYear = new Date().getFullYear();
+    const years = Array.from({length: 5}, (_, i) => currentYear - i);
+    const defaultKataPengantar = `Puji syukur kami panjatkan kehadirat Tuhan Yang Maha Esa atas rahmat dan karunia-Nya sehingga kami dapat menyelesaikan penyusunan Laporan Pertanggungjawaban (LPJ) ${sikBumdesData.identitas.nama} untuk tahun buku yang berakhir pada 31 Desember ${currentYear}.\n\nLaporan ini disusun sebagai bentuk pertanggungjawaban pengurus kepada seluruh pemangku kepentingan, termasuk Pemerintah Desa, Badan Permusyawaratan Desa (BPD), dan masyarakat Desa ${sikBumdesData.identitas.alamat.desa} secara keseluruhan.\n\nKami menyadari bahwa laporan ini masih jauh dari sempurna. Oleh karena itu, kritik dan saran yang membangun sangat kami harapkan untuk perbaikan di masa yang akan datang.`;
+    const defaultPenutup = `Demikian Laporan Pertanggungjawaban ini kami sampaikan. Atas perhatian, dukungan, dan kerja sama dari semua pihak, kami ucapkan terima kasih.\n\nSemoga ${sikBumdesData.identitas.nama} dapat terus berkembang dan memberikan manfaat yang sebesar-besarnya bagi kesejahteraan masyarakat Desa ${sikBumdesData.identitas.alamat.desa}.`;
+
+    const modalHtml = `
+    <div id="lpj-modal" class="modal show fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-2xl max-h-[90vh] flex flex-col">
+            <h2 class="text-xl font-bold mb-4">Form Input Konten LPJ Tahunan</h2>
+            <form id="form-lpj-modal" class="space-y-4 flex-grow overflow-y-auto pr-2">
+                <div>
+                    <label class="font-semibold">Pilih Tahun Laporan</label>
+                    <select name="tahun" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600">
+                        ${years.map(y => `<option value="${y}" ${y === currentYear ? 'selected' : ''}>${y}</option>`).join('')}
+                    </select>
+                </div>
+                 <div>
+                    <label class="font-semibold">Nomor Surat (Opsional)</label>
+                    <input type="text" name="nomorSurat" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600" placeholder="Contoh: 01/LPJ/BUMDES/XII/2025">
+                </div>
+                <div>
+                    <label class="font-semibold">Isi Kata Pengantar</label>
+                    <textarea name="kataPengantar" rows="6" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600">${defaultKataPengantar}</textarea>
+                </div>
+                <div>
+                    <label class="font-semibold">Isi Bab Penutup</label>
+                    <textarea name="penutup" rows="4" class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600">${defaultPenutup}</textarea>
+                </div>
+                <div class="flex justify-end space-x-4 pt-4 sticky bottom-0 bg-white dark:bg-gray-800 py-4 -mr-2">
+                    <button type="button" class="btn-cancel bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">Batal</button>
+                    <button type="submit" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">Generate Dokumen Final</button>
+                </div>
+            </form>
+        </div>
+    </div>`;
+    // PERBAIKAN: Baris .replace() yang menyebabkan error sudah dihapus
+    el('#modal-container').innerHTML = modalHtml;
+
+    el('#form-lpj-modal').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const year = form.tahun.value;
+        const narrativeData = {
+            nomorSurat: form.nomorSurat.value || '.....................................',
+            kataPengantar: form.kataPengantar.value,
+            penutup: form.penutup.value
+        };
+        
+        showNotification('Sedang memproses LPJ, mohon tunggu...', 'success');
+        const lpjContent = await generateLPJ(year, narrativeData);
+        await printReportWithHeader('', '', lpjContent, false, 'lpj', true);
+        closeModal('lpj-modal');
+    });
+    el('#lpj-modal .btn-cancel').addEventListener('click', () => closeModal('lpj-modal'));
+}
+
+// ▼▼▼ TAMBAHKAN FUNGSI BARU INI SECARA LENGKAP ▼▼▼
+async function showLPJEditor(year) {
+    showNotification('Sedang menyiapkan editor LPJ...', 'success');
+    
+    // 1. Generate konten LPJ awal dengan placeholder
+    const lpjContentHtml = await generateLPJ(year);
+
+    // 2. Buat modal besar untuk editor
+    const editorModalHtml = `
+    <div id="lpj-editor-modal" class="modal show fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100] p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg w-full max-w-4xl h-[95vh] flex flex-col shadow-xl">
+            <div class="flex justify-between items-center p-4 border-b dark:border-gray-700">
+                <h2 class="text-xl font-bold">Review & Edit Laporan Pertanggungjawaban ${year}</h2>
+                <div>
+                    <button id="btn-cancel-lpj-editor" class="bg-gray-500 text-white font-bold py-2 px-4 rounded-lg mr-2">Batal</button>
+                    <button id="btn-print-lpj-final" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg">Cetak LPJ Final</button>
+                </div>
+            </div>
+            <div id="lpj-editor-content" class="p-6 flex-grow overflow-y-auto">
+                ${lpjContentHtml}
+            </div>
+        </div>
+    </div>`;
+    el('#modal-container').innerHTML = editorModalHtml;
+
+    // 3. Ubah paragraf placeholder menjadi area teks yang bisa diedit
+    const editorContent = el('#lpj-editor-content');
+    editorContent.querySelectorAll('.editable-section').forEach(p => {
+        const originalText = p.textContent;
+        const textarea = document.createElement('textarea');
+        textarea.className = 'w-full p-2 border rounded-md bg-yellow-50 dark:bg-gray-700 h-40';
+        textarea.value = originalText.replace('[Ketik di sini...] ', ''); // Hapus placeholder
+        p.replaceWith(textarea);
+    });
+
+    // 4. Tambahkan event listener untuk tombol cetak final
+    el('#btn-print-lpj-final').addEventListener('click', async () => {
+        // Ambil kembali konten dari editor
+        const finalContentContainer = editorContent.cloneNode(true);
+        // Ubah kembali textarea menjadi paragraf untuk dicetak
+        finalContentContainer.querySelectorAll('textarea').forEach(textarea => {
+            const p = document.createElement('p');
+            p.style.textAlign = 'justify';
+            p.style.textIndent = '0.5in';
+            p.style.marginBottom = '1rem';
+            p.innerText = textarea.value;
+            textarea.replaceWith(p);
+        });
+
+        const finalHtml = finalContentContainer.innerHTML;
+        await printReportWithHeader('', '', finalHtml, false, 'lpj', true);
+    });
+
+    el('#btn-cancel-lpj-editor').addEventListener('click', () => closeModal('lpj-editor-modal'));
+}
+// ▼▼▼ GANTI FUNGSI LAMA DENGAN VERSI BARU INI ▼▼▼
+async function generateLPJ(year, narrativeData) {
+    const { identitas } = sikBumdesData;
+    const startDate = `${year}-01-01`;
+    const endDate = `${year}-12-31`;
+
+    const noSurat = narrativeData?.nomorSurat || '.....................................';
+    const kataPengantarHtml = (narrativeData?.kataPengantar || '[Kata Pengantar belum diisi.]').replace(/\n/g, '</p><p>');
+    const penutupHtml = (narrativeData?.penutup || '[Penutup belum diisi.]').replace(/\n/g, '</p><p>');
+
+    const laporanPosisiKeuangan = generatePosisiKeuangan(endDate);
+    const laporanLabaRugi = generateLabaRugi(startDate, endDate, 'semua');
+    const laporanPerubahanModal = generatePerubahanModal(startDate, endDate);
+    const laporanArusKas = generateArusKas(startDate, endDate);
+    const strukturOrganisasi = generateStrukturOrganisasiForPrint();
+
+    const kepalaDesa = identitas.penasihat.nama || '(.................................)';
+    const direkturBumdes = identitas.pengelola.direktur.nama || '(.................................)';
+    const pengawas = identitas.pengawas[0]?.nama || '(.................................)';
+    const namaDesa = identitas.alamat.desa;
+    const tanggalCetak = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+    return `
+    <style>
+        .page-break { page-break-before: always; }
+        .lpj-container { font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5; color: black; }
+        .lpj-container h1, .lpj-container h2, .lpj-container h3 { font-family: 'Times New Roman', serif; font-weight: bold; }
+        .lpj-container h1 { font-size: 16pt; text-align: center; }
+        .lpj-container h2 { font-size: 14pt; text-align: center; }
+        .lpj-container h3 { font-size: 12pt; text-align: left; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        .lpj-container p { text-align: justify; text-indent: 0.5in; margin-bottom: 1rem;}
+        .lpj-container .no-indent { text-indent: 0; }
+        .lpj-container .text-center { text-align: center; }
+        .lpj-container .signature-table { width: 100%; text-align: center; margin-top: 3rem; }
+    </style>
+    <div class="lpj-container">
+        <div class="text-center" style="margin-top: 2in;">
+            <h1>LAPORAN PERTANGGUNGJAWABAN<br>TAHUN BUKU ${year}</h1>
+            <div style="text-align: center; margin-top: 2rem;">
+                 <img src="${sikBumdesData.pengaturan.logo}" alt="Logo" style="width: 300px; height: 300px; margin: 2rem auto;">
+            </div>
+            <h2 style="margin-top: 1rem;">${identitas.nama.toUpperCase()}</h2>
+            <h2 style="font-size: 14pt;">DESA ${identitas.alamat.desa.toUpperCase()}<br>KECAMATAN ${identitas.alamat.kec.toUpperCase()}<br>${year}</h2>
+        </div>
+
+        <div class="page-break">
+            <h2 class="text-center">KATA PENGANTAR</h2>
+            <p>${kataPengantarHtml}</p>
+            <p class="no-indent" style="margin-top: 2rem; text-align: right;">${namaDesa}, ${tanggalCetak}</p>
+            <p class="no-indent" style="margin-top: 4rem; text-align: right;">Direktur ${identitas.nama}</p>
+            <p class="no-indent" style="margin-top: 4rem; text-align: right; font-weight: bold;">${direkturBumdes}</p>
+        </div>
+        
+        <div class="page-break">
+            <h2 class="text-center">BAB I<br>LAPORAN KEUANGAN</h2>
+            <p class="text-center no-indent">Nomor: ${noSurat}</p>
+            <br>
+            <h3>A. Laporan Posisi Keuangan</h3>
+            ${laporanPosisiKeuangan}
+            <h3 class="page-break">B. Laporan Laba Rugi</h3>
+            ${laporanLabaRugi}
+            <h3 class="page-break">C. Laporan Perubahan Modal</h3>
+            ${laporanPerubahanModal}
+            <h3 class="page-break">D. Laporan Arus Kas</h3>
+            ${laporanArusKas}
+        </div>
+
+        <div class="page-break">
+            <h2 class="text-center">BAB II<br>PENUTUP</h2>
+            <p>${penutupHtml}</p>
+        </div>
+
+        <div class="page-break">
+            <h2 class="text-center">HALAMAN PENGESAHAN</h2>
+            <p class="no-indent text-center">Laporan Pertanggungjawaban ${identitas.nama} Tahun Buku ${year} ini telah diperiksa dan disahkan pada:</p>
+            <p class="no-indent text-center">Hari/Tanggal: .....................................</p>
+            <br><br>
+            <table class="signature-table">
+                <tr>
+                    <td style="padding-bottom: 70px;">Menyetujui,<br>Pengawas BUMDes</td>
+                    <td style="padding-bottom: 70px;">Disusun oleh,<br>Direktur BUMDes</td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold; text-decoration: underline;">${pengawas}</td>
+                    <td style="font-weight: bold; text-decoration: underline;">${direkturBumdes}</td>
+                </tr>
+            </table>
+             <div class="text-center" style="margin-top: 3rem;">
+                <p>Mengetahui,<br>Penasehat BUMDes / Kepala Desa ${namaDesa}</p>
+                <p style="margin-top: 70px; font-weight: bold; text-decoration: underline;">${kepalaDesa}</p>
+            </div>
+        </div>
+        
+         <div class="page-break">
+            <h2 class="text-center">LAMPIRAN</h2>
+            <h3>A. Struktur Organisasi</h3>
+            ${strukturOrganisasi}
+        </div>
+    </div>
+    `;
 }
 // ===================================================================================
 // --- BAGI HASIL (SHU) MODULE ---
@@ -3914,95 +4144,86 @@ async function saveJurnal(e) {
     if (!nominal || nominal <= 0) return showNotification('Nominal harus lebih besar dari nol.', 'error');
     if (form.akunDebit.value === form.akunKredit.value) return showNotification('Akun Debit dan Kredit tidak boleh sama.', 'error');
 
-    const fileInput = form.buktiFile;
-    let buktiUrl = null;
-    if (fileInput.files.length > 0) {
-        const file = fileInput.files[0];
-        if (file.size > 1 * 1024 * 1024) {
-            showNotification('Ukuran file bukti terlalu besar, maksimal 1MB.', 'error');
-            return;
-        }
-        try {
-            buktiUrl = await new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
-                reader.readAsDataURL(file);
-            });
-        } catch (error) {
-            showNotification('Gagal membaca file bukti.', 'error');
-            return;
-        }
-    }
-
-    // --- LOGIKA BARU DAN LEBIH AMAN ---
+    // Inisialisasi variabel
+    const jurnalEntries = [];
+    const idTransaksi = `JNL-${Date.now()}`; // ID dasar untuk semua entri terkait
     const akunDebitNo = form.akunDebit.value;
     const akunKreditNo = form.akunKredit.value;
-    let kontakId = null;
-    let tipeKontak = null;
-    let jatuhTempo = null;
-    
-    // Cek secara eksplisit apakah ini transaksi utang atau piutang berdasarkan nomor akun
-    const isPiutang = akunDebitNo === '1.1.03.02' || akunKreditNo === '1.1.03.02';
-    const isUtang = akunDebitNo === '2.1.01.01' || akunKreditNo === '2.1.01.01';
+    const akunKreditInfo = sikBumdesData.coa.find(a => a.no === akunKreditNo);
+    const isPenjualan = akunKreditInfo && akunKreditInfo.no.startsWith('4');
 
-    if (isPiutang || isUtang) {
-        const kontakSelect = el('#jurnal-kontak-select');
-        const selectedOption = kontakSelect.options[kontakSelect.selectedIndex];
-        
-        // Pastikan ada kontak yang dipilih di dropdown
-        if (selectedOption && selectedOption.value) {
-            kontakId = selectedOption.value;
-            tipeKontak = selectedOption.dataset.tipe;
-            jatuhTempo = el('#jurnal-jatuh-tempo').value;
-        } else {
-            // Jika tidak ada kontak yang dipilih, batalkan penyimpanan dan beri peringatan
-            showNotification('Harap pilih Pelanggan/Pemasok untuk transaksi ini.', 'error');
-            return; // Menghentikan proses simpan
-        }
-    }
-    // --- AKHIR DARI LOGIKA BARU ---
-
+    // Siapkan data umum
     const commonData = {
-        id: Date.now().toString(),
+        id: idTransaksi,
         tanggal: form.tanggal.value,
         bukti: form.bukti.value,
         keterangan: form.keterangan.value,
         unitUsahaId: form.unitUsaha.value,
-        kontakId: kontakId, // Menyimpan data yang sudah pasti benar
-        tipeKontak: tipeKontak, // Menyimpan data yang sudah pasti benar
-        jatuhTempo: jatuhTempo, // Menyimpan data yang sudah pasti benar
-        pajak: [],
-        buktiUrl: buktiUrl
+        pajak: [], // Akan diisi nanti
     };
     
-    const isPajak = form.kenaPajakToggle.checked;
-    if (isPajak) {
-        const selectedPajak = all('input[name="pajak"]:checked');
-        selectedPajak.forEach(pajakInput => {
-            const jenisPajak = pajakInput.value;
-            const tarifPajak = sikBumdesData.pengaturan.pajak[jenisPajak];
-            const jumlahPajak = (nominal * tarifPajak) / 100;
-            const pajakData = { type: jenisPajak, rate: tarifPajak, amount: jumlahPajak };
-            commonData.pajak.push(pajakData);
+    // Logika Utang/Piutang
+    const isPiutang = akunDebitNo === '1.1.03.02' || akunKreditNo === '1.1.03.02';
+    const isUtang = akunDebitNo === '2.1.01.01' || akunKreditNo === '2.1.01.01';
+    if (isPiutang || isUtang) {
+        const kontakSelect = el('#jurnal-kontak-select');
+        const selectedOption = kontakSelect.options[kontakSelect.selectedIndex];
+        if (selectedOption && selectedOption.value) {
+            commonData.kontakId = selectedOption.value;
+            commonData.tipeKontak = selectedOption.dataset.tipe;
+            commonData.jatuhTempo = el('#jurnal-jatuh-tempo').value;
+        }
+    }
+
+    // Hitung detail pajak
+    let totalPPNMasukan = 0;
+    let totalUtangPPh = 0;
+    let totalUtangPPNKeluaran = 0;
+
+    if (form.kenaPajakToggle.checked) {
+        all('input[name="pajak"]:checked').forEach(pajakInput => {
+            const jenis = pajakInput.value;
+            const tarif = sikBumdesData.pengaturan.pajak[jenis];
+            const jumlah = (nominal * tarif) / 100;
+            commonData.pajak.push({ type: jenis, rate: tarif, amount: jumlah });
+
+            if (isPenjualan) {
+                if (jenis === 'ppn') totalUtangPPNKeluaran += jumlah;
+                else totalUtangPPh += jumlah;
+            } else { // Pembelian
+                if (jenis === 'ppn') totalPPNMasukan += jumlah;
+                else totalUtangPPh += jumlah;
+            }
         });
     }
 
-    sikBumdesData.jurnal.push({ ...commonData, akunNo: form.akunDebit.value, debit: nominal, credit: 0 });
-    sikBumdesData.jurnal.push({ ...commonData, akunNo: form.akunKredit.value, debit: 0, credit: nominal });
-
-    if (commonData.pajak.length > 0) {
-        commonData.pajak.forEach(pajakData => {
-            handleJurnalPajak(commonData, nominal, pajakData);
-        });
+    // Bangun Jurnal yang Seimbang
+    if (isPenjualan) {
+        const totalDiterima = nominal + totalUtangPPNKeluaran + totalUtangPPh;
+        jurnalEntries.push({ ...commonData, akunNo: akunDebitNo, debit: totalDiterima, credit: 0 }); // DEBIT Kas/Piutang
+        jurnalEntries.push({ ...commonData, akunNo: akunKreditNo, debit: 0, credit: nominal }); // KREDIT Pendapatan
+        if (totalUtangPPNKeluaran > 0) jurnalEntries.push({ ...commonData, id: `${idTransaksi}_pajak_ppn`, akunNo: '2.1.04.01', debit: 0, credit: totalUtangPPNKeluaran });
+        if (totalUtangPPh > 0) { // Asumsi PPh disatukan ke Utang PPh 23
+            jurnalEntries.push({ ...commonData, id: `${idTransaksi}_pajak_pph`, akunNo: '2.1.04.04', debit: 0, credit: totalUtangPPh });
+        }
+    } else { // Pembelian / Biaya
+        const totalDibayar = nominal + totalPPNMasukan - totalUtangPPh;
+        jurnalEntries.push({ ...commonData, akunNo: akunDebitNo, debit: nominal, credit: 0 }); // DEBIT Biaya/Aset
+        if (totalPPNMasukan > 0) jurnalEntries.push({ ...commonData, id: `${idTransaksi}_pajak_ppn`, akunNo: '1.1.06.01', debit: totalPPNMasukan, credit: 0 });
+        if (totalUtangPPh > 0) { // Asumsi PPh disatukan ke Utang PPh 23
+            jurnalEntries.push({ ...commonData, id: `${idTransaksi}_pajak_pph`, akunNo: '2.1.04.04', debit: 0, credit: totalUtangPPh });
+        }
+        jurnalEntries.push({ ...commonData, akunNo: akunKreditNo, debit: 0, credit: totalDibayar }); // KREDIT Kas/Utang
     }
-
+    
+    // Simpan semua entri ke data utama
+    sikBumdesData.jurnal.push(...jurnalEntries);
     saveData();
-    showNotification('Jurnal berhasil disimpan!');
+    showNotification('Jurnal berhasil disimpan dengan seimbang!');
     form.reset();
     form.tanggal.value = new Date().toISOString().slice(0, 10);
     el('#pajak-container').classList.add('hidden');
-	toggleUtangPiutangFields();
+    toggleUtangPiutangFields();
     renderJurnalTable();
 }
 // ▼▼▼ TAMBAHKAN FUNGSI BARU INI SECARA LENGKAP ▼▼▼
@@ -4534,6 +4755,10 @@ document.body.addEventListener('click', function(e) {
         const jurnalId = viewBtn.dataset.id;
         showBuktiModal(jurnalId);
     }
+    const targetButtonLPJ = e.target.closest('#btn-generate-lpj');
+        if (targetButtonLPJ) {
+            showLPJModal();
+        }
 });
     function renderInventarisTable() {
         const tbody = el('#inventaris-table-body');
@@ -4596,19 +4821,23 @@ function saveInventaris(e) {
     if (id) {
         // Logika untuk edit (tidak membuat jurnal baru, hanya update data inventaris)
         const index = sikBumdesData.inventaris.findIndex(item => item.id === id);
-        sikBumdesData.inventaris[index] = newItem;
+        if (index > -1) {
+            sikBumdesData.inventaris[index] = newItem;
+        }
         showNotification('Data inventaris berhasil diperbarui!');
     } else {
         // Logika untuk tambah baru (buat jurnal otomatis)
         sikBumdesData.inventaris.push(newItem);
 
-        // --- Bagian Pembuatan Jurnal Otomatis ---
+        // --- PERBAIKAN UTAMA: Membuat ID Jurnal yang selalu unik ---
+        const idJurnal = `JNL-INV-${Date.now()}`; 
+
         const akunAset = newItem.kategoriAkun;
         const akunSumberDana = form.sumberDana.value;
         const totalHarga = newItem.harga * newItem.jumlah;
 
         const commonData = {
-            id: `JNL-${newItem.id}`,
+            id: idJurnal, // Menggunakan ID Jurnal yang baru dan unik
             tanggal: newItem.tanggalBeli,
             bukti: `PEMBELIAN-ASET`,
             keterangan: `Pembelian Aset: ${newItem.nama} (x${newItem.jumlah})`
@@ -6021,7 +6250,205 @@ function generatePosisiKeuangan(endDate) {
         html += `</tbody></table>`;
         return html;
     }
+    // ▼▼▼ SALIN DAN TEMPEL SELURUH FUNGSI BARU INI ▼▼▼
+function generateBukuPembantuPajak(startDate, endDate) {
+    const allJurnal = getJurnalWithSaldoAwal();
+    
+    // 1. Identifikasi semua akun pajak dari Chart of Accounts (COA)
+    const akunPajak = sikBumdesData.coa
+        .filter(a => a.no.startsWith('1.1.06') || a.no.startsWith('2.1.04'))
+        .sort((a, b) => a.no.localeCompare(b.no));
 
+    if (akunPajak.length === 0) {
+        return '<p class="text-center text-gray-500">Tidak ada akun pajak yang terdefinisi di COA.</p>';
+    }
+
+    let finalHtml = '';
+
+    // 2. Buat laporan terpisah untuk setiap akun pajak
+    akunPajak.forEach(akun => {
+        // Hitung Saldo Awal untuk akun ini
+        const { ledger: prevLedger } = calculateLedger(allJurnal, sikBumdesData.coa, new Date(new Date(startDate) - 1).toISOString().slice(0,10));
+        const saldoAwal = prevLedger[akun.no]?.balance || 0;
+
+        // Filter transaksi pada periode yang dipilih untuk akun ini
+        const transaksiPeriode = allJurnal.filter(j => 
+            j.akunNo === akun.no && j.tanggal >= startDate && j.tanggal <= endDate
+        ).sort((a, b) => a.tanggal.localeCompare(b.tanggal));
+
+        let rows = '';
+        let saldoBerjalan = saldoAwal;
+
+        transaksiPeriode.forEach(j => {
+            // Hitung saldo berjalan berdasarkan saldo normal akun
+            if (akun.saldoNormal === 'DEBET') {
+                saldoBerjalan += j.debit - j.credit;
+            } else {
+                saldoBerjalan += j.credit - j.debit;
+            }
+            rows += `
+                <tr>
+                    <td class="p-2">${j.tanggal}</td>
+                    <td class="p-2">${j.keterangan}</td>
+                    <td class="p-2">${j.bukti}</td>
+                    <td class="p-2 text-right">${formatCurrency(j.debit)}</td>
+                    <td class="p-2 text-right">${formatCurrency(j.credit)}</td>
+                    <td class="p-2 text-right">${formatCurrency(saldoBerjalan)}</td>
+                </tr>
+            `;
+        });
+
+        // Gabungkan menjadi satu tabel per akun
+        finalHtml += `
+            <div class="mt-6 mb-8">
+                <h4 class="font-bold text-lg mb-2">${akun.no} - ${akun.nama}</h4>
+                <table id="report-data-table-${akun.no}" class="w-full text-sm report-table">
+                    <thead class="bg-gray-100 dark:bg-gray-700">
+                        <tr>
+                            <th class="p-2">Tanggal</th><th class="p-2">Keterangan</th>
+                            <th class="p-2">Kode Bantu</th><th class="p-2 text-right">Debit</th>
+                            <th class="p-2 text-right">Kredit</th><th class="p-2 text-right">Saldo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="p-2" colspan="5"><b>Saldo Awal</b></td>
+                            <td class="p-2 text-right"><b>${formatCurrency(saldoAwal)}</b></td>
+                        </tr>
+                        ${rows}
+                        <tr class="total-row">
+                            <td class="p-2" colspan="5"><b>Saldo Akhir</b></td>
+                            <td class="p-2 text-right"><b>${formatCurrency(saldoBerjalan)}</b></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        `;
+    });
+
+    return finalHtml;
+}
+function showBeritaAcaraModal() {
+    const modalHtml = `
+    <div id="ba-modal" class="modal show fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-md">
+            <h2 class="text-xl font-bold mb-4">Input Data Penyertaan Modal</h2>
+            <form id="form-ba-modal" class="space-y-4">
+                <div>
+                    <label>Tanggal Berita Acara</label>
+                    <input type="date" name="tanggal" value="${new Date().toISOString().slice(0,10)}" class="form-input" required>
+                </div>
+                <div>
+                    <label>Jumlah Penyertaan Modal (Rp)</label>
+                    <input type="number" name="jumlah" class="form-input" required>
+                </div>
+                <div class="flex justify-end space-x-4 pt-4">
+                    <button type="button" class="btn-cancel bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">Batal</button>
+                    <button type="submit" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">Buat Dokumen</button>
+                </div>
+            </form>
+        </div>
+    </div>`;
+    el('#modal-container').innerHTML = modalHtml.replace(/class="form-input"/g, 'class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"');
+
+    el('#form-ba-modal').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const tanggal = new Date(form.tanggal.value);
+        const jumlah = parseFloat(form.jumlah.value);
+        
+        await generateBeritaAcaraModal(tanggal, jumlah);
+        closeModal('ba-modal');
+    });
+
+    el('#ba-modal .btn-cancel').addEventListener('click', () => closeModal('ba-modal'));
+}
+async function generateBeritaAcaraModal(tanggal, jumlah) {
+    // 1. Ambil semua data yang dibutuhkan (tidak ada perubahan di bagian ini)
+    const { identitas } = sikBumdesData;
+    const namaBumdes = identitas.nama.toUpperCase();
+    const namaDesa = identitas.alamat.desa;
+    const namaKecamatan = identitas.alamat.kec;
+    
+    const kepalaDesa = identitas.penasihat.nama || '(.................................)';
+    const direkturBumdes = identitas.pengelola.direktur.nama || '(.................................)';
+    const bendaharaBumdes = identitas.pengelola.bendahara.nama || '(.................................)';
+    const pengawas = identitas.pengawas[0]?.nama || '(.................................)';
+    
+    const hari = tanggal.toLocaleDateString('id-ID', { weekday: 'long' });
+    const tanggalAngka = tanggal.getDate();
+    const bulanTeks = tanggal.toLocaleDateString('id-ID', { month: 'long' });
+    const tahunAngka = tanggal.getFullYear();
+    
+    const tanggalTerbilang = terbilang(tanggalAngka).replace(/\s+/g, ' ').trim().replace(/^\w/, c => c.toUpperCase());
+    const tahunTerbilang = terbilang(tahunAngka).replace(/\s+/g, ' ').trim().replace(/^\w/, c => c.toUpperCase());
+
+    const tglLengkapTeks = tanggal.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    const jumlahTerbilang = terbilang(jumlah).replace(/\s+/g, ' ').trim().replace(/^\w/, c => c.toUpperCase());
+
+    // 2. --- PERBAIKAN UTAMA PADA TATA LETAK (STYLING) ---
+    const contentHtml = `
+    <div style="font-family: 'Times New Roman', serif; line-height: 1.5; font-size: 12pt;">
+        <p class="text-center">Nomor: .....................................</p>
+        <br>
+        <p style="text-indent: 1in; text-align: justify;">Pada hari ini, ${hari} tanggal ${tanggalTerbilang} bulan ${bulanTeks} tahun ${tahunTerbilang}, bertempat di Kantor Desa ${namaDesa}, kami yang bertanda tangan di bawah ini:</p>
+        
+        <table style="width: 100%; margin-top: 1rem; margin-bottom: 1rem; border-spacing: 0 5px; padding-left: 1in;">
+            <tr><td style="width: 30%;">Nama</td><td>: <b>${kepalaDesa}</b></td></tr>
+            <tr><td>Jabatan</td><td>: Penasehat ${namaBumdes} (Kepala Desa ${namaDesa})</td></tr>
+            <tr><td style="vertical-align: top;">Alamat</td><td style="vertical-align: top;">: Kantor Desa ${namaDesa}, Kecamatan ${namaKecamatan}</td></tr>
+            <tr><td colspan="2" style="padding-top: 5px;">Selanjutnya disebut sebagai <strong>PIHAK PERTAMA</strong>.</td></tr>
+        </table>
+
+        <table style="width: 100%; margin-bottom: 1rem; border-spacing: 0 5px; padding-left: 1in;">
+            <tr><td style="width: 30%;">Nama</td><td>: <b>${direkturBumdes}</b></td></tr>
+            <tr><td>Jabatan</td><td>: Direktur ${namaBumdes}</td></tr>
+            <tr><td style="vertical-align: top;">Alamat</td><td style="vertical-align: top;">: Kantor BUMDes ${namaDesa}, Kecamatan ${namaKecamatan}</td></tr>
+            <tr><td colspan="2" style="padding-top: 5px;">Selanjutnya disebut sebagai <strong>PIHAK KEDUA</strong>.</td></tr>
+        </table>
+        
+        <p style="text-indent: 1in; text-align: justify;">Dengan ini menyatakan bahwa <strong>PIHAK PERTAMA</strong> telah menyerahkan dana sebagai Penyertaan Modal Pemerintah Desa kepada <strong>PIHAK KEDUA</strong> untuk dikelola melalui ${namaBumdes} sebesar:</p>
+        
+        <div style="text-align: center; font-weight: bold; margin: 1rem 0; padding: 0.5rem; border: 1.5px solid black; background-color: #f3f4f6;">
+            ${formatCurrency(jumlah)}<br>
+            <i>(${jumlahTerbilang} Rupiah)</i>
+        </div>
+        
+        <p style="text-indent: 1in; text-align: justify;">Dana tersebut bersumber dari Anggaran Pendapatan dan Belanja Desa (APBDes) ${namaDesa} Tahun Anggaran ${tahunAngka}. Dana tersebut telah diterima oleh <strong>PIHAK KEDUA</strong> melalui transfer ke rekening BUMDes pada tanggal ${tglLengkapTeks}.</p>
+        <p style="text-indent: 1in; text-align: justify;">Demikian Berita Acara ini dibuat dengan sebenarnya untuk dapat dipergunakan sebagaimana mestinya.</p>
+        
+        <div style="margin-top: 2rem; page-break-inside: avoid;">
+            <table style="width: 100%; text-align: center;">
+                <tr>
+                    <td style="padding-bottom: 50px;">PIHAK KEDUA,<br>Direktur ${namaBumdes}</td>
+                    <td style="padding-bottom: 50px;">PIHAK PERTAMA,<br>Penasehat ${namaBumdes}</td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold; text-decoration: underline;">${direkturBumdes}</td>
+                    <td style="font-weight: bold; text-decoration: underline;">${kepalaDesa}</td>
+                </tr>
+            </table>
+            <div style="text-align: center; margin-top: 2rem;">
+                <p>Mengetahui,</p>
+                <table style="width: 100%; text-align: center; margin-top: 1rem;">
+                     <tr>
+                        <td style="padding-bottom: 50px;">Bendahara ${namaBumdes}</td>
+                        <td style="padding-bottom: 50px;">Pengawas ${namaBumdes}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: bold; text-decoration: underline;">${bendaharaBumdes}</td>
+                        <td style="font-weight: bold; text-decoration: underline;">${pengawas}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    `;
+
+    // 3. Panggil fungsi cetak (tidak ada perubahan di baris ini)
+    await printReportWithHeader('BERITA ACARA PENYERTAAN MODAL', '', contentHtml, false, 'berita-acara', true);
+}
+// ▲▲▲ AKHIR DARI FUNGSI BARU ▲▲▲
    // GANTI SELURUH FUNGSI generateArusKas() LAMA ANDA DENGAN KODE BARU INI
 
 function generateArusKas(startDate, endDate) {
@@ -6232,7 +6659,7 @@ function generateStrukturOrganisasiForPrint() {
     const cardPrint = (jabatan, data) => `
         <div style="border: 1.5px solid #333; border-radius: 8px; padding: 8px; text-align: center; background: #f9f9f9; width: 170px; margin: auto; page-break-inside: avoid;">
             <img src="${data.foto || placeholderImg}" style="width: 60px; height: 75px; object-fit: cover; border-radius: 4px; margin: 0 auto 8px auto; display: block;">
-            <p style="font-weight: bold; font-size: 10px; margin: 0 0 4px 0; line-height: 1.2;">${data.nama || '[Nama Belum Diisi]'}</p>
+            <p style="font-weight: bold; font-size: 10px; margin: 0 0 4px 0; line-height: 1.0;">${data.nama || '[Nama Belum Diisi]'}</p>
             <p style="font-size: 9px; font-weight: bold; margin: 0; color: #333; border-top: 1px solid #ccc; padding-top: 4px;">${jabatan}</p>
         </div>
     `;
@@ -6467,6 +6894,7 @@ function getReportTitle(type) {
         'kinerja-unit-usaha': 'Laporan Analisis Kinerja per Unit Usaha',
         'perubahan-modal': 'Laporan Perubahan Modal',
         'neraca-saldo': 'Laporan Neraca Saldo',
+        'buku-pembantu-pajak': 'Laporan Buku Pembantu Pajak',
         'buku-besar': 'Laporan Buku Besar',
         'arus-kas': 'Laporan Arus Kas',
         'inventaris': 'Laporan Daftar Inventaris',
@@ -6563,6 +6991,7 @@ function generateReport(type) {
             break;
         default:
             specificControls = dateControls;
+            
     }
 
     if (type !== 'kwitansi') {
@@ -6595,6 +7024,7 @@ function generateReport(type) {
             case 'laporan-stok': reportHtml = generateKartuStokTable(el('#stok-produk-select')?.value, startDate, endDate); break;
             case 'kwitansi': reportHtml = generateKwitansiUI(); break;
             case 'buku-kas': reportHtml = generateBukuKas(startDate, endDate); break;
+            case 'buku-pembantu-pajak':reportHtml = generateBukuPembantuPajak(startDate, endDate);break;
             default: reportHtml = `<p class="text-center text-gray-500">Laporan '${type}' belum tersedia.</p>`;
         }
         
@@ -6801,6 +7231,10 @@ function addEventListeners() {
         const targetButton = e.target.closest('#btn-show-penyusutan-modal');
         if (targetButton) {
             showPenyusutanModal();
+        }
+        const targetButtonBAModal = e.target.closest('#btn-buat-ba-modal');
+        if(targetButtonBAModal) {
+            showBeritaAcaraModal();
         }
     });
 
