@@ -4273,10 +4273,8 @@ function showJurnalEditModal(jurnalId) {
     const entries = sikBumdesData.jurnal.filter(j => j.id === jurnalId);
     if (entries.length === 0) return;
 
-    // Asumsikan entri pertama adalah dasar, cari debit dan kreditnya
-    const debitEntry = entries.find(e => e.debit > 0);
-    const kreditEntry = entries.find(e => e.credit > 0);
-
+    const debitEntry = entries.find(e => e.debit > 0) || entries[0];
+    const kreditEntry = entries.find(e => e.credit > 0) || entries[0];
     const coaOptions = sikBumdesData.coa.sort((a,b) => a.no.localeCompare(b.no))
         .map(akun => `<option value="${akun.no}">${akun.no} - ${akun.nama}</option>`).join('');
 
@@ -4288,11 +4286,29 @@ function showJurnalEditModal(jurnalId) {
                 <input type="hidden" name="jurnalId" value="${jurnalId}">
                 
                 <div class="grid md:grid-cols-2 gap-4">
-                    <div><label>Tanggal</label><input type="date" name="tanggal" value="${entries[0].tanggal}" class="form-input" required></div>
-                    <div><label>Kode Bantu</label><input type="text" name="bukti" value="${entries[0].bukti}" class="form-input" required></div>
+                    <div><label>Tanggal</label><input type="date" name="tanggal" value="${debitEntry.tanggal}" class="form-input" required></div>
+                    <div><label>Kode Bantu</label><input type="text" name="bukti" value="${debitEntry.bukti}" class="form-input" required></div>
+                    <div>
+                        <label>Unit Usaha (Opsional)</label>
+                        <select name="unitUsaha" class="form-input">
+                            <option value="umum">Umum / Kantor Pusat</option>
+                            ${sikBumdesData.unitUsaha.map(u => `<option value="${u.id}">${u.nama}</option>`).join('')}
+                        </select>
+                    </div>
                 </div>
-                <div><label>Keterangan</label><textarea name="keterangan" rows="2" class="form-input" required>${entries[0].keterangan}</textarea></div>
+                <div><label>Keterangan</label><textarea name="keterangan" rows="2" class="form-input" required>${debitEntry.keterangan}</textarea></div>
                 
+                <div id="jurnal-utang-piutang-fields-edit" class="hidden grid md:grid-cols-2 gap-4 p-4 border border-dashed border-blue-400 rounded-lg">
+                    <div>
+                        <label>Pilih Pelanggan / Pemasok</label>
+                        <select id="jurnal-kontak-select-edit" class="form-input"></select>
+                    </div>
+                    <div>
+                        <label>Tanggal Jatuh Tempo</label>
+                        <input type="date" id="jurnal-jatuh-tempo-edit" class="form-input">
+                    </div>
+                </div>
+
                 <div class="grid md:grid-cols-2 gap-6 border-t pt-4">
                     <div class="space-y-2">
                         <label class="font-semibold">Akun DEBIT</label>
@@ -4305,6 +4321,20 @@ function showJurnalEditModal(jurnalId) {
                     </div>
                 </div>
 
+                <div class="border-t pt-4 space-y-3">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="kena-pajak-toggle-edit" name="kenaPajakToggle" class="h-4 w-4">
+                        <label for="kena-pajak-toggle-edit" class="ml-2 block text-sm">Transaksi ini dikenai Pajak</label>
+                    </div>
+                    <div id="pajak-container-edit" class="hidden grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <div class="flex items-center"><input type="checkbox" name="pajak" value="ppn" class="pajak-checkbox-edit"><label class="ml-2 text-sm">PPN</label></div>
+                        <div class="flex items-center"><input type="checkbox" name="pajak" value="pph21" class="pajak-checkbox-edit"><label class="ml-2 text-sm">PPh 21</label></div>
+                        <div class="flex items-center"><input type="checkbox" name="pajak" value="pph22" class="pajak-checkbox-edit"><label class="ml-2 text-sm">PPh 22</label></div>
+                        <div class="flex items-center"><input type="checkbox" name="pajak" value="pph23" class="pajak-checkbox-edit"><label class="ml-2 text-sm">PPh 23</label></div>
+                        <div class="flex items-center"><input type="checkbox" name="pajak" value="lainnya" class="pajak-checkbox-edit"><label class="ml-2 text-sm">Lainnya</label></div>
+                    </div>
+                </div>
+
                 <div class="flex justify-end space-x-4 pt-4">
                     <button type="button" class="btn-cancel bg-gray-500 text-white font-bold py-2 px-4 rounded-lg">Batal</button>
                     <button type="submit" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">Simpan Perubahan</button>
@@ -4314,12 +4344,58 @@ function showJurnalEditModal(jurnalId) {
     </div>`;
     el('#modal-container').innerHTML = modalHtml.replace(/class="form-input"/g, 'class="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600"');
 
-    // Set nilai select yang terpilih
-    el('#form-jurnal-edit [name="akunDebit"]').value = debitEntry.akunNo;
-    el('#form-jurnal-edit [name="akunKredit"]').value = kreditEntry.akunNo;
+    // === Logika untuk memuat data ke form ===
+    const form = el('#form-jurnal-edit');
+    form.akunDebit.value = debitEntry.akunNo;
+    form.akunKredit.value = kreditEntry.akunNo;
+    form.unitUsaha.value = debitEntry.unitUsahaId || 'umum';
 
-    // Tambahkan event listener untuk form edit
-    el('#form-jurnal-edit').addEventListener('submit', saveEditedJurnal);
+    const toggleUtangPiutangFieldsEdit = () => {
+        const akunD = form.akunDebit.value;
+        const akunK = form.akunKredit.value;
+        const container = el('#jurnal-utang-piutang-fields-edit');
+        const kontakSelect = el('#jurnal-kontak-select-edit');
+        
+        const isPiutang = akunD === '1.1.03.02' || akunK === '1.1.03.02';
+        const isUtang = akunD === '2.1.01.01' || akunK === '2.1.01.01';
+
+        if (isPiutang || isUtang) {
+            const tipe = isPiutang ? 'pelanggan' : 'pemasok';
+            const data = sikBumdesData[tipe];
+            kontakSelect.innerHTML = data.map(k => `<option value="${k.id}" data-tipe="${tipe}">${k.nama}</option>`).join('');
+            container.style.display = 'grid';
+        } else {
+            container.style.display = 'none';
+        }
+    };
+
+    toggleUtangPiutangFieldsEdit(); // Panggil untuk set kondisi awal
+    
+    if (debitEntry.kontakId) {
+        el('#jurnal-kontak-select-edit').value = debitEntry.kontakId;
+    }
+    if (debitEntry.jatuhTempo) {
+        el('#jurnal-jatuh-tempo-edit').value = debitEntry.jatuhTempo;
+    }
+
+    // Memuat data pajak
+    const pajakData = debitEntry.pajak || [];
+    if (pajakData.length > 0) {
+        el('#kena-pajak-toggle-edit').checked = true;
+        el('#pajak-container-edit').classList.remove('hidden');
+        pajakData.forEach(p => {
+            const checkbox = el(`.pajak-checkbox-edit[value="${p.type}"]`);
+            if (checkbox) checkbox.checked = true;
+        });
+    }
+    
+    // Tambahkan event listeners
+    form.akunDebit.addEventListener('change', toggleUtangPiutangFieldsEdit);
+    form.akunKredit.addEventListener('change', toggleUtangPiutangFieldsEdit);
+    el('#kena-pajak-toggle-edit').addEventListener('change', (e) => {
+        el('#pajak-container-edit').classList.toggle('hidden', !e.target.checked);
+    });
+    form.addEventListener('submit', saveEditedJurnal);
     el('#jurnal-edit-modal .btn-cancel').addEventListener('click', () => closeModal('jurnal-edit-modal'));
 }
 
@@ -4329,33 +4405,55 @@ function saveEditedJurnal(e) {
     const jurnalId = form.jurnalId.value;
     const nominal = parseFloat(form.nominal.value);
 
-    // Temukan semua entri jurnal asli yang akan diedit
-    const originalEntries = sikBumdesData.jurnal.filter(j => j.id === jurnalId);
-    if(originalEntries.length === 0) return;
-
-    // Hapus entri lama terlebih dahulu
+    // Hapus dulu semua entri jurnal lama yang terkait dengan ID ini
     sikBumdesData.jurnal = sikBumdesData.jurnal.filter(j => j.id !== jurnalId);
 
-    // Buat ulang entri jurnal dengan data yang sudah diupdate
+    // --- Ambil semua data BARU dari form ---
+    let kontakId = null;
+    let tipeKontak = null;
+    let jatuhTempo = null;
+    const kontakSelect = el('#jurnal-kontak-select-edit');
+    if (kontakSelect && kontakSelect.value) {
+        const selectedOption = kontakSelect.options[kontakSelect.selectedIndex];
+        kontakId = selectedOption.value;
+        tipeKontak = selectedOption.dataset.tipe;
+        jatuhTempo = el('#jurnal-jatuh-tempo-edit').value;
+    }
+
+    const pajak = [];
+    if (form.kenaPajakToggle.checked) {
+        all('.pajak-checkbox-edit:checked').forEach(cb => {
+            const jenisPajak = cb.value;
+            const tarifPajak = sikBumdesData.pengaturan.pajak[jenisPajak];
+            const jumlahPajak = (nominal * tarifPajak) / 100;
+            pajak.push({ type: jenisPajak, rate: tarifPajak, amount: jumlahPajak });
+        });
+    }
+    
+    // Buat ulang data umum untuk entri jurnal
     const commonData = {
         id: jurnalId, // Gunakan ID lama
         tanggal: form.tanggal.value,
         bukti: form.bukti.value,
         keterangan: form.keterangan.value,
-        // Properti lain seperti unitUsahaId, dll, perlu disalin dari entri lama jika ada
-        unitUsahaId: originalEntries[0].unitUsahaId,
-        kontakId: originalEntries[0].kontakId,
-        tipeKontak: originalEntries[0].tipeKontak,
-        jatuhTempo: originalEntries[0].jatuhTempo,
-        pajak: originalEntries[0].pajak // Asumsi pajak tidak diubah via edit form sederhana ini
+        unitUsahaId: form.unitUsaha.value,
+        kontakId: kontakId,
+        tipeKontak: tipeKontak,
+        jatuhTempo: jatuhTempo,
+        pajak: pajak
     };
 
-    const newDebitEntry = { ...commonData, akunNo: form.akunDebit.value, debit: nominal, credit: 0 };
-    const newKreditEntry = { ...commonData, akunNo: form.akunKredit.value, debit: 0, credit: nominal };
-
-    // Tambahkan kembali jurnal yang sudah diperbarui
-    sikBumdesData.jurnal.push(newDebitEntry, newKreditEntry);
+    // Tambahkan kembali entri debit dan kredit yang sudah diperbarui
+    sikBumdesData.jurnal.push({ ...commonData, akunNo: form.akunDebit.value, debit: nominal, credit: 0 });
+    sikBumdesData.jurnal.push({ ...commonData, akunNo: form.akunKredit.value, debit: 0, credit: nominal });
     
+    // Tambahkan kembali jurnal pajak jika ada
+    if (pajak.length > 0) {
+        pajak.forEach(pajakData => {
+            handleJurnalPajak(commonData, nominal, pajakData);
+        });
+    }
+
     saveData();
     closeModal('jurnal-edit-modal');
     renderJurnalTable();
@@ -6840,49 +6938,24 @@ function addEventListeners() {
         linkElement.setAttribute('download', exportFileDefaultName);
         linkElement.click();
     });
-    // GANTI DENGAN KODE LENGKAP INI
-el('#restore-upload').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    showConfirmationModal('Ini akan menggabungkan data backup dengan versi aplikasi saat ini. Lanjutkan?', () => {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            try {
-                // 1. Baca data dari file backup (struktur lama)
-                const restoredData = JSON.parse(event.target.result);
-
-                // Validasi sederhana bahwa ini adalah file backup yang benar
-                if (!restoredData.identitas || !restoredData.coa) {
-                    showNotification('File backup tidak valid atau rusak.', 'error');
-                    return;
-                }
-
-                // 2. Ambil struktur data default dari aplikasi versi TERBARU
-                const defaultStructure = getDefaultData();
-
-                // 3. Gabungkan! Data dari backup akan menimpa data default jika ada,
-                //    tapi key/menu baru dari defaultStructure akan tetap ada.
-                const finalData = { ...defaultStructure, ...restoredData };
-
-                // 4. Pastikan versi di data yang digabung adalah versi terbaru
-                finalData.version = CURRENT_APP_VERSION;
-
-                // 5. Simpan data yang sudah PINTAR (digabungkan)
-                localStorage.setItem('sikBumdesData', JSON.stringify(finalData));
-                
-                showNotification('Data berhasil dipulihkan & dimigrasikan! Aplikasi akan dimuat ulang.');
-                setTimeout(() => location.reload(), 2000);
-
-            } catch (error) {
-                console.error("Restore error:", error);
-                showNotification('Gagal membaca file backup. Pastikan file tidak rusak.', 'error');
-            }
-        };
-        reader.readAsText(file);
-        e.target.value = ''; // Reset input file
+    el('#restore-upload').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        showConfirmationModal('Ini akan menimpa semua data saat ini. Lanjutkan?', () => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const restoredData = JSON.parse(event.target.result);
+                    if (restoredData.identitas && restoredData.coa) {
+                        localStorage.setItem('sikBumdesData', JSON.stringify(restoredData));
+                        showNotification('Data berhasil dipulihkan! Aplikasi akan dimuat ulang.');
+                        setTimeout(() => location.reload(), 2000);
+                    } else { showNotification('File backup tidak valid.', 'error'); }
+                } catch (error) { showNotification('Gagal membaca file backup.', 'error'); }
+            };
+            reader.readAsText(file);
+        });
     });
-});
     el('#form-pajak').addEventListener('submit', (e) => {
         e.preventDefault();
         const form = e.target;
