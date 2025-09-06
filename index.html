@@ -4133,14 +4133,12 @@ function renderJurnalTable() {
     const tbody = el('#jurnal-table-body');
     if (!tbody) return;
 
-    // 1. Ambil nilai dari filter
+    // 1. Ambil nilai dari filter (logika ini tidak berubah)
     const searchTerm = el('#jurnal-search')?.value.toLowerCase() || '';
     const startDate = el('#jurnal-start-date')?.value || '';
     const endDate = el('#jurnal-end-date')?.value || '';
 
-    // 2. Lakukan filter pada data jurnal
     let filteredJurnal = sikBumdesData.jurnal;
-
     if (searchTerm) {
         filteredJurnal = filteredJurnal.filter(j => j.keterangan.toLowerCase().includes(searchTerm));
     }
@@ -4151,75 +4149,86 @@ function renderJurnalTable() {
         filteredJurnal = filteredJurnal.filter(j => j.tanggal <= endDate);
     }
 
-    // 3. Kelompokkan jurnal yang sudah difilter
-    const grouped = filteredJurnal.reduce((acc, curr) => {
-        (acc[curr.id] = acc[curr.id] || []).push(curr);
+    // 2. --- LOGIKA PENGELOMPOKAN BARU ---
+    // Mengelompokkan berdasarkan ID dasar (misal: "JNL-123" akan mengelompokkan "JNL-123" dan "JNL-123_pajak_ppn")
+    const groupedByBaseId = filteredJurnal.reduce((acc, curr) => {
+        const baseId = curr.id.split('_')[0]; // Ambil ID dasar sebelum ada "_pajak"
+        (acc[baseId] = acc[baseId] || []).push(curr);
         return acc;
     }, {});
-    const sortedGroupIds = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
+    
+    const sortedGroupIds = Object.keys(groupedByBaseId).sort((a, b) => b.localeCompare(a)); // Urutkan transaksi terbaru di atas
 
-    // 4. Logika Pagination
+    // 3. Logika Pagination (tidak berubah)
     const totalEntries = sortedGroupIds.length;
     const totalPages = Math.ceil(totalEntries / entriesPerPage);
     currentPage = Math.max(1, Math.min(currentPage, totalPages)); 
-    
     const startIndex = (currentPage - 1) * entriesPerPage;
     const endIndex = startIndex + entriesPerPage;
     const paginatedGroupIds = sortedGroupIds.slice(startIndex, endIndex);
 
-    // 5. Render baris tabel
+    // 4. --- LOGIKA RENDER BARU ---
     tbody.innerHTML = '';
-    paginatedGroupIds.forEach(id => {
-    const group = grouped[id]; // Grup transaksi (debit & kredit)
-    group.sort((a, b) => b.debit - a.debit); // Pastikan entri debit selalu pertama
+    paginatedGroupIds.forEach(baseId => {
+        const group = groupedByBaseId[baseId];
 
-    group.forEach((entry, index) => {
-        const row = document.createElement('tr');
-        row.className = 'border-b dark:border-gray-700';
-        if (entry.bukti.startsWith('KOREKSI-')) {
-            row.classList.add('bg-red-50', 'dark:bg-red-900/20', 'text-red-600', 'dark:text-red-400');
-        }
+        // Urutkan entri di dalam grup: Debit dulu, baru Kredit dan Pajak
+        group.sort((a, b) => {
+            if (a.debit > 0 && b.credit > 0) return -1;
+            if (b.debit > 0 && a.credit > 0) return 1;
+            return a.id.localeCompare(b.id);
+        });
+
+        const coaMap = new Map(sikBumdesData.coa.map(a => [a.no, a.nama]));
         
-        const akun = sikBumdesData.coa.find(a => a.no === entry.akunNo);
-        const akunNama = akun ? akun.nama : 'Akun Tidak Ditemukan';
-        const debitCell = entry.debit > 0 ? formatCurrency(entry.debit) : '';
-        const creditCell = entry.credit > 0 ? formatCurrency(entry.credit) : '';
-
-        if (index === 0) { // Baris pertama (Debit)
-           let actionButtonHtml = '';
-// Tombol Edit
-actionButtonHtml += `<button class="btn-edit-jurnal text-blue-500 hover:text-blue-700 mr-2" title="Edit Jurnal Ini" data-id="${entry.id}"><i class="fas fa-edit"></i></button>`;
-// Tombol Hapus
-actionButtonHtml += `<button class="btn-delete-jurnal text-red-500 hover:text-red-700" title="Hapus Jurnal Ini" data-id="${entry.id}"><i class="fas fa-trash"></i></button>`;
-
-if (entry.buktiUrl) {
-    actionButtonHtml += `<button class="btn-lihat-bukti text-green-500 hover:text-green-700 ml-2" title="Lihat Bukti Transaksi" data-id="${entry.id}"><i class="fas fa-camera"></i></button>`;
-}
+        group.forEach((entry, index) => {
+            const row = document.createElement('tr');
+            row.className = 'border-b dark:border-gray-700';
+            if (entry.bukti.startsWith('KOREKSI-')) {
+                row.classList.add('bg-red-50', 'dark:bg-red-900/20');
+            }
             
-            row.innerHTML = `
-                <td class="p-2" rowspan="${group.length}">${entry.tanggal}</td>
-                <td class="p-2" rowspan="${group.length}">${entry.bukti}</td>
-                <td class="p-2" rowspan="${group.length}">${entry.keterangan}</td>
-                <td class="p-2">${akunNama}</td>
-                <td class="p-2 text-right">${debitCell}</td>
-                <td class="p-2 text-right">${creditCell}</td>
-                <td class="p-2" rowspan="${group.length}">${actionButtonHtml}</td>
-            `;
-        } else { // Baris kedua dan seterusnya (Kredit)
-            row.innerHTML = `
-                <td class="p-2" style="padding-left: 20px;">${akunNama}</td>
-                <td class="p-2 text-right">${debitCell}</td>
-                <td class="p-2 text-right">${creditCell}</td>
-            `;
-        }
-        tbody.appendChild(row);
+            const akunNama = coaMap.get(entry.akunNo) || 'Akun Tidak Ditemukan';
+            const debitCell = entry.debit > 0 ? formatCurrency(entry.debit) : '';
+            const creditCell = entry.credit > 0 ? formatCurrency(entry.credit) : '';
+            const paddingClass = entry.credit > 0 ? 'pl-5' : ''; // Menjorokkan akun kredit
+
+            if (index === 0) {
+                // Hanya baris pertama dalam grup yang menampilkan info umum dan tombol aksi
+                let actionButtonHtml = `
+                    <button class="btn-edit-jurnal text-blue-500 hover:text-blue-700 mr-2" title="Edit Jurnal Ini" data-id="${baseId}"><i class="fas fa-edit"></i></button>
+                    <button class="btn-delete-jurnal text-red-500 hover:text-red-700" title="Hapus Jurnal Ini" data-id="${baseId}"><i class="fas fa-trash"></i></button>`;
+
+                if (entry.buktiUrl) {
+                    actionButtonHtml += `<button class="btn-lihat-bukti text-green-500 hover:text-green-700 ml-2" title="Lihat Bukti Transaksi" data-id="${entry.id}"><i class="fas fa-camera"></i></button>`;
+                }
+                
+                row.innerHTML = `
+                    <td class="p-2 align-top" rowspan="${group.length}">${entry.tanggal}</td>
+                    <td class="p-2 align-top" rowspan="${group.length}">${entry.bukti}</td>
+                    <td class="p-2 align-top" rowspan="${group.length}">${entry.keterangan}</td>
+                    <td class="p-2 ${paddingClass}">${akunNama}</td>
+                    <td class="p-2 text-right">${debitCell}</td>
+                    <td class="p-2 text-right">${creditCell}</td>
+                    <td class="p-2 align-middle text-center" rowspan="${group.length}">${actionButtonHtml}</td>
+                `;
+            } else {
+                // Baris selanjutnya hanya menampilkan akun dan nominalnya
+                row.innerHTML = `
+                    <td class="p-2 ${paddingClass}">${akunNama}</td>
+                    <td class="p-2 text-right">${debitCell}</td>
+                    <td class="p-2 text-right">${creditCell}</td>
+                `;
+            }
+            tbody.appendChild(row);
+        });
     });
-});
-    // 6. Render kontrol pagination
+
+    // 5. Render kontrol pagination (tidak berubah)
     const oldPagination = el('#jurnal-pagination');
     if(oldPagination) oldPagination.remove();
 
-    if (totalPages > 0) {
+    if (totalPages > 1) {
         const paginationHtml = `
             <div id="jurnal-pagination" class="mt-4 flex justify-between items-center">
                 <span class="text-sm text-gray-600 dark:text-gray-400">Halaman ${currentPage} dari ${totalPages} (${totalEntries} transaksi)</span>
@@ -4232,26 +4241,18 @@ if (entry.buktiUrl) {
 
         const prevBtn = el('#jurnal-prev-page');
         const nextBtn = el('#jurnal-next-page');
-        
         prevBtn.disabled = currentPage === 1;
         nextBtn.disabled = currentPage === totalPages;
-
         prevBtn.addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderJurnalTable(); } });
         nextBtn.addEventListener('click', () => { if (currentPage < totalPages) { currentPage++; renderJurnalTable(); } });
     }
 
-    // 7. Pasang event listener untuk tombol aksi baru
+    // 6. Pasang kembali event listener untuk tombol aksi (tidak berubah)
     all('.btn-edit-jurnal').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const id = e.currentTarget.dataset.id;
-            showJurnalEditModal(id);
-        });
+        btn.addEventListener('click', (e) => showJurnalEditModal(e.currentTarget.dataset.id));
     });
     all('.btn-delete-jurnal').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const id = e.currentTarget.dataset.id;
-            deleteJurnal(id);
-        });
+        btn.addEventListener('click', (e) => deleteJurnal(e.currentTarget.dataset.id));
     });
 }
 // ===================================================================================
@@ -4405,10 +4406,11 @@ function saveEditedJurnal(e) {
     const jurnalId = form.jurnalId.value;
     const nominal = parseFloat(form.nominal.value);
 
-    // Hapus dulu semua entri jurnal lama yang terkait dengan ID ini
-    sikBumdesData.jurnal = sikBumdesData.jurnal.filter(j => j.id !== jurnalId);
-
-    // --- Ambil semua data BARU dari form ---
+    // --- PERBAIKAN UTAMA ADA DI SINI ---
+    // Kode ini sekarang akan menghapus jurnal utama DAN semua jurnal pajak terkaitnya.
+    sikBumdesData.jurnal = sikBumdesData.jurnal.filter(j => !j.id.startsWith(jurnalId));
+    
+    // --- Ambil semua data BARU dari form (logika ini sudah benar) ---
     let kontakId = null;
     let tipeKontak = null;
     let jatuhTempo = null;
@@ -4440,14 +4442,16 @@ function saveEditedJurnal(e) {
         kontakId: kontakId,
         tipeKontak: tipeKontak,
         jatuhTempo: jatuhTempo,
-        pajak: pajak
+        pajak: pajak,
+        // Kita asumsikan buktiUrl tidak diubah di form edit ini
+        buktiUrl: sikBumdesData.jurnal.find(j => j.id.startsWith(jurnalId))?.buktiUrl || null
     };
 
     // Tambahkan kembali entri debit dan kredit yang sudah diperbarui
     sikBumdesData.jurnal.push({ ...commonData, akunNo: form.akunDebit.value, debit: nominal, credit: 0 });
     sikBumdesData.jurnal.push({ ...commonData, akunNo: form.akunKredit.value, debit: 0, credit: nominal });
     
-    // Tambahkan kembali jurnal pajak jika ada
+    // Tambahkan kembali jurnal pajak yang baru (jika ada)
     if (pajak.length > 0) {
         pajak.forEach(pajakData => {
             handleJurnalPajak(commonData, nominal, pajakData);
