@@ -810,6 +810,21 @@ window.onload = () => {
             sikBumdesData = getDefaultData();
             saveData();
         }
+        if (!Array.isArray(sikBumdesData.jurnal)) sikBumdesData.jurnal = [];
+        if (!Array.isArray(sikBumdesData.digitalSignatures)) sikBumdesData.digitalSignatures = [];
+
+        // Rampingkan otomatis data lama yang terlalu besar (> 3 juta karakter)
+        try {
+            const before = (localStorage.getItem('sikBumdesData') || '').length;
+            if (before > 3000000) {
+                optimizeDataSize(sikBumdesData).then(() => {
+                    if (saveData()) {
+                        const after = (localStorage.getItem('sikBumdesData') || '').length;
+                        console.log(`Data dirampingkan: ${before} -> ${after} karakter`);
+                    }
+                });
+            }
+        } catch (e) { console.error(e); }
 
         // Cek versi dan tampilkan notifikasi jika perlu
         if (!sikBumdesData.version || sikBumdesData.version !== CURRENT_APP_VERSION) {
@@ -944,9 +959,65 @@ window.onload = () => {
         };
     }
 
+    // PERBAIKAN: localStorage dibatasi ~5 MB. Jika penuh, setItem() melempar
+    // QuotaExceededError dan data (mis. jurnal) gagal tersimpan tanpa pesan.
     function saveData() {
         sikBumdesData.version = CURRENT_APP_VERSION;
-        localStorage.setItem('sikBumdesData', JSON.stringify(sikBumdesData));
+        try {
+            localStorage.setItem('sikBumdesData', JSON.stringify(sikBumdesData));
+            return true;
+        } catch (err) {
+            console.error('saveData gagal:', err);
+            const penuh = err && (err.name === 'QuotaExceededError' || err.code === 22 || err.code === 1014);
+            showNotification(penuh
+                ? 'Penyimpanan browser PENUH (batas ±5 MB). Data TIDAK tersimpan. Perkecil foto/logo atau hapus dokumen yang diupload.'
+                : 'Gagal menyimpan data: ' + err.message, 'error');
+            return false;
+        }
+    }
+
+    // Kompres gambar base64 (foto/logo) agar tidak memenuhi localStorage.
+    function compressImageDataURL(dataURL, maxSize = 400, quality = 0.75) {
+        return new Promise((resolve) => {
+            if (!dataURL || typeof dataURL !== 'string' || !dataURL.startsWith('data:image')) return resolve(dataURL);
+            const img = new Image();
+            img.onload = () => {
+                const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+                const canvas = document.createElement('canvas');
+                canvas.width = Math.round(img.width * scale);
+                canvas.height = Math.round(img.height * scale);
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                const out = canvas.toDataURL('image/jpeg', quality);
+                resolve(out.length < dataURL.length ? out : dataURL);
+            };
+            img.onerror = () => resolve(dataURL);
+            img.src = dataURL;
+        });
+    }
+
+    // Rampingkan data lama: buang snapshot laporan di tanda tangan digital
+    // (cukup hash-nya) dan kompres semua foto/logo yang besar (> 100 KB).
+    async function optimizeDataSize(data) {
+        if (Array.isArray(data.digitalSignatures)) {
+            data.digitalSignatures.forEach(s => { delete s.reportContent; });
+        }
+        const jobs = [];
+        const visit = (obj) => {
+            if (!obj || typeof obj !== 'object') return;
+            for (const k of Object.keys(obj)) {
+                const v = obj[k];
+                if (typeof v === 'string' && v.startsWith('data:image') && v.length > 100000) {
+                    jobs.push(compressImageDataURL(v).then(r => { obj[k] = r; }));
+                } else if (typeof v === 'object' && k !== 'dokumen') visit(v);
+            }
+        };
+        visit(data.identitas);
+        visit(data.pengaturan);
+        await Promise.all(jobs);
+        return data;
     }
 
     // ===================================================================================
@@ -1375,8 +1446,9 @@ async function createDigitalSignature(docContent) {
         docId: docId,
         hash: hash,
         signer: loggedInUser ? loggedInUser.username : 'system',
-        timestamp: timestamp,
-        reportContent: docContent // Simpan snapshot konten untuk verifikasi offline
+        timestamp: timestamp
+        // PERBAIKAN: reportContent tidak disimpan lagi (tidak pernah dibaca, dan
+        // setiap cetak laporan menambah puluhan–ratusan KB ke localStorage).
     };
 
     sikBumdesData.digitalSignatures.push(signatureRecord);
@@ -4031,8 +4103,8 @@ function showKontakForm(tipe) { // tipe bisa 'pelanggan' atau 'pemasok'
                 const key = e.target.dataset.key;
                 if (e.target.files && e.target.files[0]) {
                     const reader = new FileReader();
-                    reader.onload = (event) => {
-                        el(`#foto-preview-${key}`).src = event.target.result;
+                    reader.onload = async (event) => {
+                        el(`#foto-preview-${key}`).src = await compressImageDataURL(event.target.result, 300, 0.75);
                     };
                     reader.readAsDataURL(e.target.files[0]);
                 }
@@ -4401,7 +4473,11 @@ async function saveJurnal(e) {
     
     // Simpan semua entri ke data utama
     sikBumdesData.jurnal.push(...jurnalEntries);
-    saveData();
+    if (!saveData()) {
+        // Batalkan di memori agar tampilan tidak menipu (data tidak tersimpan)
+        sikBumdesData.jurnal.splice(sikBumdesData.jurnal.length - jurnalEntries.length, jurnalEntries.length);
+        return;
+    }
     showNotification('Jurnal berhasil disimpan dengan seimbang!');
     form.reset();
     form.tanggal.value = new Date().toISOString().slice(0, 10);
@@ -7547,7 +7623,7 @@ const bantuanNavButtons = all('.bantuan-nav-btn');
     el('#logo-upload').addEventListener('change', (e) => {
         if (e.target.files && e.target.files[0]) {
             const reader = new FileReader();
-            reader.onload = (event) => { el('#logo-preview').src = event.target.result; };
+            reader.onload = async (event) => { el('#logo-preview').src = await compressImageDataURL(event.target.result, 400, 0.8); };
             reader.readAsDataURL(e.target.files[0]);
         }
     });
@@ -7560,7 +7636,7 @@ const bantuanNavButtons = all('.bantuan-nav-btn');
     el('#logo-kabupaten-upload').addEventListener('change', (e) => {
         if (e.target.files && e.target.files[0]) {
             const reader = new FileReader();
-            reader.onload = (event) => { el('#logo-kabupaten-preview').src = event.target.result; };
+            reader.onload = async (event) => { el('#logo-kabupaten-preview').src = await compressImageDataURL(event.target.result, 400, 0.8); };
             reader.readAsDataURL(e.target.files[0]);
         }
     });
@@ -7590,15 +7666,23 @@ const bantuanNavButtons = all('.bantuan-nav-btn');
         if (!file) return;
         showConfirmationModal('Ini akan menimpa semua data saat ini. Lanjutkan?', () => {
             const reader = new FileReader();
-            reader.onload = (event) => {
+            reader.onload = async (event) => {
+                let restoredData;
                 try {
-                    const restoredData = JSON.parse(event.target.result);
-                    if (restoredData.identitas && restoredData.coa) {
-                        localStorage.setItem('sikBumdesData', JSON.stringify(restoredData));
-                        showNotification('Data berhasil dipulihkan! Aplikasi akan dimuat ulang.');
-                        setTimeout(() => location.reload(), 2000);
-                    } else { showNotification('File backup tidak valid.', 'error'); }
-                } catch (error) { showNotification('Gagal membaca file backup.', 'error'); }
+                    restoredData = JSON.parse(event.target.result);
+                } catch (error) { return showNotification('Gagal membaca file backup.', 'error'); }
+                if (!(restoredData.identitas && restoredData.coa)) return showNotification('File backup tidak valid.', 'error');
+                if (!Array.isArray(restoredData.jurnal)) restoredData.jurnal = [];
+                // PERBAIKAN: rampingkan dulu agar muat di localStorage dan masih ada ruang untuk jurnal baru
+                await optimizeDataSize(restoredData);
+                try {
+                    localStorage.setItem('sikBumdesData', JSON.stringify(restoredData));
+                } catch (err) {
+                    console.error(err);
+                    return showNotification('Backup terlalu besar untuk penyimpanan browser (±5 MB). Data lama tidak diubah.', 'error');
+                }
+                showNotification('Data berhasil dipulihkan! Aplikasi akan dimuat ulang.');
+                setTimeout(() => location.reload(), 2000);
             };
             reader.readAsText(file);
         });
